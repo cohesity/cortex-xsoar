@@ -1,22 +1,23 @@
-import json
 import datetime
+import json
+
 import demistomock as demisto
 from OutOfOfficeListCleanup import main
 
 
 def execute_command(name, args=None):
-    if name == 'getList':
+    if name == "getList":
         get_list_response = [{"user": "admin", "offuntil": "2020-04-20", "addedby": "admin"}]
-        return [{'Contents': json.dumps(get_list_response)}]
+        return [{"Contents": json.dumps(get_list_response)}]
     else:
         return None
 
 
 def execute_command_with_ooo_user(name, args=None):
-    if name == 'getList':
+    if name == "getList":
         tommorow = (datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         get_list_response = [{"user": "admin", "offuntil": tommorow, "addedby": "admin"}]
-        return [{'Contents': json.dumps(get_list_response)}]
+        return [{"Contents": json.dumps(get_list_response)}]
     else:
         return None
 
@@ -32,13 +33,13 @@ def test_out_of_office_list_cleanup_list_changed(mocker):
     Then:
     - Check if the list is now empty.
     """
-    mocker.patch.object(demisto, 'args', return_value={'listname': 'OOO List'})
-    mocker.patch.object(demisto, 'executeCommand', side_effect=execute_command)
-    mocker.patch.object(demisto, 'results')
+    mocker.patch.object(demisto, "args", return_value={"listname": "OOO List"})
+    mocker.patch.object(demisto, "executeCommand", side_effect=execute_command)
+    mocker.patch.object(demisto, "results")
     main()
     results = demisto.results.call_args[0][0]
-    assert demisto.executeCommand.call_args[0][1]['listData'] == '[]'
-    assert results == 'The following Users were removed from the Out of Office List OOO List:\nadmin'
+    assert demisto.executeCommand.call_args[0][1]["listData"] == "[]"
+    assert results == "The following Users were removed from the Out of Office List OOO List:\nadmin"
 
 
 def test_out_of_office_list_cleanup_list_not_changed(mocker):
@@ -52,9 +53,34 @@ def test_out_of_office_list_cleanup_list_not_changed(mocker):
     Then:
     - Check if the list stays the same.
     """
-    mocker.patch.object(demisto, 'args', return_value={'listname': 'OOO List'})
-    mocker.patch.object(demisto, 'executeCommand', side_effect=execute_command_with_ooo_user)
-    mocker.patch.object(demisto, 'results')
+    mocker.patch.object(demisto, "args", return_value={"listname": "OOO List"})
+    mocker.patch.object(demisto, "executeCommand", side_effect=execute_command_with_ooo_user)
+    mocker.patch.object(demisto, "results")
     main()
     results = demisto.results.call_args[0][0]
-    assert results == 'No users removed from the list OOO List'
+    assert results == "No users removed from the list OOO List"
+
+
+def execute_command_empty_list(name, args=None):
+    if name == "getList":
+        return [{"Contents": "null"}]
+    return None
+
+
+def test_out_of_office_list_cleanup_list_create_empty_new_list(mocker):
+    """
+    Given:
+    - A non-existing list of OOO(out of office) users.
+
+    When:
+    - running OutOfOfficeListCleanup script.
+
+    Then:
+    - Check if the list stays empty.
+    """
+    mocker.patch.object(demisto, "args", return_value={"listname": "OOO List"})
+    mocker.patch.object(demisto, "executeCommand", side_effect=execute_command_empty_list)
+    mocker.patch.object(demisto, "results")
+    main()
+    results = demisto.results.call_args[0][0]
+    assert results == "No users removed from the list OOO List"

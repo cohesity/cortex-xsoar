@@ -6,10 +6,10 @@ starttaskid: "0"
 tasks:
   "0":
     id: "0"
-    taskid: 4a2e24dd-67bc-4b7f-8e12-00eec0c61382
+    taskid: a1ee09fd-205c-49c8-84b7-97d1cd9de6e9
     type: start
     task:
-      id: 4a2e24dd-67bc-4b7f-8e12-00eec0c61382
+      id: a1ee09fd-205c-49c8-84b7-97d1cd9de6e9
       version: -1
       name: ""
       iscommand: false
@@ -18,6 +18,7 @@ tasks:
       '#none#':
       - "34"
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -30,12 +31,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "1":
     id: "1"
-    taskid: 103c474d-47e9-4661-8ba4-0f3f1222f033
+    taskid: c68fa8d4-5964-4bd3-8395-1d59ea2c167b
     type: regular
     task:
-      id: 103c474d-47e9-4661-8ba4-0f3f1222f033
+      id: c68fa8d4-5964-4bd3-8395-1d59ea2c167b
       version: -1
       name: Set A
       scriptName: Set
@@ -46,12 +49,12 @@ tasks:
       '#none#':
       - "2"
     scriptarguments:
-      append: {}
       key:
         simple: A
       value:
         simple: a1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -64,12 +67,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "2":
     id: "2"
-    taskid: be4ad5d9-d563-47d5-8502-041c4ec9b85e
+    taskid: 0b1e6b4e-7664-403e-8fbe-537aac8170bc
     type: regular
     task:
-      id: be4ad5d9-d563-47d5-8502-041c4ec9b85e
+      id: 0b1e6b4e-7664-403e-8fbe-537aac8170bc
       version: -1
       name: Delete A
       scriptName: DeleteContext
@@ -80,13 +85,10 @@ tasks:
       '#none#':
       - "3"
     scriptarguments:
-      all: {}
-      index: {}
       key:
         simple: A
-      keysToKeep: {}
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -99,12 +101,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "3":
     id: "3"
-    taskid: 615bc61f-3b7b-45d5-8bc5-f3166e025355
+    taskid: a2bd7f08-4831-48a4-8162-ae9e77a9b11f
     type: condition
     task:
-      id: 615bc61f-3b7b-45d5-8bc5-f3166e025355
+      id: a2bd7f08-4831-48a4-8162-ae9e77a9b11f
       version: -1
       name: Ensure A doesn't exists
       type: condition
@@ -124,6 +128,7 @@ tasks:
             value:
               simple: A
             iscontext: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -136,27 +141,29 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "4":
     id: "4"
-    taskid: 9cb13c00-7b35-40c4-8e16-43b7a01fcdb0
+    taskid: 946eb31d-3f62-424c-82af-25743714f8f4
     type: regular
     task:
-      id: 9cb13c00-7b35-40c4-8e16-43b7a01fcdb0
+      id: 946eb31d-3f62-424c-82af-25743714f8f4
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: ${A}
-      details: {}
       error:
         simple: A should not exists
       expected:
         simple: NONE
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -169,12 +176,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "5":
     id: "5"
-    taskid: 1f1f40ac-c346-4e77-82c5-5881f3dfc5e5
+    taskid: 004e6a23-0c5a-42d7-8209-321dce55e8db
     type: regular
     task:
-      id: 1f1f40ac-c346-4e77-82c5-5881f3dfc5e5
+      id: 004e6a23-0c5a-42d7-8209-321dce55e8db
       version: -1
       name: Set B
       scriptName: Set
@@ -185,12 +194,12 @@ tasks:
       '#none#':
       - "6"
     scriptarguments:
-      append: {}
       key:
         simple: B
       value:
         simple: b1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -203,12 +212,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "6":
     id: "6"
-    taskid: eb0dc2da-c7c6-4e6d-80f1-d1cfcb3a93ff
+    taskid: 7e8947d6-d76b-49b5-8436-d0c89831b72e
     type: regular
     task:
-      id: eb0dc2da-c7c6-4e6d-80f1-d1cfcb3a93ff
+      id: 7e8947d6-d76b-49b5-8436-d0c89831b72e
       version: -1
       name: Set C
       scriptName: Set
@@ -219,12 +230,12 @@ tasks:
       '#none#':
       - "7"
     scriptarguments:
-      append: {}
       key:
         simple: C
       value:
         simple: c1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -237,12 +248,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "7":
     id: "7"
-    taskid: be339b6b-f5c0-442b-8ae7-16a9d9470ebe
+    taskid: 69bd90ae-baff-4259-8274-43b5c3faa1e1
     type: regular
     task:
-      id: be339b6b-f5c0-442b-8ae7-16a9d9470ebe
+      id: 69bd90ae-baff-4259-8274-43b5c3faa1e1
       version: -1
       name: Delete All Context
       scriptName: DeleteContext
@@ -255,11 +268,8 @@ tasks:
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
-      keysToKeep: {}
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -272,12 +282,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "8":
     id: "8"
-    taskid: 7fb39ab3-e723-46b6-87e6-72512cb3ebb0
+    taskid: d73d80ee-3b21-412f-81cb-b6b420546025
     type: condition
     task:
-      id: 7fb39ab3-e723-46b6-87e6-72512cb3ebb0
+      id: d73d80ee-3b21-412f-81cb-b6b420546025
       version: -1
       name: Ensure context is empty
       type: condition
@@ -297,6 +309,7 @@ tasks:
             value:
               simple: .
             iscontext: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -309,27 +322,29 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "10":
     id: "10"
-    taskid: 005a767e-00ac-424a-871b-2533281c46ba
+    taskid: 591a2d4b-1c0b-48f9-86ab-a3a19853a382
     type: regular
     task:
-      id: 005a767e-00ac-424a-871b-2533281c46ba
+      id: 591a2d4b-1c0b-48f9-86ab-a3a19853a382
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: ${.}
-      details: {}
       error:
         simple: Context should be empty
       expected:
         simple: NONE
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -342,12 +357,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "11":
     id: "11"
-    taskid: 9145ae74-5b61-475b-8540-98a0059f3626
+    taskid: 6378af18-655e-405b-83b2-e78e891edbd1
     type: regular
     task:
-      id: 9145ae74-5b61-475b-8540-98a0059f3626
+      id: 6378af18-655e-405b-83b2-e78e891edbd1
       version: -1
       name: Set B
       scriptName: Set
@@ -358,12 +375,12 @@ tasks:
       '#none#':
       - "12"
     scriptarguments:
-      append: {}
       key:
         simple: B
       value:
         simple: b1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -376,12 +393,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "12":
     id: "12"
-    taskid: 7718e45c-9457-4fc5-8654-e9a7175eb155
+    taskid: 8c757065-c464-48a3-8746-26d476fed104
     type: regular
     task:
-      id: 7718e45c-9457-4fc5-8654-e9a7175eb155
+      id: 8c757065-c464-48a3-8746-26d476fed104
       version: -1
       name: Set C
       scriptName: Set
@@ -392,12 +411,12 @@ tasks:
       '#none#':
       - "13"
     scriptarguments:
-      append: {}
       key:
         simple: C
       value:
         simple: c1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -410,12 +429,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "13":
     id: "13"
-    taskid: 895efba5-36bb-4a7b-8bc5-7e343ab1e53c
+    taskid: 8b1f4b3f-f76a-4dfe-88ce-5bc61266d8c2
     type: regular
     task:
-      id: 895efba5-36bb-4a7b-8bc5-7e343ab1e53c
+      id: 8b1f4b3f-f76a-4dfe-88ce-5bc61266d8c2
       version: -1
       name: Delete All Context expect B
       scriptName: DeleteContext
@@ -428,12 +449,10 @@ tasks:
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
       keysToKeep:
         simple: B
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -446,12 +465,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "14":
     id: "14"
-    taskid: b3f29f96-c032-4555-8560-8db350529030
+    taskid: ea1fb36a-3a3c-49e6-8b8c-e7de63a9a493
     type: condition
     task:
-      id: b3f29f96-c032-4555-8560-8db350529030
+      id: ea1fb36a-3a3c-49e6-8b8c-e7de63a9a493
       version: -1
       name: Ensure context is empty expect B
       type: condition
@@ -476,6 +497,7 @@ tasks:
             value:
               simple: B
             iscontext: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -488,26 +510,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "15":
     id: "15"
-    taskid: 2970e6bd-c2b8-4301-8d62-b14aaf44866a
+    taskid: 213c9478-5676-4caa-82f6-bca57ae8a6c3
     type: regular
     task:
-      id: 2970e6bd-c2b8-4301-8d62-b14aaf44866a
+      id: 213c9478-5676-4caa-82f6-bca57ae8a6c3
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: B - ${B}, C - ${C}
-      details: {}
       error:
         simple: Context should be empty expect B
-      expected: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -520,12 +543,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "16":
     id: "16"
-    taskid: 9cf06193-b32d-469c-89ea-261f884e9384
+    taskid: 7a945723-a110-46e1-8240-6c481c684098
     type: regular
     task:
-      id: 9cf06193-b32d-469c-89ea-261f884e9384
+      id: 7a945723-a110-46e1-8240-6c481c684098
       version: -1
       name: Set A 1
       scriptName: Set
@@ -536,12 +561,12 @@ tasks:
       '#none#':
       - "17"
     scriptarguments:
-      append: {}
       key:
         simple: A
       value:
         simple: a1
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -554,12 +579,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "17":
     id: "17"
-    taskid: a7853991-f3e9-4870-8097-76aaab912128
+    taskid: b54331d3-9dce-4abe-86c7-3612f759d5c1
     type: regular
     task:
-      id: a7853991-f3e9-4870-8097-76aaab912128
+      id: b54331d3-9dce-4abe-86c7-3612f759d5c1
       version: -1
       name: Set A 2
       scriptName: Set
@@ -577,6 +604,7 @@ tasks:
       value:
         simple: a2
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -589,12 +617,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "18":
     id: "18"
-    taskid: a1c3f954-c962-4e56-8d0a-f117e84cb4d9
+    taskid: 23f2f278-e27d-479d-8232-08ff35f885ad
     type: regular
     task:
-      id: a1c3f954-c962-4e56-8d0a-f117e84cb4d9
+      id: 23f2f278-e27d-479d-8232-08ff35f885ad
       version: -1
       name: Delete A at index 1
       scriptName: DeleteContext
@@ -611,9 +641,8 @@ tasks:
         simple: "1"
       key:
         simple: A
-      keysToKeep: {}
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -626,12 +655,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "19":
     id: "19"
-    taskid: 9dceb547-cc9a-4b4e-8ae5-ce581effb933
+    taskid: be273251-b40a-4745-8a1a-2a80010bc313
     type: condition
     task:
-      id: 9dceb547-cc9a-4b4e-8ae5-ce581effb933
+      id: be273251-b40a-4745-8a1a-2a80010bc313
       version: -1
       name: Ensure A has been updated
       type: condition
@@ -662,6 +693,7 @@ tasks:
           right:
             value:
               simple: a1
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -674,26 +706,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "20":
     id: "20"
-    taskid: 60e87ed3-0a94-4ea8-886b-e1dffa5b8861
+    taskid: 7fe4ab39-2d5d-41f8-84b2-d50288d6dbcd
     type: regular
     task:
-      id: 60e87ed3-0a94-4ea8-886b-e1dffa5b8861
+      id: 7fe4ab39-2d5d-41f8-84b2-d50288d6dbcd
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: B - ${B}, C - ${C}
-      details: {}
       error:
         simple: Context should be empty expect B
-      expected: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -706,12 +739,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "21":
     id: "21"
-    taskid: 2112e9ea-609b-447d-8910-5ff9d42c86c0
+    taskid: c160e842-386e-4c2d-8658-de43d016f448
     type: regular
     task:
-      id: 2112e9ea-609b-447d-8910-5ff9d42c86c0
+      id: c160e842-386e-4c2d-8658-de43d016f448
       version: -1
       name: Delete A at index 1 - should give error
       scriptName: DeleteContext
@@ -722,15 +757,13 @@ tasks:
       '#none#':
       - "22"
     scriptarguments:
-      all: {}
       index:
         simple: "1"
       key:
         simple: A
-      keysToKeep: {}
-      subplaybook: {}
-    continueonerror: true
     separatecontext: false
+    continueonerror: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -743,12 +776,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "22":
     id: "22"
-    taskid: 8aed5706-2ece-494f-8eba-73445c5305b7
+    taskid: 3ca97c15-3a18-4ae9-81a9-87e800030af8
     type: condition
     task:
-      id: 8aed5706-2ece-494f-8eba-73445c5305b7
+      id: 3ca97c15-3a18-4ae9-81a9-87e800030af8
       version: -1
       name: Ensure error occurred
       scriptName: isError
@@ -764,6 +799,7 @@ tasks:
       entryId:
         simple: ${lastCompletedTaskEntries}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -776,26 +812,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "24":
     id: "24"
-    taskid: 75750714-925c-43b1-8d40-1e0ac3720f02
+    taskid: 1d9e2155-62c4-449a-877a-6e081624c187
     type: regular
     task:
-      id: 75750714-925c-43b1-8d40-1e0ac3720f02
+      id: 1d9e2155-62c4-449a-877a-6e081624c187
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: B - ${B}, C - ${C}
-      details: {}
       error:
         simple: Context should be empty expect B
-      expected: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -808,12 +845,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "25":
     id: "25"
-    taskid: 6caa312c-b2ba-4ca8-825f-b0b9c11b72cc
+    taskid: c0fbaeac-2f81-4a8d-8127-bf8286e0801e
     type: regular
     task:
-      id: 6caa312c-b2ba-4ca8-825f-b0b9c11b72cc
+      id: c0fbaeac-2f81-4a8d-8127-bf8286e0801e
       version: -1
       name: Delete A at index 0
       scriptName: DeleteContext
@@ -824,15 +863,13 @@ tasks:
       '#none#':
       - "26"
     scriptarguments:
-      all: {}
       index:
         simple: "0"
       key:
         simple: A
-      keysToKeep: {}
-      subplaybook: {}
-    continueonerror: true
     separatecontext: false
+    continueonerror: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -845,12 +882,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "26":
     id: "26"
-    taskid: f9f6b92e-efc6-4a13-846b-3c469c8ecaa2
+    taskid: fc4038c9-825c-46c8-87c2-bb7fb6948e50
     type: condition
     task:
-      id: f9f6b92e-efc6-4a13-846b-3c469c8ecaa2
+      id: fc4038c9-825c-46c8-87c2-bb7fb6948e50
       version: -1
       name: Ensure A doesn't exists
       type: condition
@@ -870,6 +909,7 @@ tasks:
             value:
               simple: A
             iscontext: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -882,26 +922,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "27":
     id: "27"
-    taskid: 35c8def9-ec9f-451b-8953-e68e84744a3c
+    taskid: 6aa920f3-d6f5-4e93-8162-9c61d965ac5a
     type: regular
     task:
-      id: 35c8def9-ec9f-451b-8953-e68e84744a3c
+      id: 6aa920f3-d6f5-4e93-8162-9c61d965ac5a
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: B - ${B}, C - ${C}
-      details: {}
       error:
         simple: Context should be empty expect B
-      expected: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -914,23 +955,26 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "28":
     id: "28"
-    taskid: 44a347bb-60c0-48db-8c8b-41b2e6b4df7f
+    taskid: cf53b613-5bdc-4c4c-8eee-eba8af4471e7
     type: title
     task:
-      id: 44a347bb-60c0-48db-8c8b-41b2e6b4df7f
+      id: cf53b613-5bdc-4c4c-8eee-eba8af4471e7
       version: -1
       name: Done
       type: title
       iscommand: false
       brand: ""
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
-          "x": 1555,
-          "y": 4935
+          "x": 2200,
+          "y": 6260
         }
       }
     note: false
@@ -938,12 +982,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "29":
     id: "29"
-    taskid: 4c088a5c-a7da-4ea5-864e-7ed6220a8e3f
+    taskid: 246f6bcd-a8f2-4a5b-802a-f7033cde6a82
     type: regular
     task:
-      id: 4c088a5c-a7da-4ea5-864e-7ed6220a8e3f
+      id: 246f6bcd-a8f2-4a5b-802a-f7033cde6a82
       version: -1
       name: Set D.E
       scriptName: Set
@@ -954,12 +1000,12 @@ tasks:
       '#none#':
       - "30"
     scriptarguments:
-      append: {}
       key:
         simple: D.E
       value:
         simple: '{"d1":"e1","d2":"e2"}'
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -972,12 +1018,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "30":
     id: "30"
-    taskid: 9b87292b-2265-4e7f-8942-13846dbe4e93
+    taskid: 9fa368d7-a679-472c-88ec-a12df4d5936e
     type: regular
     task:
-      id: 9b87292b-2265-4e7f-8942-13846dbe4e93
+      id: 9fa368d7-a679-472c-88ec-a12df4d5936e
       version: -1
       name: Delete All Context expect D.E.d1 (tests trim as well)
       scriptName: DeleteContext
@@ -990,12 +1038,10 @@ tasks:
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
       keysToKeep:
         simple: ' D.E.d1'
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1008,12 +1054,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "31":
     id: "31"
-    taskid: 6af3a31c-e152-4b94-8c48-2ca732b6879a
+    taskid: 242f695d-c61c-46c3-89df-330ced30654e
     type: condition
     task:
-      id: 6af3a31c-e152-4b94-8c48-2ca732b6879a
+      id: 242f695d-c61c-46c3-89df-330ced30654e
       version: -1
       name: Ensure D.E.d2 doesn't exists and D.E.d1 equals e1
       type: condition
@@ -1023,7 +1071,7 @@ tasks:
       '#default#':
       - "32"
       "yes":
-      - "36"
+      - "42"
     separatecontext: false
     conditions:
     - label: "yes"
@@ -1041,6 +1089,7 @@ tasks:
           right:
             value:
               simple: e1
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1053,26 +1102,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "32":
     id: "32"
-    taskid: 0e238ccb-179e-404f-81cc-96b931bcb273
+    taskid: 65765b1f-d1cb-42b8-8685-ab16ad3e6dfa
     type: regular
     task:
-      id: 0e238ccb-179e-404f-81cc-96b931bcb273
+      id: 65765b1f-d1cb-42b8-8685-ab16ad3e6dfa
       version: -1
       name: Fail
-      scriptName: RaiseError
+      script: RaiseError
       type: regular
       iscommand: false
       brand: ""
     scriptarguments:
       actual:
         simple: D.E.d1 - ${D.E.d1}, D.E.d2 - ${D.E.d2}
-      details: {}
       error:
         simple: Context should be empty expect D.E.d1
-      expected: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1085,12 +1135,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "34":
     id: "34"
-    taskid: 387937b9-faa0-42e2-86e5-c3c03329e2ac
+    taskid: f5c4d5a7-bfd3-4972-8784-68bba59b1b9f
     type: regular
     task:
-      id: 387937b9-faa0-42e2-86e5-c3c03329e2ac
+      id: f5c4d5a7-bfd3-4972-8784-68bba59b1b9f
       version: -1
       name: Clear context
       description: Delete field from context
@@ -1104,11 +1156,8 @@ tasks:
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
-      keysToKeep: {}
-      subplaybook: {}
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1121,12 +1170,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "35":
     id: "35"
-    taskid: f5f20722-e44b-4d50-821b-60711802d5f8
+    taskid: e3640360-89fe-4917-8f5b-e46f84249e61
     type: playbook
     task:
-      id: f5f20722-e44b-4d50-821b-60711802d5f8
+      id: e3640360-89fe-4917-8f5b-e46f84249e61
       version: -1
       name: Delete Context Subplaybook Test
       playbookName: Delete Context Subplaybook Test
@@ -1137,6 +1188,7 @@ tasks:
       '#none#':
       - "1"
     separatecontext: true
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1149,34 +1201,37 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
-  "36":
-    id: "36"
-    taskid: 435dcd5b-84e1-4edc-863a-c007e65f0fe8
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "40":
+    id: "40"
+    taskid: 88c69a71-97ea-41b4-882c-9bd08a7cab67
     type: regular
     task:
-      id: 435dcd5b-84e1-4edc-863a-c007e65f0fe8
+      id: 88c69a71-97ea-41b4-882c-9bd08a7cab67
       version: -1
-      name: Set array with duplicates
+      name: Set some values
+      description: Set a value in context under the key you entered.
       scriptName: Set
       type: regular
       iscommand: false
       brand: ""
     nexttasks:
       '#none#':
-      - "37"
+      - "41"
     scriptarguments:
-      append: {}
       key:
-        simple: ArrayWithDuplicates
-      stringify: {}
+        simple: Bug
       value:
-        simple: '["duplicate","duplicate"]'
+        simple: '[{"hello": "world", "name": "john"}, {"hello": "kitty", "name": "john
+          b"}]'
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
-          "x": 1770,
-          "y": 4395
+          "x": 1555,
+          "y": 4715
         }
       }
     note: false
@@ -1184,30 +1239,251 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
-  "37":
-    id: "37"
-    taskid: 84693ff4-e426-452a-8bc7-521b4a017f44
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "41":
+    id: "41"
+    taskid: f3b0fac7-5ce5-4602-8c45-783f884a2c5f
     type: regular
     task:
-      id: 84693ff4-e426-452a-8bc7-521b4a017f44
+      id: f3b0fac7-5ce5-4602-8c45-783f884a2c5f
       version: -1
-      name: Delete All Context expect for the array with the duplicates
+      name: Delete all but specific values from an array
+      description: |-
+        Delete field from context.
+
+        This automation runs using the default Limited User role, unless you explicitly change the permissions.
+        For more information, see the section about permissions here:
+        - For Cortex XSOAR 6 see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/6.x/Cortex-XSOAR-Playbook-Design-Guide/Automations 
+        - For Cortex XSOAR 8 Cloud see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8/Cortex-XSOAR-Cloud-Documentation/Create-a-script
+        - For Cortex XSOAR 8.7 On-prem see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8.7/Cortex-XSOAR-On-prem-Documentation/Create-a-script
       scriptName: DeleteContext
       type: regular
       iscommand: false
       brand: ""
     nexttasks:
       '#none#':
-      - "38"
+      - "44"
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
       keysToKeep:
-        simple: ArrayWithDuplicates
-      subplaybook: {}
+        simple: Test.Case1.events.[1].name,Bug.[0].hello
     separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1770,
+          "y": 4890
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "42":
+    id: "42"
+    taskid: 9798ce63-89c3-4830-8056-a4261a672681
+    type: title
+    task:
+      id: 9798ce63-89c3-4830-8056-a4261a672681
+      version: -1
+      name: 'Use case: delete all context except specific array elements'
+      type: title
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "47"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1770,
+          "y": 4410
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "43":
+    id: "43"
+    taskid: 87d005cc-c264-416a-8754-2d1663b7ee14
+    type: regular
+    task:
+      id: 87d005cc-c264-416a-8754-2d1663b7ee14
+      version: -1
+      name: Set some values
+      description: Set a value in context under the key you entered.
+      scriptName: Set
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "41"
+    scriptarguments:
+      key:
+        simple: Test.Case1.events
+      value:
+        simple: '[{"name": "walker"}, {"name": "john"}]'
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1985,
+          "y": 4715
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "44":
+    id: "44"
+    taskid: 03b37568-7f0b-46a0-837b-aa8049803610
+    type: condition
+    task:
+      id: 03b37568-7f0b-46a0-837b-aa8049803610
+      version: -1
+      name: Validate results
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "45"
+      "yes":
+      - "46"
+    separatecontext: false
+    conditions:
+    - label: "yes"
+      condition:
+      - - operator: isEqualString
+          left:
+            value:
+              simple: Test.Case1.events.name
+            iscontext: true
+          right:
+            value:
+              simple: john
+      - - operator: isEqualString
+          left:
+            value:
+              simple: Bug.hello
+            iscontext: true
+          right:
+            value:
+              simple: world
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1770,
+          "y": 5065
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "45":
+    id: "45"
+    taskid: cd7c43a2-8d22-477c-878f-b0a109a8bb67
+    type: regular
+    task:
+      id: cd7c43a2-8d22-477c-878f-b0a109a8bb67
+      version: -1
+      name: Fail
+      description: Prints an error entry with a given message
+      scriptName: PrintErrorEntry
+      type: regular
+      iscommand: false
+      brand: ""
+    scriptarguments:
+      message:
+        simple: |-
+          Bug.hello: expected "world", received "${Bug.hello}"
+          Test.Case1.events.name: expected "john" received "${Test.Case1.events.name}"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1555,
+          "y": 5240
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "46":
+    id: "46"
+    taskid: bb8275d7-5663-400f-831d-05a827c5c8d5
+    type: title
+    task:
+      id: bb8275d7-5663-400f-831d-05a827c5c8d5
+      version: -1
+      name: End Use Case
+      type: title
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "48"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1985,
+          "y": 5255
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "47":
+    id: "47"
+    taskid: d2d351cd-e3c9-45c2-856c-e5957e2edb95
+    type: title
+    task:
+      id: d2d351cd-e3c9-45c2-856c-e5957e2edb95
+      version: -1
+      name: Case 1 - keys in array element
+      type: title
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "40"
+      - "43"
+    separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -1220,79 +1496,154 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
-  "38":
-    id: "38"
-    taskid: 9982db2d-5110-4b17-83e3-eb860737e46b
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "48":
+    id: "48"
+    taskid: 234e09ff-2f10-41c2-8222-fe7fb26104e0
+    type: title
+    task:
+      id: 234e09ff-2f10-41c2-8222-fe7fb26104e0
+      version: -1
+      name: Case 2 - array element
+      type: title
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "49"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1985,
+          "y": 5415
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "49":
+    id: "49"
+    taskid: c591ddaa-9259-4b9f-8e66-218f6dccd588
+    type: regular
+    task:
+      id: c591ddaa-9259-4b9f-8e66-218f6dccd588
+      version: -1
+      name: Set some values
+      description: Set a value in context under the key you entered.
+      scriptName: Set
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "50"
+    scriptarguments:
+      key:
+        simple: Case2
+      value:
+        simple: '[{"hello": "world", "name": "john"}, {"hello": "kitty", "name": "john
+          b"}]'
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1985,
+          "y": 5560
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "50":
+    id: "50"
+    taskid: b66c804d-b662-40cf-8d7a-e7518b2206a8
+    type: regular
+    task:
+      id: b66c804d-b662-40cf-8d7a-e7518b2206a8
+      version: -1
+      name: Delete all but specific values from an array
+      description: |-
+        Delete field from context.
+
+        This automation runs using the default Limited User role, unless you explicitly change the permissions.
+        For more information, see the section about permissions here:
+        - For Cortex XSOAR 6 see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/6.x/Cortex-XSOAR-Playbook-Design-Guide/Automations 
+        - For Cortex XSOAR 8 Cloud see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8/Cortex-XSOAR-Cloud-Documentation/Create-a-script
+        - For Cortex XSOAR 8.7 On-prem see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8.7/Cortex-XSOAR-On-prem-Documentation/Create-a-script
+      scriptName: DeleteContext
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "51"
+    scriptarguments:
+      all:
+        simple: "yes"
+      keysToKeep:
+        simple: Case2.[0]
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1985,
+          "y": 5735
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "51":
+    id: "51"
+    taskid: 6fedae90-e1cd-444d-8602-6fccf72fa957
     type: condition
     task:
-      id: 9982db2d-5110-4b17-83e3-eb860737e46b
+      id: 6fedae90-e1cd-444d-8602-6fccf72fa957
       version: -1
-      name: Ensure the array contains duplicates
+      name: Validate results
       type: condition
       iscommand: false
       brand: ""
     nexttasks:
       '#default#':
-      - "39"
+      - "52"
       "yes":
-      - "28"
+      - "53"
     separatecontext: false
     conditions:
     - label: "yes"
       condition:
-      - - operator: hasLength
+      - - operator: isEqualString
           left:
             value:
-              simple: ${ArrayWithDuplicates}
+              simple: Case2.hello
             iscontext: true
           right:
             value:
-              simple: "2"
-      - - operator: containsGeneral
-          left:
-            value:
-              simple: ${ArrayWithDuplicates}
-            iscontext: true
-          right:
-            value:
-              simple: duplicate
-    view: |-
-      {
-        "position": {
-          "x": 1770,
-          "y": 4745
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "39":
-    id: "39"
-    taskid: 5054dc92-be3e-4f67-889b-8a75d5cbbee1
-    type: regular
-    task:
-      id: 5054dc92-be3e-4f67-889b-8a75d5cbbee1
-      version: -1
-      name: Fail
-      scriptName: RaiseError
-      type: regular
-      iscommand: false
-      brand: ""
-    scriptarguments:
-      actual:
-        simple: ArrayWithDuplicates - ${ArrayWithDuplicates}
-      details: {}
-      error:
-        simple: Array should contain duplicates
-      expected: {}
-    separatecontext: false
+              simple: world
+    continueonerrortype: ""
     view: |-
       {
         "position": {
           "x": 1985,
-          "y": 4920
+          "y": 5910
         }
       }
     note: false
@@ -1300,13 +1651,77 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "52":
+    id: "52"
+    taskid: 0135fbd8-9540-400a-8f6f-df56315b0fd3
+    type: regular
+    task:
+      id: 0135fbd8-9540-400a-8f6f-df56315b0fd3
+      version: -1
+      name: Fail
+      description: Prints an error entry with a given message
+      scriptName: PrintErrorEntry
+      type: regular
+      iscommand: false
+      brand: ""
+    scriptarguments:
+      message:
+        simple: 'Bug.hello: expected "world", received "${Case2.hello}"'
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 1770,
+          "y": 6085
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "53":
+    id: "53"
+    taskid: 6acf25fe-6cb1-4933-8996-2c2442c71fea
+    type: title
+    task:
+      id: 6acf25fe-6cb1-4933-8996-2c2442c71fea
+      version: -1
+      name: End Use Case
+      type: title
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "28"
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 2200,
+          "y": 6100
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
 view: |-
   {
     "linkLabelsPosition": {},
     "paper": {
       "dimensions": {
-        "height": 4965,
-        "width": 2315,
+        "height": 6275,
+        "width": 2530,
         "x": 50,
         "y": 50
       }
@@ -1314,3 +1729,4 @@ view: |-
   }
 inputs: []
 outputs: []
+dirtyInputs: true

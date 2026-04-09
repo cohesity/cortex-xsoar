@@ -4,21 +4,20 @@ applications in Google Cloud Platform (GCP), powered by the open source Kubernet
 Command, argument, and output desctiptions were taken from the Google documentation.
 
 ## Use Cases
+
 * Mange existing GKE clusters.
 
-- Mange existing GKE node-pools.
+* Mange existing GKE node-pools.
 
 ## Playbooks
 
 * Google Kubernetes Engine Operations Generic Polling.
 
-
-
 ## Configure Google Kubernetes Engine setup
 
 1. Select or create a Cloud Platform project:
 
-   <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/create-project-1.png" alt="create-project"  />
+   <img src="../../doc_files/create-project-1.png" alt="create-project"  />
 
    > The value in the `ID` column (marked in green) will be used from this point on as the `project id`.
 
@@ -26,33 +25,33 @@ Command, argument, and output desctiptions were taken from the Google documentat
 
    1. Under the main menu, select `APIs & Services` -> 'Libary':
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/enable-gke-api-menu.png" alt="Menu"  />
+      <img src="../../doc_files/enable-gke-api-menu.png" alt="Menu"  />
 
    2. Search for `Kubernetes Engine API`:
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/enable-gke-api-search.png" alt="Search"  />
+      <img src="../../doc_files/enable-gke-api-search.png" alt="Search"  />
 
    3. Click `Enable`:
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/enable-gke-api-enable-1.png" alt="enable-1"  />
+      <img src="../../doc_files/enable-gke-api-enable-1.png" alt="enable-1"  />
 
    4. Select the project and click 'OPEN':
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/enable-gke-api-enable-2.png" alt="enable-2" />
+      <img src="../../doc_files/enable-gke-api-enable-2.png" alt="enable-2" />
 
 3. Create a service account with correct restricted permissions:
 
    1. Under the main menu, select `IAM & Admin` -> `Service Accounts`:
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/service-acount-menu.png" alt="menu"  />
+      <img src="../../doc_files/service-acount-menu.png" alt="menu"  />
 
    2. In the top bar, select `CREATE SERVICE ACCOUNT`:
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/service-account-create-1.png" alt="create-1"  />
+      <img src="../../doc_files/service-account-create-1.png" alt="create-1"  />
 
    3. In step number 2, under role, select `Kubernetes Engine Admin`:
 
-      <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/service-account-create-2.png" alt="create-2"  />
+      <img src="../../doc_files/service-account-create-2.png" alt="create-2"  />
 
    4. Under the main menu, select `IAM & Admin` -> `Service Accounts` and open the account you just created.
 
@@ -60,13 +59,11 @@ Command, argument, and output desctiptions were taken from the Google documentat
 
       1. On the Service account details page, under Keys, click ADD KEY and select Create new key:
 
-         <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/service-account-create-3.png" alt="create-3"  />
-
-      
+         <img src="../../doc_files/service-account-create-3.png" alt="create-3"  />
 
       2. Under Key type, select `JSON` and click `CREATE`. Save the credentials in a secure location. You will need the generated `credentials.json` file when you configure the instance in Cortex XSOAR:
 
-         <img src="https://github.com/demisto/content/raw/2ee9f543ab14293cef22d46e96f7f29c4b376502/Packs/GoogleKubernetesEngine/doc_files/service-account-create-4.png" alt="create-3"  />
+         <img src="../../doc_files/service-account-create-4.png" alt="create-3"  />
 
 ## Configure GoogleKubernetesEngine on Cortex XSOAR
 
@@ -89,20 +86,20 @@ You can execute these commands from the Cortex XSOAR CLI, as part of an automati
 After you successfully execute a command, a DBot message appears in the War Room with the command details.
 
 ### gcloud-clusters-list
+
 ***
 Lists all clusters owned by a project in either the specified zone or all zones.
-
 
 #### Base Command
 
 `gcloud-clusters-list`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | project | The Google Developers Console project ID or project number. | Optional |
 | zone | The name of the Google Compute Engine zone in which the cluster resides, leave empty for all zones. | Optional |
-
 
 #### Context Output
 
@@ -165,11 +162,12 @@ Lists all clusters owned by a project in either the specified zone or all zones.
 | GKE.Cluster.ServicesIpv4Cidr | String | The IP address range of the Kubernetes services in this cluster, in CIDR notation \(e.g. 10.0.0.0/24\).' |
 | GKE.Cluster.Location | String | The name of the Google Compute Engine zone or region in which the cluster resides. |
 
-
 #### Command Example
+
 ```!gcloud-clusters-list project=gcp-integrations zone=us-central1-c```
 
 #### Context Example
+
 ```
 {
     "GKE": {
@@ -293,14 +291,15 @@ Lists all clusters owned by a project in either the specified zone or all zones.
 #### Human Readable Output
 
 >### Clusters (Project=gcp-integrations, Zone=us-central1-c)
+
 >|Location|Master IP|Master version|Name|Status|
 >|---|---|---|---|---|
 >| us-central1-c | xxxx | xxxx | xxxx | RECONCILING |
 
 ### gcloud-clusters-describe
+
 ***
 Gets the details of a specific cluster.
-
 
 #### Base Command
 
@@ -313,7 +312,6 @@ Gets the details of a specific cluster.
 | project | The Google Developers Console project ID or project number. | Optional |
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
-
 
 #### Context Output
 
@@ -376,8 +374,8 @@ Gets the details of a specific cluster.
 | GKE.Cluster.ServicesIpv4Cidr | String | The IP address range of the Kubernetes services in this cluster, in CIDR notation \(e.g. 10.0.0.0/24\).' |
 | GKE.Cluster.Location | String | The name of the Google Compute Engine zone or region in which the cluster resides. |
 
-
 #### Command Example
+
 ```!gcloud-clusters-describe project=gcp-integrations zone=us-central1-c cluster=xsoar-integration```
 
 #### Context Example
@@ -505,19 +503,20 @@ Gets the details of a specific cluster.
 #### Human Readable Output
 
 >### Clusters (Project=gcp-integrations, Zone=us-central1-c, Cluster=xsoar-integration)
+
 >|Location|Master IP|Master version|Name|Status|
 >|---|---|---|---|---|
 >| us-central1-c | xxxx | xxxx | xxxx | RECONCILING |
 
-
 ### gcloud-clusters-set-muster-auth
+
 ***
 Enable basic (username/password) auth for the cluster. Enable will create user admin with generated password.
-
 
 #### Base Command
 
 `gcloud-clusters-set-muster-auth`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -526,7 +525,6 @@ Enable basic (username/password) auth for the cluster. Enable will create user a
 | cluster | The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | basic_auth | Sets master enabled or disabled. | Required |
-
 
 #### Context Output
 
@@ -540,9 +538,9 @@ Enable basic (username/password) auth for the cluster. Enable will create user a
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
-``` !gcloud-clusters-set-muster-auth project=gcp-integrations zone=us-central1-c cluster=xsoar-integration basic_auth=enable```
+
+```!gcloud-clusters-set-muster-auth project=gcp-integrations zone=us-central1-c cluster=xsoar-integration basic_auth=enable```
 
 #### Context Example
 
@@ -570,16 +568,15 @@ Enable basic (username/password) auth for the cluster. Enable will create user a
 >| -------------- | ---- | ------ | --------- |
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
-
-
 ### gcloud-clusters-set-addons
+
 ***
 Sets the addons for a specific cluster.
-
 
 #### Base Command
 
 `gcloud-clusters-set-addons`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -590,7 +587,6 @@ Sets the addons for a specific cluster.
 | http_load_balancing | Configuration for the HTTP (L7) load balancing controller addon, which makes it easy to set up HTTP load balancers for services in a cluster. | Optional |
 | kubernetes_dashboard | Configuration for the Kubernetes Dashboard.  | Optional |
 | network_policy | Configuration for NetworkPolicy.<br/>This only tracks whether the addon is enabled or not on the Master, it does not track whether network policy is enabled for the nodes. | Optional |
-
 
 #### Context Output
 
@@ -604,8 +600,8 @@ Sets the addons for a specific cluster.
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
+
 ```!gcloud-clusters-set-addons project=gcp-integrations zone=us-central1-c cluster=xsoar-integration http_load_balancing=enable kubernetes_dashboard=disable network_policy=enable```
 
 #### Context Example
@@ -635,13 +631,14 @@ Sets the addons for a specific cluster.
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-clusters-set-legacy-auth
+
 ***
 Configuration for the legacy Attribute Based Access Control authorization mode.
-
 
 #### Base Command
 
 `gcloud-clusters-set-legacy-auth`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -650,7 +647,6 @@ Configuration for the legacy Attribute Based Access Control authorization mode.
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | enable | Whether the ABAC authorizer is enabled for this cluster. When enabled, identities in the system, including service accounts, nodes, and controllers, will have statically granted permissions beyond those provided by the RBAC configuration or IAM. | Required |
-
 
 #### Context Output
 
@@ -664,9 +660,9 @@ Configuration for the legacy Attribute Based Access Control authorization mode.
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
-``` !gcloud-clusters-set-legacy-auth project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true```
+
+```!gcloud-clusters-set-legacy-auth project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true```
 
 #### Context Example
 
@@ -694,17 +690,16 @@ Configuration for the legacy Attribute Based Access Control authorization mode.
 >| -------------- | ---- | ------ | --------- |
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
-
-
 ### gcloud-clusters-set-master-authorized-network
+
 ***
 Configuration options for the master authorized networks feature.
 Enabled master authorized networks will disallow all external traffic to access Kubernetes master through HTTPS except traffic from the given CIDR blocks, Google Compute Engine Public IPs and Google Prod IPs.
 
-
 #### Base Command
 
 `gcloud-clusters-set-master-authorized-network`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -714,7 +709,6 @@ Enabled master authorized networks will disallow all external traffic to access 
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | enable | Whether or not master authorized networks is enabled. | Required |
 | cidrs | Cidrs define up to 50 external networks that could access Kubernetes master through HTTPS. Comma-seprated e.g. "192.168.0.0/24,10.0.0.0/32" | Optional |
-
 
 #### Context Output
 
@@ -730,7 +724,7 @@ Enabled master authorized networks will disallow all external traffic to access 
 
 #### Command Example
 
-``` !gcloud-clusters-set-master-authorized-network project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true cidrs=192.168.0.0/24```
+```!gcloud-clusters-set-master-authorized-network project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true cidrs=192.168.0.0/24```
 
 #### Context Example
 
@@ -759,13 +753,14 @@ Enabled master authorized networks will disallow all external traffic to access 
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-clusters-set-k8s-stackdriver
+
 ***
 Enable or Disable k8s stackdriver. Important - To use this functinality the user should enable manually logging to "monitoring.googleapis.com/kubernetes" manulally via the GCP console.
-
 
 #### Base Command
 
 `gcloud-clusters-set-k8s-stackdriver`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -774,7 +769,6 @@ Enable or Disable k8s stackdriver. Important - To use this functinality the user
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Required |
 | enable | Whether or not k8s stackdriver is enabled. | Required |
-
 
 #### Context Output
 
@@ -790,7 +784,7 @@ Enable or Disable k8s stackdriver. Important - To use this functinality the user
 
 #### Command Example
 
-``` !gcloud-clusters-set-master-authorized-network project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true cidrs=192.168.0.0.24```
+```!gcloud-clusters-set-master-authorized-network project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true cidrs=192.168.0.0.24```
 
 #### Context Example
 
@@ -819,13 +813,14 @@ Enable or Disable k8s stackdriver. Important - To use this functinality the user
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-clusters-set-binary-auth
+
 ***
 Enable or Disable binary auth.
-
 
 #### Base Command
 
 `gcloud-clusters-set-binary-auth`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -834,7 +829,6 @@ Enable or Disable binary auth.
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | enable | Whether or not master binary auth is enabled. | Required |
-
 
 #### Context Output
 
@@ -848,8 +842,8 @@ Enable or Disable binary auth.
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
+
 ```!gcloud-clusters-set-binary-auth project=gcp-integrations zone=us-central1-c cluster=xsoar-integration enable=true```
 
 #### Context Example
@@ -879,13 +873,14 @@ Enable or Disable binary auth.
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-clusters-set-intra-node-visibility
+
 ***
 Enable or Disable for intra node visibility in cluster.
-
 
 #### Base Command
 
 `gcloud-clusters-set-intra-node-visibility`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -894,7 +889,6 @@ Enable or Disable for intra node visibility in cluster.
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | enable | Whether or not intra node visibility is enabled. | Required |
-
 
 #### Context Output
 
@@ -939,13 +933,14 @@ Enable or Disable for intra node visibility in cluster.
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-node-pool-list
+
 ***
 Lists the node pools for a cluster.
-
 
 #### Base Command
 
 `gcloud-node-pool-list`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -953,7 +948,6 @@ Lists the node pools for a cluster.
 | project | The Google Developers Console project ID or project number. | Optional |
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
-
 
 #### Context Output
 
@@ -980,11 +974,12 @@ Lists the node pools for a cluster.
 | GKE.NodePool.InstanceGroupUrls | String | The resource URLs of the managed instance groups associated with this node pool. |
 | GKE.NodePool.Status | String | The status of the nodes in this pool instance. |
 
-
 #### Command Example
+
 ```!gcloud-node-pool-list project=gcp-integrations zone=us-central1-c cluster=xsoar-integration```
 
 #### Context Example
+
 ```
 {
     "GKE": {
@@ -1038,19 +1033,20 @@ Lists the node pools for a cluster.
 #### Human Readable Output
 
 >### Node-pools (Project=gcp-integrations, Zone=us-central1-c, Cluster=xsoar-integration)
+
 >|Disk size|Machine Type|Name|Node version|
 >|---|---|---|---|
 >| 100 | n1-standard-1 | default-pool | 1.16.9-gke.2 |
 
-
 ### gcloud-node-pool-describe
+
 ***
 Retrieves the requested node pool.
-
 
 #### Base Command
 
 `gcloud-node-pool-describe`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -1059,7 +1055,6 @@ Retrieves the requested node pool.
 | cluster | The name of the cluster to retrieve. The name of the cluster to retrieve. | Required |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | node_pool | The name of the Google Compute Engine node pool. | Required |
-
 
 #### Context Output
 
@@ -1086,8 +1081,8 @@ Retrieves the requested node pool.
 | GKE.NodePool.InstanceGroupUrls | String | The resource URLs of the managed instance groups associated with this node pool. |
 | GKE.NodePool.Status | String | The status of the nodes in this pool instance. |
 
-
 #### Command Example
+
 ```!gcloud-node-pool-describe project=gcp-integrations zone=us-central1-c cluster=xsoar-integration node_pool=default-pool```
 
 #### Context Example
@@ -1145,19 +1140,20 @@ Retrieves the requested node pool.
 #### Human Readable Output
 
 >### Node-pools (Project=gcp-integrations, Zone=us-central1-c, Cluster=xsoar-integration, Node pool=default-pool)
+
 >|Disk size|Machine Type|Name|Node version|
 >|---|---|---|---|
 >| 100 | xxxx | xxxx | xxxx |
 
-
 ### gcloud-node-pool-set-management
+
 ***
 Sets the NodeManagement options for a node pool.
-
 
 #### Base Command
 
 `gcloud-node-pool-set-management`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -1168,7 +1164,6 @@ Sets the NodeManagement options for a node pool.
 | node_pool | The name of the Google Compute Engine node pool. | Required |
 | auto_repair | A flag that specifies whether the node auto-repair is enabled for the node pool. If enabled, the nodes in this node pool will be monitored and, if they fail health checks too many times, an automatic repair action will be triggered. | Required |
 | auto_upgrade | A flag that specifies whether node auto-upgrade is enabled for the node pool. If enabled, node auto-upgrade helps keep the nodes in your node pool up to date with the latest release version of Kubernetes. | Required |
-
 
 #### Context Output
 
@@ -1213,20 +1208,20 @@ Sets the NodeManagement options for a node pool.
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
 ### gcloud-operations-list
+
 ***
 List operations in project-zone.
-
 
 #### Base Command
 
 `gcloud-operations-list`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | project | The Google Developers Console project ID or project number. | Optional |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
-
 
 #### Context Output
 
@@ -1240,11 +1235,12 @@ List operations in project-zone.
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
+
 ```!gcloud-operations-list project=gcp-integrations zone=us-central1-c```
 
 #### Context Example
+
 ```
 {
     "GKE": {
@@ -1257,8 +1253,8 @@ List operations in project-zone.
               "Status": "DONE",
               "TargetLink": "https://container.google.com/v1/projects/",
               "Zone": "xxxx"
-        		},
-        		{
+          },
+          {
               "Name": "operation-xxxx",
               "OperationType": "UPDATE_CLUSTER",
               "SelfLink": "https://container.google.com/v1/projects/",
@@ -1266,7 +1262,7 @@ List operations in project-zone.
               "Status": "DONE",
               "TargetLink": "https://container.google.com/v1/projects/",
               "Zone": "xxxx"
-        		}
+          }
         ]
     }
 }
@@ -1275,20 +1271,21 @@ List operations in project-zone.
 #### Human Readable Output
 
 >### Project gcp-integrations - Zone us-central1-c - Operations
+
 >|Name|Zone|Status|StartTime|
 >|---|---|---|---|
 >| operation-xxxx | xxxx | DONE | xxxx |
 >| operation-xxxx | xxxx | DONE   | xxxx      |
 
-
 ### gcloud-operations-describe
+
 ***
 Retrieve operation information by name.
-
 
 #### Base Command
 
 `gcloud-operations-describe`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -1296,7 +1293,6 @@ Retrieve operation information by name.
 | project | The Google Developers Console project ID or project number. | Optional |
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | operation | The name of the Google Compute Engine operation name. | Required |
-
 
 #### Context Output
 
@@ -1310,11 +1306,12 @@ Retrieve operation information by name.
 | GKE.Operation.TargetLink | String | Server\-defined URL for the target of the operation. |
 | GKE.Operation.StartTime | Date | The time the operation started, in RFC3339 text format. |
 
-
 #### Command Example
+
 ```!gcloud-operations-describe project=gcp-integrations zone=us-central1-c operation=operation-1591773015046-cc1b6943```
 
 #### Context Example
+
 ```
 {
     "GKE": {
@@ -1334,15 +1331,15 @@ Retrieve operation information by name.
 #### Human Readable Output
 
 >### Project gcp-integrations - Zone us-central1-c - Operation operation-xxxx
+
 >|Name|Zone|Status|StartTime|
 >|---|---|---|---|
 >| operation-xxxx | xxxx | DONE | xxxx |
 
-
 ### gcloud-operations-cancel
+
 ***
 Cancel operation by operation name.
-
 
 #### Base Command
 
@@ -1357,21 +1354,18 @@ Cancel operation by operation name.
 | zone | The name of the Google Compute Engine zone in which the cluster resides. | Optional |
 | operation | The name of the Google Compute Engine operation name. | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
-``` !gcloud-operations-cancel project=gcp-integrations zone=xxxx operation=operation-xxxx```
+
+```!gcloud-operations-cancel project=gcp-integrations zone=xxxx operation=operation-xxxx```
 
 #### Human Readable Output
 
 > ### Project gcp-integrations - Zone xxxx - Operation operation-xxxx canceled
 
-
-
 ## Known limitations
 
 * After apply new configuration an operation in Google cloud will start, In order to apply another operation the operation must finish running, In order to handle this limitation you can use `Google Kubernetes Engine Operations Generic Polling` playbook.
-

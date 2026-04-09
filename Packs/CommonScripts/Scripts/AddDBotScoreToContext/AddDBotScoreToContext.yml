@@ -1,18 +1,18 @@
 args:
-- description: The indicator value (ex 1.1.1.1)
+- description: The indicator value (ex 1.1.1.1).
   name: indicator
   required: true
-- description: The indicator type (ex ip, url, email, domain)
+- description: The indicator type (ex ip, url, email, domain).
   name: indicatorType
   required: true
-- description: The indicator score
+- description: The indicator score.
   name: score
   required: true
-- description: The vendor to assign to this DBotScoreEntry
+- description: The vendor to assign to this DBotScoreEntry.
   name: vendor
   required: true
 - auto: PREDEFINED
-  description: The reputation reliability
+  description: The reputation reliability.
   name: reliability
   predefined:
   - A+ - 3rd party enrichment
@@ -22,16 +22,14 @@ args:
   - D - Not usually reliable
   - E - Unreliable
   - F - Reliability cannot be judged
-comment: Add DBot score to context for indicators with custom vendor, score, reliability,
-  and type.
+comment: Add DBot score to context for indicators with custom vendor, score, reliability, and type.
 commonfields:
   id: AddDBotScoreToContext
   version: -1
-dockerimage: demisto/python3:3.9.8.24399
+dockerimage: demisto/python3:3.12.12.5490952
 enabled: true
 name: AddDBotScoreToContext
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

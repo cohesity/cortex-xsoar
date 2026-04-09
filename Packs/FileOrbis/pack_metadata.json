@@ -2,26 +2,27 @@
     "name": "FileOrbis",
     "description": "FileOrbis XSOAR integration.",
     "support": "partner",
-    "currentVersion": "1.0.2",
+    "currentVersion": "1.0.9",
     "author": "FileOrbis",
     "url": "https://www.fileorbis.com/",
     "email": "info@fileorbis.com",
     "categories": [
         "IT Services"
     ],
-    "tags": [
-        "IT",
-        "Security"
+    "tags": [],
+    "useCases": [],
+    "keywords": [
+        "Offboarding",
+        "IT"
     ],
-    "useCases": [
-        "Employee Offboarding",
-        "Identity and Access Management",
-        "IT Services"
-    ],
-    "keywords": [],
     "githubUser": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

@@ -1,7 +1,8 @@
 {
     "associatedToAll": false,
     "associatedTypes": [
-        "Qradar Generic"
+        "Qradar Generic",
+        "CrowdStrike Falcon Third Party Detection"
     ],
     "breachScript": "",
     "caseInsensitive": true,
@@ -14,7 +15,6 @@
     "editForm": true,
     "extractIndicatorTypesIDs": [],
     "fieldCalcScript": "",
-    "fromServerVersion": "",
     "group": 0,
     "hidden": false,
     "id": "incident_sourceipv6",
@@ -44,5 +44,8 @@
     "validationRegex": "",
     "version": -1,
     "fromVersion": "6.0.0",
-    "openEnded": true
+    "openEnded": true,
+    "marketplaces": [
+        "xsoar"
+    ]
 }

@@ -1,14 +1,13 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 """ExpanseAggregateAttributionDevice
 
 """
 
-import demistomock as demisto
-from CommonServerPython import *  # noqa # pylint: disable=unused-wildcard-import
 from CommonServerUserPython import *  # noqa
 
 from typing import Dict, List, Any, Tuple, Optional
 from ipaddress import IPv4Address, IPv4Network
-import traceback
 
 
 ''' STANDALONE FUNCTION '''
@@ -153,7 +152,6 @@ def main():
     try:
         return_results(aggregate_command(demisto.args()))
     except Exception as ex:
-        demisto.error(traceback.format_exc())  # print the traceback
         return_error(f'Failed to execute ExpanseAggregateAttributionDevice. Error: {str(ex)}')
 
 

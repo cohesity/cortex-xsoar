@@ -1,35 +1,34 @@
 args:
 - default: true
   description: War Room entryID of the file to read.
-  isArray: false
   name: entryID
   required: true
-  secret: false
-- default: false
-  description: Password for the file, if encrypted.
-  isArray: false
+- description: Password for the file, if encrypted.
   name: userPassword
-  required: false
-  secret: false
-- default: false
-  defaultValue: '20'
+- defaultValue: "20"
   description: Maximum number of images to extract from the PDF file.
-  isArray: false
   name: maxImages
-  required: false
-  secret: false
+- auto: PREDEFINED
+  defaultValue: 'true'
+  description: To unescape URLs that have been escaped as part of the URLs extraction. Invalid characters will be ignored.
+  name: unescape_url
+  predefined:
+  - 'true'
+  - 'false'
 comment: |-
-  Load a PDF file's content and metadata into context.
-
-  This automation runs using the default Limited User role, unless you explicitly change the permissions.
-  For more information, see the section about permissions here:
-  https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-2/cortex-xsoar-admin/playbooks/automations.html
+  Load a PDF file's content and metadata into context. Supports extraction of hashes, urls, and emails when available.
 commonfields:
   id: ReadPDFFileV2
   version: -1
 enabled: true
 name: ReadPDFFileV2
 outputs:
+- contextPath: Hashes.type
+  description: The hash type extracted from the PDF file.
+  type: String
+- contextPath: Hashes.value
+  description: The hash value extracted from the PDF file.
+  type: String
 - contextPath: URL.Data
   description: A list of URLs that were extracted from the PDF file.
   type: String
@@ -123,16 +122,15 @@ outputs:
 - contextPath: Account.Email
   description: The email address of the account.
   type: String
-script: '-'
+script: "-"
 subtype: python3
-system: false
 tags:
 - Utility
 - ingestion
-timeout: '0'
+timeout: "0"
 type: python
-dockerimage: demisto/readpdf:1.0.0.24272
-runonce: false
+dockerimage: demisto/readpdf:1.0.0.2034953
+runas: DBotRole
 tests:
 - Extract Indicators From File - Generic v2 - Test
 - ReadPDFFileV2-Test

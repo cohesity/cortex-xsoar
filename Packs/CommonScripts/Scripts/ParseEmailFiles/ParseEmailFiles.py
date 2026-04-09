@@ -1,3 +1,5 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 #!/usr/bin/env python2
 # coding=utf-8
 # PEP0263  https://www.python.org/dev/peps/pep-0263/
@@ -23,11 +25,9 @@ from email.parser import HeaderParser
 from email.utils import getaddresses
 from struct import unpack
 
-import chardet
+import chardet  # type: ignore
 from olefile import OleFileIO, isOleFile
 
-import demistomock as demisto  # noqa: F401
-from CommonServerPython import *  # noqa: F401
 
 reload(sys)
 sys.setdefaultencoding('utf8')  # pylint: disable=no-member
@@ -36,29 +36,6 @@ MAX_DEPTH_CONST = 3
 
 """
 https://github.com/vikramarsid/msg_parser
-
-Copyright (c) 2009-2018 Vikram Arsid <vikramarsid@gmail.com>
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-   of conditions and the following disclaimer in the documentation and/or other materials
-   provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """
 
 DATA_TYPE_MAP = {
@@ -315,6 +292,21 @@ def get_time(data_value):
     ) + timedelta(
         microseconds=unpack('q', data_value)[0] / 10.0
     )
+
+
+def parse_nesting_level(nesting_level_to_return, output):
+    # if nesting_level_to_return == 'All files' leave as is
+    email = output[0]
+    if nesting_level_to_return == 'Outer file':
+        # return only the outer email info
+        output = output[0]
+
+    elif nesting_level_to_return == 'Inner file':
+        # the last file in list it is the inner attached file
+        email = output[-1]
+        output = output[-1]
+
+    return email, output
 
 
 def get_multi_value_offsets(data_value):
@@ -3497,7 +3489,7 @@ def unfold(s):
     :param string s: a string to unfold
     :rtype: string
     """
-    return re.sub(r'[ \t]*[\r\n][ \t\r\n]*', ' ', s).strip(' ')
+    return re.sub(r'[ \t]*[\r\n][ \t\r\n]*', ' ', s).strip(' ') if s else s
 
 
 def decode_attachment_payload(message):
@@ -3557,10 +3549,19 @@ def handle_eml(file_path, b64=False, file_name=None, parse_only_headers=False, m
         parser = HeaderParser()
         headers = parser.parsestr(file_data)
 
+        # headers is a Message object implementing magic methods of set/get item and contains.
+        # message object 'contains' method transforms its keys to lower-case, hence there is not a difference when
+        # approaching it with any casing type, for example, 'message-id' or 'Message-ID' or 'Message-id' or
+        # 'MeSSage_Id' are all searching for the same key in the headers object.
+        if "message-id" in headers:
+            message_id_content = headers["message-id"]
+            del headers["message-id"]
+            headers["Message-ID"] = message_id_content
+
         header_list = []
         headers_map = {}  # type: dict
         for item in headers.items():
-            value = unfold(convert_to_unicode(item[1]))
+            value = unfold(convert_to_unicode(unfold(item[1])))
             item_dict = {
                 "name": item[0],
                 "value": value
@@ -3742,7 +3743,7 @@ def handle_eml(file_path, b64=False, file_name=None, parse_only_headers=False, m
                 'To': extract_address_eml(eml, 'to'),
                 'CC': extract_address_eml(eml, 'cc'),
                 'From': extract_address_eml(eml, 'from'),
-                'Subject': convert_to_unicode(eml['Subject']),
+                'Subject': convert_to_unicode(unfold(eml['Subject'])),
                 'HTML': convert_to_unicode(html, is_msg_header=False),
                 'Text': convert_to_unicode(text, is_msg_header=False),
                 'Headers': header_list,
@@ -3791,6 +3792,7 @@ def main():
     file_type = ''
     entry_id = demisto.args()['entryid']
     max_depth = int(demisto.args().get('max_depth', '3'))
+    nesting_level_to_return = demisto.args().get('nesting_level_to_return', 'All files')
 
     # we use the MAX_DEPTH_CONST to calculate the depth of the email
     # each level will reduce the max_depth by 1
@@ -3815,7 +3817,7 @@ def main():
 
         file_metadata = result[0]['FileMetadata']
         file_type = file_metadata.get('info', '') or file_metadata.get('type', '')
-        if 'MIME entity text, ISO-8859 text' in file_type:
+        if 'MIME entity text, ISO-8859 text' in file_type or 'MIME entity, ISO-8859 text' in file_type:
             file_type = 'application/pkcs7-mime'
 
     except Exception as ex:
@@ -3885,7 +3887,8 @@ def main():
         output = recursive_convert_to_unicode(output)
         email = output  # output may be a single email
         if isinstance(output, list) and len(output) > 0:
-            email = output[0]
+            email, output = parse_nesting_level(nesting_level_to_return, output)
+
         return_outputs(
             readable_output=data_to_md(email, file_name, print_only_headers=parse_only_headers),
             outputs={

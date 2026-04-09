@@ -2,12 +2,12 @@ import demistomock as demisto
 from CommonServerPython import *
 from CommonServerUserPython import *
 
-''' IMPORTS '''
+""" IMPORTS """
 
 import json
 import hashlib
 import traceback
-from google.cloud import translate_v3
+from google.cloud import translate_v3  # type: ignore[attr-defined]
 
 
 class Client:
@@ -44,15 +44,15 @@ class Client:
                 support_target is a bool indicating if the language is
                 a supported target for the translation.
         """
-        parent = self.client.location_path(self.project_id, 'global')
-        result = self.client.get_supported_languages(parent)
+        parent = f"projects/{self.project_id}/locations/global"
+        result = self.client.get_supported_languages(parent=parent)
 
         return [
-            dict(
-                language_code=language.language_code,
-                support_source=language.support_source,
-                support_target=language.support_target
-            )
+            {
+                "language_code": language.language_code,
+                "support_source": language.support_source,
+                "support_target": language.support_target,
+            }
             for language in result.languages
         ]
 
@@ -72,29 +72,32 @@ class Client:
                 code of the detected language or None if the source language
                 was specified.
         """
-        parent = self.client.location_path(self.project_id, 'global')
-        result = self.client.translate_text([text], target, parent, source_language_code=source)
+        parent = f"projects/{self.project_id}/locations/global"
+        result = self.client.translate_text(
+            request={"contents": [text], "target_language_code": target, "parent": parent, "source_language_code": source}
+        )
 
         return {
-            'detected_language_code': result.translations[0].detected_language_code,
-            'translated_text': result.translations[0].translated_text
+            "detected_language_code": result.translations[0].detected_language_code,
+            "translated_text": result.translations[0].translated_text,
         }
 
     def _get_project_id(self):
-        return self.project if self.project is not None else self.service_account['project_id']
+        return self.project if self.project is not None else self.service_account["project_id"]
 
     def _get_client(self):
-        # turning off the proxy as the SDK doesn't support it.
         handle_proxy()
 
         cur_directory_path = os.getcwd()
-        credentials_file_name = demisto.uniqueFile() + '.json'
+        credentials_file_name = demisto.uniqueFile() + ".json"
         credentials_file_path = os.path.join(cur_directory_path, credentials_file_name)
 
-        with open(credentials_file_path, 'w') as creds_file:
+        with open(credentials_file_path, "w") as creds_file:
             json.dump(self.service_account, creds_file)
 
-        return translate_v3.TranslationServiceClient.from_service_account_json(credentials_file_path)
+        return translate_v3.TranslationServiceClient.from_service_account_json(  # type: ignore[call-arg]
+            filename=credentials_file_path
+        )
 
 
 def test_module(client):
@@ -110,10 +113,10 @@ def test_module(client):
 
     try:
         client.get_supported_languages()
-        return 'ok'
+        return "ok"
 
     except Exception as e:
-        return 'Test failed: {}'.format(str(e))
+        return f"Test failed: {str(e)}"
 
 
 def supported_languages(client):
@@ -134,17 +137,13 @@ def supported_languages(client):
     result = client.get_supported_languages()
 
     # readable output will be in markdown format - https://www.markdownguide.org/basic-syntax/
-    readable_output = 'Languages: {}'.format(', '.join([language['language_code'] for language in result]))
-    outputs = {
-        'GoogleCloudTranslate': {
-            'SupportedLanguages': result
-        }
-    }
+    readable_output = "Languages: {}".format(", ".join([language["language_code"] for language in result]))
+    outputs = {"GoogleCloudTranslate": {"SupportedLanguages": result}}
 
     return (
         readable_output,
         outputs,
-        result  # raw response - the original response
+        result,  # raw response - the original response
     )
 
 
@@ -167,56 +166,53 @@ def translate_text(client, args):
         raw_response (dict): Used for debugging/troubleshooting purposes - will be shown only if the command executed with
                       raw-response=true
     """
-    text = args.get('text', '')
-    target = args.get('target', 'en')
-    source = args.get('source', None)
+    text = args.get("text", "")
+    target = args.get("target", "en")
+    source = args.get("source", None)
 
-    result = client.translate_text(
-        text,
-        target,
-        source=source
+    result = client.translate_text(text, target, source=source)
+
+    readable_output = "Translation: {}\nSource Language Detected: {}".format(
+        result["translated_text"], result["detected_language_code"]
     )
 
-    readable_output = 'Translation: {}\nSource Language Detected: {}'.format(
-        result['translated_text'],
-        result['detected_language_code']
-    )
-
-    id_ = hashlib.md5(f'{target}-{source}-{text}'.encode('utf-8')).hexdigest()
+    id_ = hashlib.md5(f"{target}-{source}-{text}".encode()).hexdigest()  # nosec
 
     outputs = {
-        'GoogleCloudTranslate.TranslateText(val.ID && val.ID==obj.ID)': {
-            'ID': id_,
-            'text': text,
-            'translated_text': result['translated_text'],
-            'source_language_code': source,
-            'detected_language_code': result['detected_language_code'],
-            'target_language_code': target
+        "GoogleCloudTranslate.TranslateText(val.ID && val.ID==obj.ID)": {
+            "ID": id_,
+            "text": text,
+            "translated_text": result["translated_text"],
+            "source_language_code": source,
+            "detected_language_code": result["detected_language_code"],
+            "target_language_code": target,
         }
     }
 
     return (
         readable_output,
         outputs,
-        result  # raw response - the original response
+        result,  # raw response - the original response
     )
 
 
 def main():
     """
-        PARSE AND VALIDATE INTEGRATION PARAMS
+    PARSE AND VALIDATE INTEGRATION PARAMS
     """
-    service_account_json = demisto.params().get('service_account_json')
+    service_account_json = demisto.params().get("project_creds", {}).get("password") or demisto.params().get(
+        "service_account_json"
+    )
     try:
         service_account = json.loads(service_account_json)
     except Exception:
-        return_error('Invalid JSON provided')
+        return_error("Invalid JSON provided")
 
-    project = demisto.params().get('project', None)
+    project = demisto.params().get("project_creds", {}).get("identifier") or demisto.params().get("project", None)
 
-    verify_certificate = not demisto.params().get('insecure', False)
+    verify_certificate = not demisto.params().get("insecure", False)
 
-    LOG(f'Command being called is {demisto.command()}')
+    LOG(f"Command being called is {demisto.command()}")
     try:
         client = Client(
             service_account=service_account,
@@ -224,27 +220,25 @@ def main():
             verify=verify_certificate,
         )
 
-        if demisto.command() == 'test-module':
+        if demisto.command() == "test-module":
             # This is the call made when pressing the integration Test button.
             result = test_module(client)
             demisto.results(result)
 
-        elif demisto.command() == 'gct-supported-languages':
+        elif demisto.command() == "gct-supported-languages":
             return_outputs(*supported_languages(client))
 
-        elif demisto.command() == 'gct-translate-text':
+        elif demisto.command() == "gct-translate-text":
             return_outputs(*translate_text(client, demisto.args()))
 
     # Log exceptions
     except Exception as e:
         LOG(traceback.format_exc())
-        return_error(
-            f'Failed to execute {demisto.command()} command. Error: {str(e)}'
-        )
+        return_error(f"Failed to execute {demisto.command()} command. Error: {str(e)}")
 
     finally:
         LOG.print_log()
 
 
-if __name__ in ('__main__', '__builtin__', 'builtins'):
+if __name__ in ("__main__", "__builtin__", "builtins"):
     main()

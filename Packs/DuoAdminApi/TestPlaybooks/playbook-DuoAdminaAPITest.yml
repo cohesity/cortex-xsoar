@@ -6,10 +6,10 @@ starttaskid: "0"
 tasks:
   "0":
     id: "0"
-    taskid: e3c6b466-6792-41d0-885e-eebfac370e82
+    taskid: 6ea06d80-4361-4e2f-89e6-8a9ddd515389
     type: start
     task:
-      id: e3c6b466-6792-41d0-885e-eebfac370e82
+      id: 6ea06d80-4361-4e2f-89e6-8a9ddd515389
       version: -1
       name: ""
       iscommand: false
@@ -31,12 +31,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "1":
     id: "1"
-    taskid: 874c52a6-7a0a-4eca-8e74-3d210c959d90
+    taskid: 07922a2b-00d5-40a2-83d0-988244fd1176
     type: regular
     task:
-      id: 874c52a6-7a0a-4eca-8e74-3d210c959d90
+      id: 07922a2b-00d5-40a2-83d0-988244fd1176
       version: -1
       name: Get Users Detail
       script: '|||duoadmin-get-users'
@@ -59,12 +61,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "3":
     id: "3"
-    taskid: 05095b39-644b-416c-8daa-f9b528ce3817
+    taskid: fc55e5e8-b632-491f-87e1-79bbbc9c41f5
     type: regular
     task:
-      id: 05095b39-644b-416c-8daa-f9b528ce3817
+      id: fc55e5e8-b632-491f-87e1-79bbbc9c41f5
       version: -1
       name: Get User2 Logs
       script: '|||duoadmin-get-authentication-logs-by-user'
@@ -77,7 +81,6 @@ tasks:
     scriptarguments:
       from:
         simple: 10_years_ago
-      limit: {}
       username:
         simple: ${DuoAdmin.UserDetails.[2].username}
     separatecontext: false
@@ -93,12 +96,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "9":
     id: "9"
-    taskid: 82063c75-03e4-4f95-836d-374f74c71828
+    taskid: 468c72b9-6942-45fd-8ba6-f9b018742cad
     type: title
     task:
-      id: 82063c75-03e4-4f95-836d-374f74c71828
+      id: 468c72b9-6942-45fd-8ba6-f9b018742cad
       version: -1
       name: Check if two different users have different auth logs
       type: title
@@ -107,7 +112,7 @@ tasks:
       description: ''
     nexttasks:
       '#none#':
-      - "40"
+      - "48"
     separatecontext: false
     view: |-
       {
@@ -121,12 +126,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "13":
     id: "13"
-    taskid: d3b6ba2e-739f-46d8-8347-0456cba6ed13
+    taskid: 53b1078b-2655-4f29-89b6-d4a315a60aff
     type: regular
     task:
-      id: d3b6ba2e-739f-46d8-8347-0456cba6ed13
+      id: 53b1078b-2655-4f29-89b6-d4a315a60aff
       version: -1
       name: Delete Context
       scriptName: DeleteContext
@@ -139,10 +146,6 @@ tasks:
     scriptarguments:
       all:
         simple: "yes"
-      index: {}
-      key: {}
-      keysToKeep: {}
-      subplaybook: {}
     separatecontext: false
     view: |-
       {
@@ -156,25 +159,29 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "15":
     id: "15"
-    taskid: 0902c4e5-6998-4620-85a0-93559f0bfc35
+    taskid: a2e31677-42d3-43c0-89d8-5f6f5f3d8a91
     type: condition
     task:
-      id: 0902c4e5-6998-4620-85a0-93559f0bfc35
+      id: a2e31677-42d3-43c0-89d8-5f6f5f3d8a91
       version: -1
-      name: Are auth logs a part of user details?
+      name: Are auth logs a part of user nor empty?
       type: condition
       iscommand: false
       brand: ""
     nexttasks:
+      '#default#':
+      - "9"
       "yes":
-      - "30"
+      - "50"
     separatecontext: false
     conditions:
     - label: "yes"
       condition:
-      - - operator: isExists
+      - - operator: isNotEmpty
           left:
             value:
               complex:
@@ -193,12 +200,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "16":
     id: "16"
-    taskid: db874b5e-f0a9-454b-8d62-db47e3f089c5
+    taskid: 6789fe24-b96b-409f-8238-9e3af6e643a8
     type: title
     task:
-      id: db874b5e-f0a9-454b-8d62-db47e3f089c5
+      id: 6789fe24-b96b-409f-8238-9e3af6e643a8
       version: -1
       name: User Devices Operations
       type: title
@@ -221,12 +230,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "17":
     id: "17"
-    taskid: 695fe94d-89fd-4eef-8e0d-8467e821ed78
+    taskid: 7e744ad1-f4d7-411a-8a8f-d8755520ec7a
     type: title
     task:
-      id: 695fe94d-89fd-4eef-8e0d-8467e821ed78
+      id: 7e744ad1-f4d7-411a-8a8f-d8755520ec7a
       version: -1
       name: User Logs
       type: title
@@ -249,12 +260,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "19":
     id: "19"
-    taskid: ad9bd5bf-3c8e-429c-8174-3ebfa050ed37
+    taskid: 2ebf49de-01e2-4419-8923-b8ace76a2b7b
     type: title
     task:
-      id: ad9bd5bf-3c8e-429c-8174-3ebfa050ed37
+      id: 2ebf49de-01e2-4419-8923-b8ace76a2b7b
       version: -1
       name: Devices
       type: title
@@ -277,12 +290,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "20":
     id: "20"
-    taskid: eb286228-78b0-430e-82f3-22075d0a93a1
+    taskid: f4e4830d-78bc-4ec9-8327-c308b8849a3e
     type: regular
     task:
-      id: eb286228-78b0-430e-82f3-22075d0a93a1
+      id: f4e4830d-78bc-4ec9-8327-c308b8849a3e
       version: -1
       name: Get All Devices
       script: '|||duoadmin-get-devices'
@@ -305,12 +320,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "21":
     id: "21"
-    taskid: 3b6844bc-5673-4c3b-8310-9dfd54e989c5
+    taskid: 03dbd6ae-a28c-428a-8b03-f79fe806694e
     type: condition
     task:
-      id: 3b6844bc-5673-4c3b-8310-9dfd54e989c5
+      id: 03dbd6ae-a28c-428a-8b03-f79fe806694e
       version: -1
       name: Are phones a part of the DuoAdmin object?
       type: condition
@@ -359,12 +376,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "23":
     id: "23"
-    taskid: 3727a233-507d-4d16-86ee-77f1804167d5
+    taskid: 601c5bef-fa2e-46c8-8153-4d267a088c11
     type: regular
     task:
-      id: 3727a233-507d-4d16-86ee-77f1804167d5
+      id: 601c5bef-fa2e-46c8-8153-4d267a088c11
       version: -1
       name: Get User Phones
       script: '|||duoadmin-get-devices-by-user'
@@ -390,12 +409,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "24":
     id: "24"
-    taskid: 111050c9-301a-458d-822b-ae7f4b444402
+    taskid: f15f2308-ba45-42d6-87e8-4ff52eb510fc
     type: condition
     task:
-      id: 111050c9-301a-458d-822b-ae7f4b444402
+      id: f15f2308-ba45-42d6-87e8-4ff52eb510fc
       version: -1
       name: Does the user have a phone?
       type: condition
@@ -444,12 +465,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "27":
     id: "27"
-    taskid: 871520b7-8cca-49de-8a6f-ed3d9562301e
+    taskid: 90061888-908c-41a3-853a-9e493ed5da16
     type: regular
     task:
-      id: 871520b7-8cca-49de-8a6f-ed3d9562301e
+      id: 90061888-908c-41a3-853a-9e493ed5da16
       version: -1
       name: Get User Phones
       script: '|||duoadmin-get-devices-by-user'
@@ -475,12 +498,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "28":
     id: "28"
-    taskid: 055b346e-a1ab-4e9d-8ccf-68737afe3fc9
+    taskid: b8165043-43d4-4ca8-820c-65c0710f3cb2
     type: regular
     task:
-      id: 055b346e-a1ab-4e9d-8ccf-68737afe3fc9
+      id: b8165043-43d4-4ca8-820c-65c0710f3cb2
       version: -1
       name: Dissociate the phone from the user
       script: '|||duoadmin-dissociate-device-from-user'
@@ -508,47 +533,32 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "29":
     id: "29"
-    taskid: a18b2ee4-5e9c-439e-854d-af021c3c0835
+    taskid: 3e9e33e8-e7d7-4160-8f25-96494c637a3b
     type: condition
     task:
-      id: a18b2ee4-5e9c-439e-854d-af021c3c0835
+      id: 3e9e33e8-e7d7-4160-8f25-96494c637a3b
       version: -1
       name: Does the user still has a phone?
       type: condition
       iscommand: false
       brand: ""
     nexttasks:
-      "no":
+      "yes":
       - "19"
     separatecontext: false
     conditions:
-    - label: "no"
+    - label: "yes"
       condition:
-      - - operator: isNotEmpty
+      - - operator: isNotExists
           left:
             value:
               complex:
-                root: DuoAdmin
-                accessor: UserDetails
-                transformers:
-                - operator: WhereFieldEquals
-                  args:
-                    equalTo:
-                      value:
-                        simple: winitzky
-                    field:
-                      value:
-                        simple: username
-                    getField:
-                      value:
-                        simple: phones
-                - operator: atIndex
-                  args:
-                    index:
-                      value:
-                        simple: "0"
+                root: DuoAdmin.UserDetails.[3]
+                accessor: phones
             iscontext: true
     view: |-
       {
@@ -562,274 +572,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
-  "30":
-    id: "30"
-    taskid: b53f11c2-648e-4843-8820-15e689678dab
-    type: title
-    task:
-      id: b53f11c2-648e-4843-8820-15e689678dab
-      version: -1
-      name: U2F Tokens
-      type: title
-      iscommand: false
-      brand: ""
-      description: ''
-    nexttasks:
-      '#none#':
-      - "31"
-    separatecontext: false
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 1230
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "31":
-    id: "31"
-    taskid: 97b43b1a-ddc8-4e2b-8dbc-5c5aaeefccd1
-    type: regular
-    task:
-      id: 97b43b1a-ddc8-4e2b-8dbc-5c5aaeefccd1
-      version: -1
-      name: Get User Tokens
-      description: |-
-        Notice that for the test to actually test something the user has to have a token assigned to it.
-        To create a "dummy token" (for tests and such) use SOFTU2F with the duo admin site (available at https://github.com/github/SoftU2F).
-        You might have to kill it's process a few times and press "approve" for it to work (about 4 or 5 times)
-      script: '|||duoadmin-get-u2f-tokens-by-user'
-      type: regular
-      iscommand: true
-      brand: ""
-    nexttasks:
-      '#none#':
-      - "48"
-    scriptarguments:
-      username:
-        simple: winitzky
-    separatecontext: false
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 1390
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "32":
-    id: "32"
-    taskid: 13fb89c9-9289-40f2-89fd-c68c8318c1a0
-    type: condition
-    task:
-      id: 13fb89c9-9289-40f2-89fd-c68c8318c1a0
-      version: -1
-      name: Does the user have a U2F token?
-      type: condition
-      iscommand: false
-      brand: ""
-    nexttasks:
-      '#default#':
-      - "9"
-      "yes":
-      - "33"
-    separatecontext: false
-    conditions:
-    - label: "yes"
-      condition:
-      - - operator: isNotEqualString
-          left:
-            value:
-              complex:
-                root: DuoAdmin
-                accessor: UserDetails
-                transformers:
-                - operator: WhereFieldEquals
-                  args:
-                    equalTo:
-                      value:
-                        simple: winitzky
-                    field:
-                      value:
-                        simple: username
-                    getField:
-                      value:
-                        simple: u2ftokens
-                - operator: atIndex
-                  args:
-                    index:
-                      value:
-                        simple: "0"
-            iscontext: true
-          right:
-            value:
-              simple: '[]'
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 1770
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "33":
-    id: "33"
-    taskid: a347e8ae-c199-4188-8b6c-cb031988a29c
-    type: regular
-    task:
-      id: a347e8ae-c199-4188-8b6c-cb031988a29c
-      version: -1
-      name: Delete the token
-      script: '|||duoadmin-delete-u2f-token'
-      type: regular
-      iscommand: true
-      brand: ""
-    nexttasks:
-      '#none#':
-      - "35"
-    scriptarguments:
-      token_id:
-        complex:
-          root: DuoAdmin
-          accessor: UserDetails
-          transformers:
-          - operator: WhereFieldEquals
-            args:
-              equalTo:
-                value:
-                  simple: winitzky
-              field:
-                value:
-                  simple: username
-              getField:
-                value:
-                  simple: DuoAdmin.UserDetails.u2ftokens.registration_id
-                iscontext: true
-          - operator: atIndex
-            args:
-              index:
-                value:
-                  simple: "0"
-    separatecontext: false
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 1955
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "34":
-    id: "34"
-    taskid: 79c76e6d-4d76-4915-841e-43e2312264ea
-    type: condition
-    task:
-      id: 79c76e6d-4d76-4915-841e-43e2312264ea
-      version: -1
-      name: Does the user still have a token
-      type: condition
-      iscommand: false
-      brand: ""
-    nexttasks:
-      "no":
-      - "9"
-    separatecontext: false
-    conditions:
-    - label: "no"
-      condition:
-      - - operator: isNotExists
-          left:
-            value:
-              complex:
-                root: DuoAdmin
-                accessor: UserDetails
-                transformers:
-                - operator: WhereFieldEquals
-                  args:
-                    equalTo:
-                      value:
-                        simple: winitzky
-                    field:
-                      value:
-                        simple: username
-                    getField:
-                      value:
-                        simple: u2ftokens
-                - operator: atIndex
-                  args:
-                    index:
-                      value:
-                        simple: "0"
-            iscontext: true
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 2360
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
-  "35":
-    id: "35"
-    taskid: 321a4ef7-0c76-4610-8b05-b288bdd63309
-    type: regular
-    task:
-      id: 321a4ef7-0c76-4610-8b05-b288bdd63309
-      version: -1
-      name: Get User Tokens
-      description: |-
-        Notice that for the test to actually test something the user has to have a token assigned to it.
-        To create a "dummy token" (for tests and such) use SOFTU2F with the duo admin site (available at https://github.com/github/SoftU2F).
-        You might have to kill it's process a few times and press "approve" for it to work (about 4 or 5 times)
-      script: '|||duoadmin-get-u2f-tokens-by-user'
-      type: regular
-      iscommand: true
-      brand: ""
-    nexttasks:
-      '#none#':
-      - "34"
-    scriptarguments:
-      username:
-        simple: winitzky
-    separatecontext: false
-    view: |-
-      {
-        "position": {
-          "x": 1750,
-          "y": 2160
-        }
-      }
-    note: false
-    timertriggers: []
-    ignoreworker: false
-    skipunavailable: false
-    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "36":
     id: "36"
-    taskid: a0fbdde8-f2af-416a-8166-4cbd9f06631f
+    taskid: 0d182e3e-21f8-4811-829b-d11e63001b5e
     type: regular
     task:
-      id: a0fbdde8-f2af-416a-8166-4cbd9f06631f
+      id: 0d182e3e-21f8-4811-829b-d11e63001b5e
       version: -1
       name: Associate a dummy phone
       script: '|||duoadmin-associate-device-to-user'
@@ -857,27 +607,27 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "40":
     id: "40"
-    taskid: 253e30f6-43c7-40d3-88a2-87e9286d7adf
+    taskid: 2aa2de4e-2911-4262-86e5-726b4a324d40
     type: regular
     task:
-      id: 253e30f6-43c7-40d3-88a2-87e9286d7adf
+      id: 2aa2de4e-2911-4262-86e5-726b4a324d40
       version: -1
       name: Get User0 Logs
-      description: Returns authentication logs associated with a user. Limited to
-        30 at a time
+      description: Returns authentication logs associated with a user. Limited to 30 at a time
       script: DUO Admin|||duoadmin-get-authentication-logs-by-user
       type: regular
       iscommand: true
       brand: DUO Admin
     nexttasks:
       '#none#':
-      - "45"
+      - "49"
     scriptarguments:
       from:
         simple: 5_years_ago
-      limit: {}
       username:
         simple: ${DuoAdmin.UserDetails.[0].username}
     reputationcalc: 1
@@ -886,7 +636,7 @@ tasks:
       {
         "position": {
           "x": 890,
-          "y": 2245
+          "y": 2355
         }
       }
     note: false
@@ -894,12 +644,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "43":
     id: "43"
-    taskid: fa23d0d9-7e34-442b-80b8-3eb632f2e13e
+    taskid: 69b73909-224c-4b8c-80e7-d0971f74218e
     type: title
     task:
-      id: fa23d0d9-7e34-442b-80b8-3eb632f2e13e
+      id: 69b73909-224c-4b8c-80e7-d0971f74218e
       version: -1
       name: done
       type: title
@@ -911,7 +663,7 @@ tasks:
       {
         "position": {
           "x": 890,
-          "y": 2810
+          "y": 3100
         }
       }
     note: false
@@ -919,12 +671,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "45":
     id: "45"
-    taskid: 3162d7c1-920b-493a-89ef-ab5c6c681bc2
+    taskid: 99c770ee-9baf-45ff-8dea-9c1114d6fdcb
     type: condition
     task:
-      id: 3162d7c1-920b-493a-89ef-ab5c6c681bc2
+      id: 99c770ee-9baf-45ff-8dea-9c1114d6fdcb
       version: -1
       name: Check that user0 and user2 auth_logs are different
       type: condition
@@ -955,8 +709,8 @@ tasks:
     view: |-
       {
         "position": {
-          "x": 890,
-          "y": 2435
+          "x": 780,
+          "y": 2700
         }
       }
     note: false
@@ -964,12 +718,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "46":
     id: "46"
-    taskid: d44b1264-e2a7-44ef-8c02-ad92bc0ad804
+    taskid: 83af78fa-b5b3-46ca-874f-5004fc9e1e8a
     type: regular
     task:
-      id: d44b1264-e2a7-44ef-8c02-ad92bc0ad804
+      id: 83af78fa-b5b3-46ca-874f-5004fc9e1e8a
       version: -1
       name: Print Error in case of two users have the same auth logs
       description: Prints an error entry with a given message
@@ -982,14 +738,13 @@ tasks:
       - "43"
     scriptarguments:
       message:
-        simple: There are two users with the same logs. The bug haven't been fixed
-          (issue 19141).
+        simple: There are two users with the same logs. The bug haven't been fixed (issue 19141).
     separatecontext: false
     view: |-
       {
         "position": {
-          "x": 650,
-          "y": 2630
+          "x": 580,
+          "y": 2910
         }
       }
     note: false
@@ -997,12 +752,14 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "47":
     id: "47"
-    taskid: f637ddbe-2864-48de-8201-58b0b23188bb
+    taskid: ab3bee4b-6c12-4b91-8ed3-50f98942bceb
     type: regular
     task:
-      id: f637ddbe-2864-48de-8201-58b0b23188bb
+      id: ab3bee4b-6c12-4b91-8ed3-50f98942bceb
       version: -1
       name: Wait for context to update
       description: Sleep for X seconds
@@ -1029,14 +786,16 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "48":
     id: "48"
-    taskid: 29a5d88c-691d-4633-8a66-30e85ea95082
+    taskid: a36117a0-3471-4051-8470-696838972ced
     type: regular
     task:
-      id: 29a5d88c-691d-4633-8a66-30e85ea95082
+      id: a36117a0-3471-4051-8470-696838972ced
       version: -1
-      name: Wait for context to be updated
+      name: Wait to avoid quota limit
       description: Sleep for X seconds
       scriptName: Sleep
       type: regular
@@ -1044,16 +803,16 @@ tasks:
       brand: ""
     nexttasks:
       '#none#':
-      - "32"
+      - "40"
     scriptarguments:
       seconds:
-        simple: "5"
+        simple: "60"
     separatecontext: false
     view: |-
       {
         "position": {
-          "x": 1750,
-          "y": 1585
+          "x": 890,
+          "y": 2195
         }
       }
     note: false
@@ -1061,6 +820,93 @@ tasks:
     ignoreworker: false
     skipunavailable: false
     quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "49":
+    id: "49"
+    taskid: 09f9dd80-94ca-4bf9-89d5-9afbfc32a857
+    type: condition
+    task:
+      id: 09f9dd80-94ca-4bf9-89d5-9afbfc32a857
+      version: -1
+      name: Check that user0 and user2 auth_logs are not empty
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#default#':
+      - "43"
+      "yes":
+      - "45"
+    separatecontext: false
+    conditions:
+    - label: "yes"
+      condition:
+      - - operator: isNotEmpty
+          left:
+            value:
+              complex:
+                root: DuoAdmin
+                accessor: UserDetails.[0].auth_logs.[0]
+            iscontext: true
+      - - operator: isNotEmpty
+          left:
+            value:
+              simple: DuoAdmin.UserDetails.[2].auth_logs
+            iscontext: true
+    view: |-
+      {
+        "position": {
+          "x": 890,
+          "y": 2515
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "50":
+    id: "50"
+    taskid: d5fd47a3-d1de-4652-8399-8d8582c3fa62
+    type: condition
+    task:
+      id: d5fd47a3-d1de-4652-8399-8d8582c3fa62
+      version: -1
+      name: Are auth logs a part of user details?
+      type: condition
+      iscommand: false
+      brand: ""
+    nexttasks:
+      "yes":
+      - "9"
+    separatecontext: false
+    conditions:
+    - label: "yes"
+      condition:
+      - - operator: isExists
+          left:
+            value:
+              complex:
+                root: DuoAdmin
+                accessor: UserDetails.[2].auth_logs
+            iscontext: true
+    view: |-
+      {
+        "position": {
+          "x": 900,
+          "y": 1790
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
 view: |-
   {
     "linkLabelsPosition": {
@@ -1068,8 +914,8 @@ view: |-
     },
     "paper": {
       "dimensions": {
-        "height": 2825,
-        "width": 2080,
+        "height": 3115,
+        "width": 1530,
         "x": 50,
         "y": 50
       }

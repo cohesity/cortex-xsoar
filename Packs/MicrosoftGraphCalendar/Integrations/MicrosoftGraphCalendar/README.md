@@ -23,9 +23,11 @@ For more details about the authentication used in this integration, see <a href=
 <li>
 <strong>Name</strong>: a textual name for the integration instance.</li>
 <li><strong>Server URL</strong></li>
-<li><strong>ID (<a href="#h_d0642479-95d1-4f92-b2da-f6c16c3e48b2" target="_self">from the admin consent - see Detailed Instructions</a>)</strong></li>
-<li><strong>Token (<a href="#h_d0642479-95d1-4f92-b2da-f6c16c3e48b2" target="_self">from the admin consent - see Detailed Instructions</a>)</strong></li>
-<li><strong>Key (<a href="#h_d0642479-95d1-4f92-b2da-f6c16c3e48b2" target="_self">from the admin consent - see Detailed Instructions</a>)</strong></li>
+<li><strong>ID for more details see cortex xsoar platform when configuring the integration instance</strong></li>
+<li><strong>Token for more details see cortex xsoar platform when configuring the integration instance</strong></li>
+<li><strong>Key for more details see cortex xsoar platform when configuring the integration instance</strong></li>
+<li><strong>Certificate Thumbprint</strong></li>
+<li><strong>Private Key</strong></li>
 <li><strong>Default user</strong></li>
 <li><strong>Trust any certificate (not secure)</strong></li>
 <li><strong>Use system proxy settings</strong></li>
@@ -1554,3 +1556,18 @@ For more details about the authentication used in this integration, see <a href=
 </pre>
 <h5>Human Readable Output</h5>
 <p>Event was deleted successfully.</p>
+
+<h3 id="msgraph-calendar-auth-reset">8. msgraph-calendar-auth-reset</h3>
+<hr>
+<p>Run this command if for some reason you need to rerun the authentication process.</p>
+<h5>Base Command</h5>
+<p>
+  <code>msgraph-calendar-auth-reset</code>
+</p>
+
+<h5>Input</h5>
+
+<p>There are no input arguments for this command.&nbsp;</p>
+<h5>Context Output</h5>
+There are no context output for this command.
+<p>&nbsp;</p>

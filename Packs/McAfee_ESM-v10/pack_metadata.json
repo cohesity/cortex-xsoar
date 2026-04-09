@@ -1,8 +1,9 @@
 {
-    "name": "McAfee ESM v10 and v11",
-    "description": "Run queries and receive alarms from Intel Security ESM. Support version 10 and above.",
+    "name": "McAfee ESM v10 and v11 (Deprecated)",
+    "description": "Deprecated. Use McAfee ESM instead.",
     "support": "xsoar",
-    "currentVersion": "1.0.7",
+    "hidden": true,
+    "currentVersion": "1.0.8",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
@@ -15,6 +16,10 @@
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix"
     ]
 }

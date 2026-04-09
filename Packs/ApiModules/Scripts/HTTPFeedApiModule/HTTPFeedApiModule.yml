@@ -8,12 +8,12 @@ subtype: python3
 tags:
 - infra
 - server
-comment: Common HTTP feed code that will be appended into each HTTP feed integration when it's deployed
+comment: Common HTTP feed code that will be appended into each HTTP feed integration when it's deployed.
 system: true
 scripttarget: 0
 dependson: {}
 timeout: 0s
-dockerimage: demisto/jmespath:1.0.0.10854
+dockerimage: demisto/py3-tools:1.0.0.108682
 fromversion: 5.0.0
 tests:
 - No tests

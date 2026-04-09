@@ -1,13 +1,13 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 from sklearn import impute
 
-import demistomock as demisto
-from CommonServerPython import *
 import collections
 import re
-import dateutil.parser
+import dateutil.parser  # type: ignore[import]
 import pickle
 import ipaddress
-import tldextract
+import tldextract  # type: ignore
 import editdistance
 import zlib
 from rfc822 import parseaddr  # type:ignore

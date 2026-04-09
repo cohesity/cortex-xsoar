@@ -1,178 +1,272 @@
-Integration with Okta's cloud-based identity management service
+Integration with Okta's cloud-based identity management service.
 
-## Configure Okta v2 on Cortex XSOAR
+## Configure Okta v2 in Cortex
 
-1. Navigate to **Settings** > **Integrations** > **Servers & Services**.
-2. Search for Okta v2.
-3. Click **Add instance** to create and configure a new integration instance.
+### API Token Authentication Prerequisites
 
-| **Parameter** | **Description** | **Required** |
-| --- | --- | --- |
-| url | Okta URL (https://yourdomain.okta.com) | True |
-| apitoken | API Token (see Detailed Instructions) | True |
-| insecure | Trust any certificate (not secure) | False |
-| proxy | Use system proxy settings | False |
+1. Sign in to your Okta organization as a user with administrator privileges.
+2. On the **Admin Console**, select **Security** > **API** from the menu, and then select the **Tokens** tab.
+3. Click **Create Token**.
+4. Name your token and click **Create Token**.
 
-4. Click **Test** to validate the URLs, token, and connection.
+#### Notes
+
+- API tokens have the same permissions as the user who creates them, and if the permissions of a user change, so do the permissions of the API token.
+- If more than one certificate is assigned to the application, the Key ID parameter is required to specify which
+  certificate to use for signing the JWT token.
+
+For more information, see the '[Create an API token](https://developer.okta.com/docs/guides/create-an-api-token/main/)' official documentation article.
+
+### OAuth 2.0 Authentication Prerequisites
+
+#### Required Scopes
+
+The following scopes are required for the Okta v2 integration to work properly:
+
+- okta.apps.manage
+- okta.apps.read
+- okta.groups.manage
+- okta.groups.read
+- okta.logs.read
+- okta.networkZones.manage
+- okta.networkZones.read
+- okta.sessions.manage
+- okta.sessions.read
+- okta.users.manage
+- okta.users.read
+
+1. Sign in to Okta Admin Console.
+2. In the Admin Console, go to **Applications** > **Applications**.
+3. Click **Create App Integration**.
+4. Select **API Services** as the sign-in method, and click **Next**.
+5. Enter the desired name for the created app (e.g., "Cortex XSOAR"), and click **Save**.
+6. In the app configuration page, under the **General** tab and the **Client Credentials** section, select **Public key / Private key** for the **Client authentication** option.
+7. Under the newly added **PUBLIC KEYS** section, click **Add Key**.
+8. In the **Add Public Key** dialog box, click **Generate new key**. Make sure to copy the generated private key (in PEM format) to somewhere safe, and click **Save**.
+9. Under the **General Settings** section:
+   1. Next to the **Proof of possession** label, uncheck the **Require Demonstrating Proof of Possession (DPoP) header in token requests** option if it's selected.
+   2. Next to the **Grant type** label, make sure the **Client Credentials** option is selected, and that the **Token Exchange** option is not selected.
+   3. Click **Save**.
+10. Under the **Okta API Scopes** tab, grant the required scopes mentioned above for the app.
+11. Under the **Admin roles** tab:
+    1. Click **Edit assignments**.
+    2. In the dropdown list under "Role", select **Super Administrator**.
+    3. Click **Save changes** at the top.
+
+For more information, see the '[Implement OAuth for Okta](https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/)' official documentation article.
+
+**Note:** OAuth 2.0 authentication is confirmed to support the 'Revoke all user sessions' functionality. When using the `okta-clear-user-sessions` command with `revoke_oauth_tokens=true`, it revokes OpenID Connect and OAuth refresh and access tokens issued to the user.
+
+### Instance Configuration
+
+| **Parameter**                              | **Description**                                                                                                                                                                                  | **Required** |
+|--------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| Okta URL (https://&lt;domain&gt;.okta.com) |                                                                                                                                                                                                  | True         |
+| API Token                                  |                                                                                                                                                                                                  | False        |
+| Use OAuth 2.0 Authentication               | See detailed instructions on the 'Help' tab.                                                                                                                                                     | False        |
+| Client ID                                  | Required and used if OAuth 2.0 is used for authentication. See detailed instructions on the 'Help' tab.                                                                                          | False        |
+| Private Key                                | In PEM format. Required and used if OAuth 2.0 is used for authentication. See detailed instructions on the 'Help' tab.                                                                           | False        |
+| JWT Signing Algorithm                      | Algorithm to sign generated JWT tokens with. Doesn't affect integration's functionality. Required and used if OAuth 2.0 is used for authentication. See detailed instructions on the 'Help' tab. | False        |
+| Key ID                                     | Required and used if more than one key is used for signing JWT tokens.                                                                                                                           | False        |
+| Trust any certificate (not secure)         |                                                                                                                                                                                                  | False        |
+| Use system proxy settings                  |                                                                                                                                                                                                  | False        |
+
 ## Commands
-You can execute these commands from the Cortex XSOAR CLI, as part of an automation, or in a playbook.
+
+You can execute these commands from the CLI, as part of an automation, or in a playbook.
 After you successfully execute a command, a DBot message appears in the War Room with the command details.
+
 ### okta-unlock-user
+
 ***
 Unlocks a single user.
 
-##### Base Command
+#### Base Command
 
 `okta-unlock-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username to unlock. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-unlock-user username=testForDocs@test.com```
 
 ##### Human Readable Output
-User testForDocs@test.com unlocked
+>
+>User testForDocs@test.com unlocked
 
 ### okta-deactivate-user
+
 ***
 Deactivates a single user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-deactivate-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username to deactivate. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-deactivate-user username=testForDocs@test.com```
 
 ##### Human Readable Output
-User testForDocs@test.com deactivated
+>
+>User testForDocs@test.com deactivated
 
 ### okta-activate-user
+
 ***
 Activates a single user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-activate-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username to activate. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-activate-user username=testForDocs@test.com```
 
 ##### Human Readable Output
-### testForDocs@test.com is active now
+>
+>### testForDocs@test.com is active now
 
 ### okta-suspend-user
+
 ***
-Suspends a single user. This operation can only be performed on users with an ACTIVE status. The user has a status of SUSPENDED when the process is completed.
+Suspends a single user. This operation can only be performed on users with an ACTIVE status. After the porcess is completed, the user's status is SUSPENDED.
 
-
-##### Base Command
+#### Base Command
 
 `okta-suspend-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username to suspend. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-suspend-user username=testForDocs@test.com```
 
 ##### Human Readable Output
-### testForDocs@test.com status is Suspended
+>
+>### testForDocs@test.com status is Suspended
 
 ### okta-unsuspend-user
+
 ***
 Returns a single user to ACTIVE status. This operation can only be performed on users that have a SUSPENDED status.
 
-
-##### Base Command
+#### Base Command
 
 `okta-unsuspend-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username to change the status to ACTIVE. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-unsuspend-user username=testForDocs@test.com```
 
 ##### Human Readable Output
-### testForDocs@test.com is no longer SUSPENDED
+>
+>### testForDocs@test.com is no longer SUSPENDED
 
 ### okta-get-user-factors
+
 ***
 Returns all the enrolled factors for the specified user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-user-factors`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username for which to return all enrolled factors. | Optional |
 | userId | User ID of the user for which to get all enrolled factors. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | Account.ID | String | Okta account ID. |
 | Account.Factor.ID | String | Okta account factor ID. |
-| Account.Factor.Provider | String | Okta account factor provider |
+| Account.Factor.Provider | String | Okta account factor provider. |
 | Account.Factor.Profile | String | Okta account factor profile. |
 | Account.Factor.FactorType | String | Okta account factor type. |
 | Account.Factor.Status | Unknown | Okta account factor status. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-user-factors username=factor@test.com```
 
 ##### Context Example
+
 ```
 {
     "Account": {
@@ -208,77 +302,93 @@ Returns all the enrolled factors for the specified user.
 ```
 
 ##### Human Readable Output
-Factors for user: 00upt1w8tgFQM2v0h7
- ### Factors
-|FactorType|ID|Profile|Provider|Status|
-|---|---|---|---|---|
-| sms | mbgt21nffaaN5F060h7 | phoneNumber: +12025550191 | OKTA | PENDING_ACTIVATION |
-| token:software:totp | uftptgdrDJ7fDOq0h7 | credentialId: factor@test.com | GOOGLE | PENDING_ACTIVATION |
-| push | opfg1joeaArlg27g0h7 |  | OKTA | PENDING_ACTIVATION |
-
+>
+>Factors for user: 00upt1w8tgFQM2v0h7
+>
+>### Factors
+>
+>|FactorType|ID|Profile|Provider|Status|
+>|---|---|---|---|---|
+>| sms | mbgt21nffaaN5F060h7 | phoneNumber: +12025550191 | OKTA | PENDING_ACTIVATION |
+>| token:software:totp | uftptgdrDJ7fDOq0h7 | credentialId: factor@test.com | GOOGLE | PENDING_ACTIVATION |
+>| push | opfg1joeaArlg27g0h7 |  | OKTA | PENDING_ACTIVATION |
 
 ### okta-reset-factor
+
 ***
 Un-enrolls an existing factor for the specified user. This enables the user to enroll a new factor.
 
-
-##### Base Command
+#### Base Command
 
 `okta-reset-factor`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| userId | The user ID | Optional |
+| userId | The user ID. | Optional |
 | username | Username for which to un-enroll an existing factor. | Optional |
 | factorId | The ID of the factor to reset. | Required |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-reset-factor factorId=ufsq7cvptfbjQa72c0h7 userId=00upt1w8t40wFQM2v6t4```
 
 ##### Human Readable Output
-Factor: ufsq7cvptfbjQa72c0h7 deleted
+>
+>Factor: ufsq7cvptfbjQa72c0h7 deleted
 
 ### okta-set-password
+
 ***
 Sets passwords without validating existing user credentials.
 
-
-##### Base Command
+#### Base Command
 
 `okta-set-password`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Okta username for which to set the password. | Required |
 | password | The new password to set for the user. | Required |
+| temporary_password | When true, you'll need to change the password in the next login. Possible values are: true, false. Default is false. | Optional |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-set-password username=testForDocs@test.com password=N3wPa55word!```
 
 ##### Human Readable Output
-testForDocs@test.com password was last changed on 2020-03-26T13:57:13.000Z
+>
+>testForDocs@test.com password was last changed on 2020-03-26T13:57:13.000Z
 
 ### okta-add-to-group
+
 ***
 Adds a user to a group with OKTA_GROUP type.
 
-
-##### Base Command
+#### Base Command
 
 `okta-add-to-group`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
@@ -287,26 +397,32 @@ Adds a user to a group with OKTA_GROUP type.
 | groupId | ID of the group to add the user to. | Optional |
 | groupName | Name of the group to add the user to. | Optional |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-add-to-group groupName=Demisto username=testForDocs@test.com```
 
 ##### Human Readable Output
-User: 00uqk1qesl3k0SRbH0h7 added to group: Demisto successfully
+>
+>User: 00uqk1qesl3k0SRbH0h7 added to group: Demisto successfully
 
 ### okta-remove-from-group
+
 ***
-Removes a user from a group with OKTA_GROUP type
+Removes a user from a group with OKTA_GROUP type.
 
-
-##### Base Command
+#### Base Command
 
 `okta-remove-from-group`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
@@ -315,33 +431,34 @@ Removes a user from a group with OKTA_GROUP type
 | groupId | ID of the group to remove the user from. | Optional |
 | groupName | Name of the group to remove the user from. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 There is no context output for this command.
 
 ##### Command Example
+
 ```!okta-remove-from-group groupName=demisto username=testForDocs@test.com```
 
 ##### Human Readable Output
-User: 00uqk1qesl3k0SRbH0h7 was removed from group: demisto successfully
+>
+>User: 00uqk1qesl3k0SRbH0h7 was removed from group: demisto successfully
 
 ### okta-get-groups
+
 ***
 Returns all user groups associated with a specified user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-groups`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Username in Okta for which to get the associated groups. | Required |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -356,12 +473,16 @@ Returns all user groups associated with a specified user.
 | Account.Group.Type | String | Group type, which determines how a group's profile and memberships are managed. |
 | Account.Group.Description | String | Description of the group. |
 | Account.Group.Name | String | Name of the group. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-groups username=testForDocs@test.com```
 
 ##### Context Example
+
 ```
 {
     "Account": {
@@ -397,45 +518,56 @@ Returns all user groups associated with a specified user.
 ```
 
 ##### Human Readable Output
-Okta groups for user: testForDocs@test.com
- ### Groups
-|Created|Description|ID|LastMembershipUpdated|LastUpdated|Name|ObjectClass|Type|
-|---|---|---|---|---|---|---|---|
-| 2016-04-12T15:01:50.000Z | All users in your organization | 00g66lckgAJpLcNc0h7 | 2020-03-26T13:56:49.000Z | 2016-04-12T15:01:50.000Z | Everyone | okta:user_group | BUILT_IN |
-| 2018-01-19T02:02:06.000Z |  | 00gdougcgzEaf7c50h7 | 2020-03-26T13:49:47.000Z | 2018-01-19T02:02:06.000Z | Demisto | okta:user_group | OKTA_GROUP |
-
+>
+>Okta groups for user: testForDocs@test.com
+>
+>### Groups
+>
+>|Created|Description|ID|LastMembershipUpdated|LastUpdated|Name|ObjectClass|Type|
+>|---|---|---|---|---|---|---|---|
+>| 2016-04-12T15:01:50.000Z | All users in your organization | 00g66lckgAJpLcNc0h7 | 2020-03-26T13:56:49.000Z | 2016-04-12T15:01:50.000Z | Everyone | okta:user_group | BUILT_IN |
+>| 2018-01-19T02:02:06.000Z |  | 00gdougcgzEaf7c50h7 | 2020-03-26T13:49:47.000Z | 2018-01-19T02:02:06.000Z | Demisto | okta:user_group | OKTA_GROUP |
 
 ### okta-verify-push-factor
+
 ***
 Enrolls and verifies a push factor for the specified user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-verify-push-factor`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | userId | The ID of the user to enroll and verify. | Required |
 | factorId | The push factor ID. | Required |
+| polling_time | Time to wait between subsequent polling calls. Value is in seconds. Default time is 5 seconds. | Optional |
+| max_polling_calls | Maximum number of polling calls. Default value is 10. | Optional |
+| polling | Whether to poll for the push factor challenge result. Possible values are: true, false. Default is true. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | Account.ID | String | Okta user ID. |
 | Account.VerifyPushResult | String | Okta user push factor result. |
-
+| Okta.PollingStatusURL | String | The polling URL for the push factor challenge. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-verify-push-factor factorId=opfpt1joeaArlg27g0h7 userId=00upt1w8t40wFQM2v0h7```
 
 ##### Human Readable Output
-Verify push factor result for user 00upt1w8t40wgQM2v0h7: WAITING
+>
+>Verify push factor result for user 00upt1w8t40wgQM2v0h7: WAITING
 
 ##### Context Example
+
 ```
 {
     "factorResult": "WAITING",
@@ -478,24 +610,58 @@ Verify push factor result for user 00upt1w8t40wgQM2v0h7: WAITING
 }
 ```
 
-### okta-search
+### okta-verify-mfa-status
+
 ***
-Searches for Okta users.
+Verifies the status of a push factor challenge.
 
+#### Base Command
 
-##### Base Command
+`okta-verify-mfa-status`
 
-`okta-search`
-##### Input
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| term | Term by which to search. Can be a first name, last name, or email address. | Required |
+| polling_url | The polling URL for the push factor challenge. | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.FactorResult.ID | String | The push factor challenge ID. |
+| Okta.FactorResult.factorResult | String | The result of the factor challenge. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
+
+##### Command Example
+
+```!okta-verify-mfa-status polling_url="https://test.com/api/v1/users/TestID/factors/FactorID/transactions/TransactionID"```
+
+##### Human Readable Output
+>
+>The status of the push factor is SUCCESS
+
+### okta-search
+
+***
+Searches for Okta users.
+
+#### Base Command
+
+`okta-search`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| term | Term by which to search. Can be a first name, last name, or email address. The argument `term` or `advanced_search` is required. | Optional |
+| advanced_search | Searches for users with a supported filtering expression for most properties, including custom-defined properties. The argument `term` or `advanced_search` is required. | Optional |
 | limit | The maximum number of results to return. The default and maximum is 200. | Optional |
-| verbose | Whether to return details of users that match the found term. Can be "true" or "false". The default is "false". | Optional |
+| verbose | Whether to return details of users that match the found term. Can be "true" or "false". The default is "false". Possible values are: true, false. Default is false. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -509,12 +675,16 @@ Searches for Okta users.
 | Account.Activated | Date | Timestamp for when the user was activated. |
 | Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
 | Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-search term=test verbose=true```
 
 ##### Context Example
+
 ```
 {
     "Account": [
@@ -558,55 +728,69 @@ Searches for Okta users.
 ```
 
 ##### Human Readable Output
-### Okta users found:
-### User:bartest@test.com
-### Profile
-|Email|First Name|Last Name|Login|Mobile Phone|Second Email|
-|---|---|---|---|---|---|
-| bartest@test.com | bar | test | bartest@test.com |  |  |
+>
+>Okta users found:
+>User:bartest@test.com
+>
+>### Profile
+>
+>|Email|First Name|Last Name|Login|Mobile Phone|Second Email|
+>|---|---|---|---|---|---|
+>| bartest@test.com | bar | test | bartest@test.com |  |  |
 
- ### Additional Data
+##### Additional Data
+
 |Activated|Created|Credentials|ID|Last Login|Last Updated|Password Changed|Status|Status Changed|Type|_links|
 |---|---|---|---|---|---|---|---|---|---|---|
 | 2020-02-12T14:03:51.000Z | 2020-02-12T14:03:50.000Z | provider: {"type": "OKTA", "name": "OKTA"} | 00uppjeleqJQ2kkN80h7 |  | 2020-02-12T14:03:51.000Z |  | PROVISIONED |  | id: oty66lckcvDyVcGzS0h7 | self: {"href": "https://yourdomain.okta.com/api/v1/users/00uppjeleqJQ2kkN80h7"} |
-### User:test@that.com
-### Profile
+
+##### User:test@that.com
+
+##### Profile
+
 |Email|First Name|Last Name|Login|Mobile Phone|Second Email|
 |---|---|---|---|---|---|
 | test@that.com | test | that | test@that.com |  | test@that.com |
 
- ### Additional Data
+##### Additional Data
+
 |Activated|Created|Credentials|ID|Last Login|Last Updated|Password Changed|Status|Status Changed|Type|_links|
 |---|---|---|---|---|---|---|---|---|---|---|
 | 2020-02-19T12:33:20.000Z | 2018-07-31T12:48:33.000Z | provider: {"type": "OKTA", "name": "OKTA"} | 00ufufhqits3y78Ju0h7 |  | 2020-02-19T12:33:20.000Z | 2020-02-06T13:32:56.000Z | PROVISIONED |  | id: oty66lckcvDyVcGzS0h7 | self: {"href": "https://yourdomain.okta.com/api/v1/users/00ufufhqits3y78Ju0h7"} |
-### User:testForDocs@test.com
-### Profile
+
+##### User:testForDocs@test.com
+
+##### Profile
+
 |Email|First Name|Last Name|Login|Mobile Phone|Second Email|
 |---|---|---|---|---|---|
 | testForDocs@test.com | test | that | testForDocs@test.com |  |  |
 
- ### Additional Data
+##### Additional Data
+
 |Activated|Created|Credentials|ID|Last Login|Last Updated|Password Changed|Status|Status Changed|Type|_links|
 |---|---|---|---|---|---|---|---|---|---|---|
 | 2020-03-26T13:56:52.000Z | 2020-03-26T13:56:49.000Z | password: {}recovery_question: {"question": "whats is your favourite integration"}provider: {"type": "OKTA", "name": "OKTA"} | 00uqk1qesl3k0SRbH0h7 |  | 2020-03-26T13:56:52.000Z | 2020-03-26T13:56:50.000Z | ACTIVE |  | id: oty66lckcvDyVcGzS0h7 | self: {"href": "https://yourdomain.okta.com/api/v1/users/00uqk1qesl3k0SRbH0h7"} |
 
 ### okta-get-user
+
 ***
 Fetches information for a single user. You must enter one or more parameters for the command to run.
 
-##### Base Command
+#### Base Command
 
 `okta-get-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | username | Okta username for which to get information. | Optional |
 | userId | User ID of the user for which to get information. | Optional |
-| verbose | Whether to return extended user information. Can be "true" or "false". The default is "false". | Optional |
+| userEmail | Email of the user for which to get information. | Optional |
+| verbose | Whether to return extended user information. Can be "true" or "false". The default is "false". Possible values are: true, false. Default is false. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -619,12 +803,18 @@ Fetches information for a single user. You must enter one or more parameters for
 | Account.Activated | Date | Timestamp for when the user was activated. |
 | Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
 | Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
-
+| Account.Manager | String | The manager. |
+| Account.ManagerEmail | String | The manager email. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-user username=testForDocs@test.com verbose=true```
 
 ##### Context Example
+
 ```
 {
     "Account": {
@@ -633,6 +823,8 @@ Fetches information for a single user. You must enter one or more parameters for
         "DisplayName": "test that",
         "Email": "testForDocs@test.com",
         "ID": "00uqk1qesl3k0SRbH0h7",
+        "Manager": "manager@test.com",
+        "ManagerEmail": null,
         "PasswordChanged": "2020-03-26T13:56:50.000Z",
         "Status": "ACTIVE",
         "StatusChanged": "2020-03-26T13:56:52.000Z",
@@ -643,27 +835,68 @@ Fetches information for a single user. You must enter one or more parameters for
 ```
 
 ##### Human Readable Output
-### User:testForDocs@test.com
-### Profile
-|Email|First Name|Last Name|Login|Mobile Phone|Second Email|
-|---|---|---|---|---|---|
-| testForDocs@test.com | test | that | testForDocs@test.com |  |  |
+>
+>### User:testForDocs@test.com
+>
+>### Profile
+>
+>|Email|First Name|Last Name|Login|Manager|Manager Email|Mobile Phone|Second Email|
+>|---|---|---|---|---|---|---|---|
+>| testForDocs@test.com | test | that | testForDocs@test.com | manager@test.com |  |  |  |
 
- ### Additional Data
+##### Additional Data
+
 |Activated|Created|Credentials|ID|Last Login|Last Updated|Password Changed|Status|Status Changed|Type|_links|
 |---|---|---|---|---|---|---|---|---|---|---|
 | 2020-03-26T13:56:52.000Z | 2020-03-26T13:56:49.000Z | password: {}recovery_question: {"question": "whats is your favourite integration"} provider: {"type": "OKTA", "name": "OKTA"} | 00uqk1qesl3k0SRbH0h7 |  | 2020-03-26T13:56:52.000Z | 2020-03-26T13:56:50.000Z | ACTIVE |  | id: oty66lckcvDyVcGzS0h7 | links|
 
+### okta-list-users
+
+***
+Lists users in your organization.
+
+#### Base Command
+
+`okta-list-users`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| after | The cursor in which to retrive the results from and on. if the query didn't reach the end of results, the tag can be obtained from the bottom of the grid in the readable output, or in the context path Okta.User.tag. | Optional |
+| limit | The maximum number of results to return. Default is 200. | Optional |
+| verbose | Whether to return extended user information. Possible values are: true, false. Default is false. | Optional |
+| query | Searches the name property of groups for matching values. | Optional |
+| filter | Useful for performing structured queries where constraints on group attribute values can be explicitly targeted. <br/>The following expressions are supported(among others) for groups with the filter query parameter: <br/> type eq "OKTA_GROUP" - Groups that have a type of OKTA_GROUP; lastUpdated lt "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with profile last updated before a specific timestamp; lastMembershipUpdated eq "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with memberships last updated at a specific timestamp; id eq "00g1emaKYZTWRYYRRTSK" - Group with a specified ID. For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Account.ID | String | Okta account ID. |
+| Account.Email | String | Okta account email. |
+| Account.Username | String | Okta account username. |
+| Account.DisplayName | String | Okta account display name. |
+| Account.Status | String | Okta account status. |
+| Account.Created | Date | Timestamp for when the user was created. |
+| Account.Activated | Date | Timestamp for when the user was activated. |
+| Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
+| Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
+| Okta.User.tag | String | The location of the next item, used with after param. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ### okta-create-user
+
 ***
 Creates a new user with an option of setting a password, recovery question, and answer. The new user will immediately be able to log in after activation with the assigned password. This flow is common when developing a custom user registration experience.
 
-
-##### Base Command
+#### Base Command
 
 `okta-create-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
@@ -674,7 +907,7 @@ Creates a new user with an option of setting a password, recovery question, and 
 | secondEmail | Secondary email address of user. Usually used for account recovery. | Optional |
 | middleName | Middle name(s) of the user. | Optional |
 | honorificPrefix | A comma-separated list of honorific prefix(es) of the user, or title in most Western languages. | Optional |
-| honificSuffix | A comma-separated list of honorific suffix(es) of the user. | Optional |
+| honorificSuffix | A comma-separated list of honorific suffix(es) of the user. | Optional |
 | title | User's title. for example, Vice President. | Optional |
 | displayName | Display name of the user. | Optional |
 | nickName | Casual way to address the user (nick name). | Optional |
@@ -701,13 +934,12 @@ Creates a new user with an option of setting a password, recovery question, and 
 | password | Password for the new user. | Optional |
 | passwordQuestion | Password question for the new user. | Optional |
 | passwordAnswer | Password answer for question. | Optional |
-| providerType | The provider type. Can be "OKTA", "ACTIVE_DIRECTORY", "LDAP", "FEDERATION", or "SOCIAL". | Optional |
+| providerType | The provider type. Can be "OKTA", "ACTIVE_DIRECTORY", "LDAP", "FEDERATION", or "SOCIAL". Possible values are: OKTA, ACTIVE_DIRECTORY, LDAP, FEDERATION, SOCIAL. | Optional |
 | providerName | Name of the provider. | Optional |
 | groupIds | IDs of groups that the user will be immediately added to at time of creation (does Not include default group). | Optional |
-| activate | Whether to activate the lifecycle operation when creating the user. Can be "true" or "false". | Optional |
+| activate | Whether to activate the lifecycle operation when creating the user. Can be "true" or "false". Possible values are: true, false. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -721,12 +953,16 @@ Creates a new user with an option of setting a password, recovery question, and 
 | Account.Activated | Date | Timestamp for when the user was activated. |
 | Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
 | Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-create-user email=testForDocs@test.com firstName=test lastName=that login=testForDocs@test.com password=Pa55word! passwordQuestion="whats is your favourite integration" passwordAnswer="Okta of course"```
 
 ##### Context Example
+
 ```
 {
     "Account": {
@@ -745,21 +981,23 @@ Creates a new user with an option of setting a password, recovery question, and 
 ```
 
 ##### Human Readable Output
-### Okta User Created: testForDocs@test.com:
-|First Name|ID|Last Login|Last Name|Login|Mobile Phone|Status|
-|---|---|---|---|---|---|---|
-| test | 00uqk1qesl3k0SRbH0h7 |  | that | testForDocs@test.com |  | STAGED |
-
+>
+>### Okta User Created: testForDocs@test.com
+>
+>|First Name|ID|Last Login|Last Name|Login|Mobile Phone|Status|
+>|---|---|---|---|---|---|---|
+>| test | 00uqk1qesl3k0SRbH0h7 |  | that | testForDocs@test.com |  | STAGED |
 
 ### okta-update-user
+
 ***
-Updates a user with a given login. All fields are optional, fields which are not set will not be overridden.
+Updates a user with a given login. All fields are optional. Fields which are not set, will not be overwritten.
 
-
-##### Base Command
+#### Base Command
 
 `okta-update-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
@@ -782,7 +1020,7 @@ Updates a user with a given login. All fields are optional, fields which are not
 | state | State or region component of the user's address (region). | Optional |
 | zipCode | Zip code or postal code component of the user's address (postalCode). | Optional |
 | countryCode | Country name component of the user's address (country). | Optional |
-| postalSddress | Mailing address component of the user's address. | Optional |
+| postalAddress | Mailing address component of the user's address. | Optional |
 | preferredLanguage | User's preferred written or spoken languages. | Optional |
 | locale | User's default location for purposes of localizing items such as currency, date-time format, numerical representations, etc. | Optional |
 | timezone | User time zone. | Optional |
@@ -797,42 +1035,48 @@ Updates a user with a given login. All fields are optional, fields which are not
 | password | New password for the specified user. | Optional |
 | passwordQuestion | Password question for the specified user. | Optional |
 | passwordAnswer | Password answer for the question. | Optional |
-| providerType | The provider type. Can be "OKTA", "ACTIVE_DIRECTORY", "LDAP", "FEDERATION", or "SOCIAL". | Optional |
+| providerType | The provider type. Can be "OKTA", "ACTIVE_DIRECTORY", "LDAP", "FEDERATION", or "SOCIAL". Possible values are: OKTA, ACTIVE_DIRECTORY, FEDERATION, SOCIAL. | Optional |
 | providerName | Name of the provider. | Optional |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-update-user username=testForDocs@test.com firstName="First Name Updated"```
 
 ##### Human Readable Output
-### Okta user: testForDocs@test.com Updated:
-|email|firstName|lastName|login|mobilePhone|secondEmail|
-|---|---|---|---|---|---|
-| testForDocs@test.com | First Name Updated | that | testForDocs@test.com |  |  |
-
+>
+>### Okta user: testForDocs@test.com Updated
+>
+>|email|firstName|lastName|login|mobilePhone|secondEmail|
+>|---|---|---|---|---|---|
+>| testForDocs@test.com | First Name Updated | that | testForDocs@test.com |  |  |
 
 ### okta-get-group-members
+
 ***
 Enumerates all users that are members of a group.
 
-##### Base Command
+#### Base Command
 
 `okta-get-group-members`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | groupId | ID of the group. | Optional |
 | limit | The maximum number of results to return. | Optional |
-| verbose | Whether to print extended user details. Can be "true" or "false". The default is "false". | Optional |
+| verbose | Whether to print extended user details. Can be "true" or "false". The default is "false". Possible values are: true, false. Default is false. | Optional |
 | groupName | Name of the group. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -846,12 +1090,16 @@ Enumerates all users that are members of a group.
 | Account.Activated | Date | Timestamp for when the user was activated. |
 | Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
 | Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-group-members groupName=Demisto limit=1 verbose=true```
 
 ##### Context Example
+
 ```
 {
     "Account": {
@@ -869,37 +1117,41 @@ Enumerates all users that are members of a group.
 ```
 
 ##### Human Readable Output
-### Users for group: Demisto:
- ### User:Test@demisto.com
-### Profile
-|Email|First Name|Last Name|Login|Mobile Phone|Second Email|
-|---|---|---|---|---|---|
-| XSOAR@demisto.com | Test | Demisto | XSOAR@demisto.com |  |  |
+>
+>### Users for group: Demisto
+>
+>### User:Test@demisto.com
+>
+>### Profile
+>
+>|Email|First Name|Last Name|Login|Mobile Phone|Second Email|
+>|---|---|---|---|---|---|
+>| XSOAR@demisto.com | Test | Demisto | XSOAR@demisto.com |  |  |
 
- ### Additional Data
+##### Additional Data
+
 |Activated|Created|Credentials|ID|Last Login|Last Updated|Password Changed|Status|Status Changed|Type|_links|
 |---|---|---|---|---|---|---|---|---|---|---|
 |  | 2016-04-12T15:01:52.000Z | password: {} recovery_question: {"question": "born city"} provider: {"type": "OKTA", "name": "OKTA"} | 00u66lckd7lpjidYi0h7 | 2020-03-12T09:54:36.000Z | 2020-02-24T11:42:22.000Z | 2020-02-24T11:40:08.000Z | ACTIVE |  | id: oty66lckcyVcGzS0h7 | self: {"href": "https://yourdomain.okta.com/api/v1/users/00uclpjidYi0h7"} |
 
-
 ### okta-list-groups
+
 ***
 Lists groups in your organization. A subset of groups can be returned that match a supported filter expression or query.
 
-
-##### Base Command
+#### Base Command
 
 `okta-list-groups`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | query | Searches the name property of groups for matching values. | Optional |
-| filter | Useful for performing structured queries where constraints on group attribute values can be explicitly targeted. The following expressions are supported(among others) for groups with the filter query parameter: type eq "OKTA_GROUP" - Groups that have a type of OKTA_GROUP; lastUpdated lt "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with profile last updated before a specific timestamp; lastMembershipUpdated eq "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with memberships last updated at a specific timestamp; id eq "00g1emaKYZTWRYYRRTSK" - Group with a specified ID. For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering | Optional |
-| limit | The maximum number of results to return. The default is 200. | Optional |
+| filter | Useful for performing structured queries where constraints on group attribute values can be explicitly targeted. <br/>The following expressions are supported(among others) for groups with the filter query parameter: <br/> type eq "OKTA_GROUP" - Groups that have a type of OKTA_GROUP; lastUpdated lt "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with profile last updated before a specific timestamp; lastMembershipUpdated eq "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with memberships last updated at a specific timestamp; id eq "00g1emaKYZTWRYYRRTSK" - Group with a specified ID. For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering. | Optional |
+| limit | The maximum number of results to return. The default is 200. Default is 200. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -911,12 +1163,16 @@ Lists groups in your organization. A subset of groups can be returned that match
 | Okta.Group.Type | String | The group type, which determines how a group's profile and membership are managed. Can be "OKTA_GROUP", "APP_GROUP", or "BUILT_IN". |
 | Okta.Group.Name | String | Name of the group. |
 | Okta.Group.Description | String | Description of the group. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-list-groups filter=`type eq "OKTA_GROUP" and lastUpdated lt "2019-04-30T00:00:00.000Z" and lastMembershipUpdated gt "2019-04-30T00:00:00.000Z"` query=demisto```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -936,31 +1192,32 @@ Lists groups in your organization. A subset of groups can be returned that match
 ```
 
 ##### Human Readable Output
-### Groups
-|Created|Description|ID|LastMembershipUpdated|LastUpdated|Name|ObjectClass|Type|
-|---|---|---|---|---|---|---|---|
-| 2018-01-19T02:02:06.000Z |  | 00gdougctEaf7c50h7 | 2020-03-26T13:56:56.000Z | 2018-01-19T02:02:06.000Z | Demisto | okta:user_group | OKTA_GROUP |
-
+>
+>### Groups
+>
+>|Created|Description|ID|LastMembershipUpdated|LastUpdated|Name|ObjectClass|Type|
+>|---|---|---|---|---|---|---|---|
+>| 2018-01-19T02:02:06.000Z |  | 00gdougctEaf7c50h7 | 2020-03-26T13:56:56.000Z | 2018-01-19T02:02:06.000Z | Demisto | okta:user_group | OKTA_GROUP |
 
 ### okta-get-failed-logins
+
 ***
 Returns failed login events.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-failed-logins`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| since | Filters the lower time bound of the log events in the Internet Date/Time Format profile of ISO 8601. An example: 2017-05-03T16:22:18Z | Optional |
-| until | Filters the upper time bound of the log events in the Internet Date/Time Format profile of ISO 8601. An example: 2017-05-03T16:22:18Z | Optional |
-| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". | Optional |
+| since | Filters the lower time bound of the log events in the Internet Date/Time Format profile of ISO 8601. An example: 2017-05-03T16:22:18Z. | Optional |
+| until | Filters the upper time bound of the log events in the Internet Date/Time Format profile of ISO 8601. An example: 2017-05-03T16:22:18Z. | Optional |
+| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". Possible values are: ASCENDING, DESCENDING. Default is ASCENDING. | Optional |
 | limit | The maximum number of results to return. The default is 100. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -968,7 +1225,7 @@ Returns failed login events.
 | Okta.Logs.Events.actor.displayName | String | Display name of the actor. |
 | Okta.Logs.Events.actor.id | String | ID of the actor. |
 | Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of the user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
-| Okta.Logs.Events.client.userAgent.os | String | The OS on which the client runs. For example, Microsoft Windows 10. |
+| Okta.Logs.Events.client.userAgent.os | String | The operating system on which the client runs. For example, Microsoft Windows 10. |
 | Okta.Logs.Events.client.userAgent.browser | String | Identifies the browser type, if relevant. For example, Chrome. |
 | Okta.Logs.Events.client.device | String | Type of device that client operated from. For example, Computer. |
 | Okta.Logs.Events.client.id | String | For OAuth requests, the ID of the OAuth client making the request. For SSWS token requests, the ID of the agent making the request. |
@@ -996,12 +1253,16 @@ Returns failed login events.
 | Okta.Logs.Events.target.type | String | Type of a target. |
 | Okta.Logs.Events.target.alternateId | String | Alternative ID of a target. |
 | Okta.Logs.Events.target.displayName | String | Display name of a target. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-failed-logins since="2019-04-30T00:00:00.000Z" limit=1```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -1102,33 +1363,34 @@ Returns failed login events.
 ```
 
 ##### Human Readable Output
-### Failed Login Events
-|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
-|---|---|---|---|---|---|---|---|---|---|
-| unknown (User) | admin | 127.0.0.1 | CHROME on Windows 10 Computer | User login to Okta | FAILURE: VERIFICATION_ERROR | INFO | 127.0.0.1 | - | 09/30/2019, 18:42:38 |
-
+>
+>### Failed Login Events
+>
+>|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
+>|---|---|---|---|---|---|---|---|---|---|
+>| unknown (User) | admin | 127.0.0.1 | CHROME on Windows 10 Computer | User login to Okta | FAILURE: VERIFICATION_ERROR | INFO | 127.0.0.1 | - | 09/30/2019, 18:42:38 |
 
 ### okta-get-logs
+
 ***
 Gets logs by providing optional filters.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-logs`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| filter | Useful for performing structured queries where constraints on LogEvent attribute values can be explicitly targeted.   The following expressions are supported for events with the filter query parameter: eventType eq " :eventType"  -Events that have a specific action; eventType target.id eq ":id"  - Events published with a specific target id; actor.id eq ":id" - Events published with a specific actor ID. For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering | Optional |
-| query | The query parameter can be used to perform keyword matching against a LogEvents object’s attribute values. In order to satisfy the constraint, all supplied keywords must be matched exactly. Note that matching is case-insensitive.  The following are some examples of common keyword filtering:  Events that mention a specific city: query=San Francisco;  Events that mention a specific url: query=interestingURI.com;  Events that mention a specific person: query=firstName lastName. | Optional |
+| filter | Useful for performing structured queries where constraints on LogEvent attribute values can be explicitly targeted.  <br/>The following expressions are supported for events with the filter query parameter: eventType eq " :eventType" <br/>-Events that have a specific action; eventType target.id eq ":id" <br/>- Events published with a specific target id; actor.id eq ":id"<br/>- Events published with a specific actor ID. For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering. | Optional |
+| query | The query parameter can be used to perform keyword matching against a LogEvents object’s attribute values. To satisfy the constraint, all supplied keywords must be matched exactly. Note that matching is case-insensitive.  The following are some examples of common keyword filtering: <br/>Events that mention a specific city: query=San Francisco; <br/>Events that mention a specific url: query=interestingURI.com; <br/>Events that mention a specific person: query=firstName lastName. | Optional |
 | since | Filters the lower time bound of the log events in the Internet Date/Time Format profile of ISO 8601. For example: 2017-05-03T16:22:18Z. | Optional |
 | until | Filters the upper  time bound of the log events in the Internet Date/Time Format profile of ISO 8601. For example: 2017-05-03T16:22:18Z. | Optional |
-| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". | Optional |
-| limit | The maximum number of results to return. The default is 100. | Optional |
+| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". Possible values are: ASCENDING, DESCENDING. Default is ASCENDING. | Optional |
+| limit | The maximum number of results to return. The default is 100. Default is 100. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -1136,7 +1398,7 @@ Gets logs by providing optional filters.
 | Okta.Logs.Events.actor.displayName | String | Display name of the actor. |
 | Okta.Logs.Events.actor.id | String | ID of the actor. |
 | Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
-| Okta.Logs.Events.client.userAgent.os | String | The operation system on which the client runs. For example, Microsoft Windows 10. |
+| Okta.Logs.Events.client.userAgent.os | String | The operating system on which the client runs. For example, Microsoft Windows 10. |
 | Okta.Logs.Events.client.userAgent.browser | String | Identifies the type of web browser, if relevant. For example, Chrome. |
 | Okta.Logs.Events.client.device | String | Type of device from which the client operated. For example, Computer. |
 | Okta.Logs.Events.client.id | String | For OAuth requests, the ID of the OAuth client making the request. For SSWS token requests, the ID of the agent making the request. |
@@ -1164,12 +1426,16 @@ Gets logs by providing optional filters.
 | Okta.Logs.Events.target.type | String | Type of a target. |
 | Okta.Logs.Events.target.alternateId | String | Alternative ID of a target. |
 | Okta.Logs.Events.target.displayName | String | Display name of a target. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-logs filter=`actor.id eq "00u66lckvpjidYi0h7"` query=Boardman since="2020-03-03T20:23:17.573Z" limit=1```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -1285,31 +1551,32 @@ Gets logs by providing optional filters.
 ```
 
 ##### Human Readable Output
-### Okta Events
-|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
-|---|---|---|---|---|---|---|---|---|---|
-| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Remove user from group membership | SUCCESS | INFO | 127.0.0.1 | test this (User) test1 (UserGroup)  | 03/03/2020, 20:23:17 |
-
+>
+>### Okta Events
+>
+>|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
+>|---|---|---|---|---|---|---|---|---|---|
+>| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Remove user from group membership | SUCCESS | INFO | 127.0.0.1 | test this (User) test1 (UserGroup)  | 03/03/2020, 20:23:17 |
 
 ### okta-get-group-assignments
+
 ***
 Gets events for when a user was added to a group.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-group-assignments`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | since | Filters the lower time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
 | until | Filters the upper time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
-| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". | Optional |
-| limit | The maximum number of results to return. The default is 100. | Optional |
+| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". Possible values are: ASCENDING, DESCENDING. Default is ASCENDING. | Optional |
+| limit | The maximum number of results to return. The default is 100. Default is 100. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -1317,7 +1584,7 @@ Gets events for when a user was added to a group.
 | Okta.Logs.Events.actor.displayName | String | Display name of the actor. |
 | Okta.Logs.Event.actor.id | String | ID of the actor. |
 | Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
-| Okta.Logs.Events.client.userAgent.os | String | The OS on which the client runs. For example, Microsoft Windows 10. |
+| Okta.Logs.Events.client.userAgent.os | String | The operating system on which the client runs. For example, Microsoft Windows 10. |
 | Okta.Logs.Events.client.userAgent.browser | String | Identifies the type of web browser, if relevant. For example, Chrome. |
 | Okta.Logs.Events.client.device | String | Type of device from which the client operated. For example, Computer. |
 | Okta.Logs.Events.client.id | String | For OAuth requests, the ID of the OAuth client making the request. For SSWS token requests, the ID of the agent making the request. |
@@ -1342,15 +1609,19 @@ Gets events for when a user was added to a group.
 | Okta.Logs.Events.request.ipChain.geographicalContext.country | String | Full name of the country encompassing the area containing the geo-location coordinates. For example, France, Uganda. |
 | Okta.Logs.Events.request.ipChain.source | String | Details regarding the source. |
 | Okta.Logs.Events.target.id | String | ID of a target. |
-| Okta.Logs.Events.target.type | String | Type of a target. |
+| Okta.Logs.Events.target.type | String | Target type. |
 | Okta.Logs.Events.target.alternateId | String | Alternative ID of a target. |
 | Okta.Logs.Events.target.displayName | String | Display name of a target. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-group-assignments since="2019-04-30T00:00:00.000Z" limit=1```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -1465,45 +1736,46 @@ Gets events for when a user was added to a group.
 ```
 
 ##### Human Readable Output
-### Group Assignment Events
-|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
-|---|---|---|---|---|---|---|---|---|---|
-| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Add user to group membership | SUCCESS | INFO | 127.0.0.1 | test this (User) test1 (UserGroup)  | 09/29/2019, 03:47:46 |
-
+>
+>### Group Assignment Events
+>
+>|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
+>|---|---|---|---|---|---|---|---|---|---|
+>| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Add user to group membership | SUCCESS | INFO | 127.0.0.1 | test this (User) test1 (UserGroup)  | 09/29/2019, 03:47:46 |
 
 ### okta-get-application-assignments
+
 ***
 Returns events for when a user was assigned to an application.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-application-assignments`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | since | Filters the lower time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
 | until | Filters the upper time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
-| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". | Optional |
-| limit | The maximum number of results to return. The default is 100. | Optional |
+| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". Possible values are: ASCENDING, DESCENDING. Default is ASCENDING. | Optional |
+| limit | The maximum number of results to return. The default is 100. Default is 100. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | Okta.Logs.Events.actor.alternateId | String | Alternative ID of the actor. |
 | Okta.Logs.Events.actor.displayName | String | Display name of the actor. |
 | Okta.Logs.Event.actor.id | String | ID of the actor. |
-| Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
+| Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of the user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
 | Okta.Logs.Events.client.userAgent.os | String | The OS on which the client runs. For example, Microsoft Windows 10. |
 | Okta.Logs.Events.client.userAgent.browser | String | Identifies the type of web browser, if relevant. For example, Chrome. |
 | Okta.Logs.Events.client.device | String | Type of device from which the client operated. For example, Computer. |
 | Okta.Logs.Events.client.id | String | For OAuth requests, the ID of the OAuth client making the request. For SSWS token requests, the ID of the agent making the request. |
 | Okta.Logs.Events.client.ipAddress | String | IP address from which the client made its request. |
 | Okta.Logs.Events.client.geographicalContext.city | String | The city encompassing the area containing the geo-location coordinates, if available. For example, Seattle, San Francisco. |
-| Okta.Logs.Events.client.geographicalContext.state | String | Full name of the state or province encompassing in the area containing the geo-location coordinates. For example, Montana, Incheon. |
+| Okta.Logs.Events.client.geographicalContext.state | String | Full name of the state or province encompassing the area containing the geo-location coordinates. For example, Montana, Incheon. |
 | Okta.Logs.Events.client.geographicalContext.country | String | Full name of the country encompassing the area containing the geo-location coordinates. For example, France, Uganda. |
 | Okta.Logs.Events.displayMessage | String | The display message for an event. |
 | Okta.Logs.Events.eventType | String | Type of event that was published. |
@@ -1525,12 +1797,16 @@ Returns events for when a user was assigned to an application.
 | Okta.Logs.Events.target.type | String | Type of a target. |
 | Okta.Logs.Events.target.alternateId | String | Alternative ID of a target. |
 | Okta.Logs.Events.target.displayName | String | Display name of a target. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-application-assignments since="2019-04-30T00:00:00.000Z" until="2020-02-30T00:00:00.000Z" sortOrder=DESCENDING limit=1```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -1653,31 +1929,32 @@ Returns events for when a user was assigned to an application.
 ```
 
 ##### Human Readable Output
-### Application Assignment Events
-|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
-|---|---|---|---|---|---|---|---|---|---|
-| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Add user to application membership | SUCCESS | INFO | 127.0.0.1 | Test 1 that (AppUser) ShrikSAML (AppInstance) Test 1 that (User)  | 02/27/2020, 17:55:12 |
-
+>
+>### Application Assignment Events
+>
+>|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
+>|---|---|---|---|---|---|---|---|---|---|
+>| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | Unknown browser on Unknown OS Unknown device | Add user to application membership | SUCCESS | INFO | 127.0.0.1 | Test 1 that (AppUser) ShrikSAML (AppInstance) Test 1 that (User)  | 02/27/2020, 17:55:12 |
 
 ### okta-get-application-authentication
+
 ***
 Returns logs using specified filters.
 
-
-##### Base Command
+#### Base Command
 
 `okta-get-application-authentication`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | since | Filters the lower time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
 | until | Filters the upper time bound of the log event in the Internet Date\Time format profile of ISO 8601. For example, 2020-02-14T16:00:18Z. | Optional |
-| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". | Optional |
-| limit | The maximum number of results to return. The default is 100. | Optional |
+| sortOrder | The order of the returned events. Can be "ASCENDING" or "DESCENDING". The default is "ASCENDING". Possible values are: ASCENDING, DESCENDING. Default is ASCENDING. | Optional |
+| limit | The maximum number of results to return. The default is 100. Default is 100. | Optional |
 
-
-##### Context Output
+#### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
@@ -1685,7 +1962,7 @@ Returns logs using specified filters.
 | Okta.Logs.Events.actor.displayName | String | Display name of the actor. |
 | Okta.Logs.Events.actor.id | String | ID of the actor. |
 | Okta.Logs.Events.client.userAgent.rawUserAgent | String | A raw string representation of user agent, formatted according to section 5.5.3 of HTTP/1.1 Semantics and Content. Both the browser and the OS fields can be derived from this field. |
-| Okta.Logs.Events.client.userAgent.os | String | The OS on which the client runs. For example, Microsoft Windows 10. |
+| Okta.Logs.Events.client.userAgent.os | String | The operating system on which the client runs. For example, Microsoft Windows 10. |
 | Okta.Logs.Events.client.userAgent.browser | String | Identifies the type of web browser, if relevant. For example, Chrome. |
 | Okta.Logs.Events.client.device | String | Type of device from which the client operated. For example, Computer. |
 | Okta.Logs.Events.client.id | String | For OAuth requests, the ID of the OAuth client making the request. For SSWS token requests, the ID of the agent making the request. |
@@ -1713,12 +1990,16 @@ Returns logs using specified filters.
 | Okta.Logs.Events.target.type | String | Type of a target. |
 | Okta.Logs.Events.target.alternateId | String | Alternative ID of a target. |
 | Okta.Logs.Events.target.displayName | String | Display name of a target. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-get-application-authentication since="2019-04-30T00:00:00.000Z" until="2020-02-30T00:00:00.000Z" limit=1```
 
 ##### Context Example
+
 ```
 {
     "Okta": {
@@ -1838,103 +2119,119 @@ Returns logs using specified filters.
 ```
 
 ##### Human Readable Output
-### Application Authentication Events
-|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
-|---|---|---|---|---|---|---|---|---|---|
-| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | CHROME on Mac OS X Computer | User single sign on to app | SUCCESS | INFO | 127.0.0.1 | BenziPermanent (AppInstance) Test Demisto (AppUser)  | 10/14/2019, 12:16:53 |
-
+>
+>### Application Authentication Events
+>
+>|Actor|ActorAlternaneId|ChainIP|Client|EventInfo|EventOutcome|EventSeverity|RequestIP|Targets|Time|
+>|---|---|---|---|---|---|---|---|---|---|
+>| Test Demisto (User) | Test@demisto.com | 127.0.0.1 | CHROME on Mac OS X Computer | User single sign on to app | SUCCESS | INFO | 127.0.0.1 | BenziPermanent (AppInstance) Test Demisto (AppUser)  | 10/14/2019, 12:16:53 |
 
 ### okta-delete-user
+
 ***
 Deletes the specified user.
 
-
-##### Base Command
+#### Base Command
 
 `okta-delete-user`
-##### Input
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | userId | Okta User ID. | Optional |
 | username | Username of the user. | Optional |
 
+#### Context Output
 
-##### Context Output
-
-There is no context output for this command.
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 ##### Command Example
+
 ```!okta-delete-user username=testForDocs@test.com```
 
-
 ##### Human Readable Output
-User: testForDocs@test.com was Deleted successfully
+>
+>User: testForDocs@test.com was Deleted successfully
 
 ### okta-clear-user-sessions
+
 ***
-Removes all active identity provider sessions. This forces the user to authenticate upon the next operation. Optionally revokes OpenID Connect and OAuth refresh and access tokens issued to the user.
+Removes all active identity provider sessions. This forces the user to authenticate upon the next operation. By default, OpenID Connect and OAuth refresh and access tokens issued to the user are revoked. Token revocation can be disabled if needed.
 For more information and examples:
 https://developer.okta.com/docs/reference/api/users/#user-sessions
 
-
-##### Base Command
-
-`okta-clear-user-sessions`
-##### Input
-
-| **Argument Name** | **Description** | **Required** |
-| --- | --- | --- |
-| userId | Okta User ID. | Required |
-
-
-##### Context Output
-
-There is no context output for this command.
-
-##### Command Example
-```!okta-clear-user-sessions userId=00ui5brmwtJpMdoZZ0h7```
-
-
-##### Human Readable Output
-### User session was cleared for: 00ui5brmwtJpMdoZZ0h7
-
-
-### okta-list-zones
-***
-Get an Okta Zone object
-
-
 #### Base Command
 
-`okta-list-zones`
+`okta-clear-user-sessions`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-
+| userId | Okta User ID. | Required |
+| revokeOauthTokens | When true, revokes OpenID Connect and OAuth refresh and access tokens issued to the user. Possible values are: true, false. Default is true. | Optional |
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Okta.Zone.created | Date | Zone creation timestamp, in the format 2020\-04\-06T22:23:12.000Z. |
-| Okta.Zone.gateways.type | String | Gateways IP entry type, e.g., CIDR. |
-| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 1.2.1.2/32. |
-| Okta.Zone.id | String | Zone ID, e.g., nzoqsmcx1qWYJ6wY33h7. |
-| Okta.Zone.lastUpdated | Date | Zone last update timestamp, e.g., 2020\-04\-06T22:23:12.000Z. |
-| Okta.Zone.name | String | Zone name. |
-| Okta.Zone.proxies.type | String | Proxies IP entry type e.g. CIDR |
-| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 1.2.1.2/32. |
-| Okta.Zone.status | String | Zone status, e.g., ACTIVE. |
-| Okta.Zone.system | Number | True if this is a system zone, false if user\-created. |
-| Okta.Zone.type | String | Zone type, e.g., IP. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
+##### Command Example
+
+```!okta-clear-user-sessions userId=00ui5brmwtJpMdoZZ0h7```
+
+##### Human Readable Output
+>
+>### User session was cleared for: 00ui5brmwtJpMdoZZ0h7
+
+### okta-list-zones
+
+***
+Get an Okta Zone object.
+
+#### Base Command
+
+`okta-list-zones`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| limit | The maximum number of results to return. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Zone.created | Date | Zone creation timestamp, in the format 2020-04-06T22:23:12.000Z. |
+| Okta.Zone.gateways.type | String | Gateways IP entry type, e.g., CIDR. |
+| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 34.103.1.108/32. |
+| Okta.Zone.id | String | Zone ID, e.g., nzoqsmcx1qWYJ6wYF0h7. |
+| Okta.Zone.lastUpdated | Date | Zone last update timestamp, e.g., 2020-04-06T22:23:12.000Z. |
+| Okta.Zone.name | String | Zone name. |
+| Okta.Zone.proxies.type | String | Proxies IP entry type e.g. CIDR. |
+| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 34.103.1.108/32. |
+| Okta.Zone.status | String | Zone status, e.g., ACTIVE. |
+| Okta.Zone.system | Number | True if this is a system zone, false if user-created. |
+| Okta.Zone.type | String | Zone type, e.g., IP. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 #### Command Example
+
 ```!okta-list-zones```
 
 #### Context Example
+
 ```
 {
     "Okta": {
@@ -2029,53 +2326,58 @@ Get an Okta Zone object
 ```
 
 #### Human Readable Output
-
+>
 >### Okta Zones
+>
 >|name|id|gateways|status|system|lastUpdated|created|
 >|---|---|---|---|---|---|---|
 >| LegacyIpZone | nzo9rbw8evGOFV1VE0h7 | {'type': 'CIDR', 'value': '2.2.2.2/32'} | ACTIVE | true | 2020-04-23T08:58:55.000Z | 2017-03-03T22:05:24.000Z |
 >| MyZone | nzoqsmcx1qWYJ6wY33h7 | {'type': 'CIDR', 'value': '3.3.3.4/32'},<br/>{'type': 'CIDR', 'value': '5.5.5.3/32'},<br/>{'type': 'CIDR', 'value': '3.3.3.1/32'},<br/>{'type': 'CIDR', 'value': '2.2.2.3/32'} | ACTIVE | false | 2020-06-05T08:57:57.000Z | 2020-04-06T22:23:12.000Z |
 
-
 ### okta-update-zone
-***
-Update an Okta Zone
 
+***
+Update an Okta Zone.
 
 #### Base Command
 
 `okta-update-zone`
+
 #### Input
 
-| **Argument Name** | **Description** | **Required** |
-| --- | --- | --- |
-| zoneID | Zone ID to update, e.g., nzoqsmcx1qWYJ6wY33h7. | Required |
-| zoneName | Updates the zone name. | Optional |
-| gatewayIPs | Updates Gateway IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2). | Optional |
-| proxyIPs | Update Proxy IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2). | Optional |
-
+| **Argument Name** | **Description**                                                                                                                                         | **Required** |
+| --- |---------------------------------------------------------------------------------------------------------------------------------------------------------| --- |
+| zoneID | Zone ID to update, e.g., nzoqsmcx1qWYJ6wYF0h7.                                                                                                          | Required |
+| zoneName | Updates the zone name.                                                                                                                                  | Optional |
+| gatewayIPs | Updates Gateway IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2).                                                                   | Optional |
+| proxyIPs | Update Proxy IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2).                                                                      | Optional |
+| updateType | Indicate the action of adding an IP to an existing zone or overriding the existing IPs. Possible values are: "APPEND", "OVERRIDE". Default is "OVERRIDE". | Optional |
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Okta.Zone.created | Date | Zone creation timestamp, e.g., 2020\-04\-06T22:23:12.000Z. |
+| Okta.Zone.created | Date | Zone creation timestamp, e.g., 2020-04-06T22:23:12.000Z. |
 | Okta.Zone.gateways.type | String | Gateways IP entry type, e.g., CIDR. |
-| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 1.2.1.2/32. |
-| Okta.Zone.id | String | Okta Zone ID, e.g., nzoqsmcx1qWYJ6wY33h7. |
-| Okta.Zone.lastUpdated | Date | Zone last update timestamp, in the format 2020\-04\-06T22:23:12.000Z. |
+| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 34.103.1.108/32. |
+| Okta.Zone.id | String | Okta Zone ID, e.g., nzoqsmcx1qWYJ6wYF0h7. |
+| Okta.Zone.lastUpdated | Date | Zone last update timestamp, in the format 2020-04-06T22:23:12.000Z. |
 | Okta.Zone.name | String | Zone name. |
 | Okta.Zone.proxies.type | String | Proxies IP entry type, e.g., CIDR. |
-| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 1.2.1.2/32. |
+| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 34.103.1.108/32. |
 | Okta.Zone.status | String | Zone status, e.g., ACTIVE. |
-| Okta.Zone.system | Number | True if this is a system zone, false if user\-created. |
+| Okta.Zone.system | Number | True if this is a system zone, false if user-created. |
 | Okta.Zone.type | String | Zone type, e.g., IP. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 #### Command Example
+
 ```!okta-update-zone zoneID=nzoqsmcx1qWYJ6wY33h7 zoneName=MyZone```
 
 #### Context Example
+
 ```
 {
     "Okta": {
@@ -2134,47 +2436,51 @@ Update an Okta Zone
 #### Human Readable Output
 
 >### Okta Zones
+>
 >|name|id|gateways|status|system|lastUpdated|created|
 >|---|---|---|---|---|---|---|
 >| MyZone | nzoqsmcx1qWYJ6wY33h7 | {'type': 'CIDR', 'value': '1.3.1.5/32'},<br/>{'type': 'CIDR', 'value': '1.3.1.5/32'},<br/>{'type': 'CIDR', 'value': '1.3.1.5/32'},<br/>{'type': 'CIDR', 'value': '1.3.1.5/32'} | ACTIVE | false | 2020-06-05T08:57:57.000Z | 2020-04-06T22:23:12.000Z |
 
-
 ### okta-get-zone
-***
-Get a Zone by its ID
 
+***
+Get a Zone by its ID.
 
 #### Base Command
 
 `okta-get-zone`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| zoneID | Zone ID to get, e.g., nzoqsmcx1qWYJ6wY33h7 | Required |
-
+| zoneID | Zone ID to get, e.g., nzoqsmcx1qWYJ6wYF0h.7. | Required |
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Okta.Zone.created | Date | Zone creation timestamp, in the format 2020\-04\-06T22:23:12.000Z. |
+| Okta.Zone.created | Date | Zone creation timestamp, in the format 2020-04-06T22:23:12.000Z. |
 | Okta.Zone.gateways.type | String | Gateways IP entry type, e.g., CIDR. |
-| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 1.2.1.2/32. |
-| Okta.Zone.id | String | Okta Zone ID, e.g., nzoqsmcx1qWYJ6wY33h7. |
-| Okta.Zone.lastUpdated | Date | Zone last update timestamp, in the format 2020\-04\-06T22:23:12.000Z. |
+| Okta.Zone.gateways.value | String | Gateways IP entry value, e.g., 34.103.1.108/32. |
+| Okta.Zone.id | String | Okta Zone ID, e.g., nzoqsmcx1qWYJ6wYF0h7. |
+| Okta.Zone.lastUpdated | Date | Zone last update timestamp, in the format 2020-04-06T22:23:12.000Z. |
 | Okta.Zone.name | String | Zone name. |
 | Okta.Zone.proxies.type | String | Proxies IP entry type, e.g., CIDR. |
-| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 1.2.1.2/32. |
+| Okta.Zone.proxies.value | Unknown | Proxies IP entry value, e.g., 34.103.1.108/32. |
 | Okta.Zone.status | String | Zone status, e.g,. ACTIVE. |
-| Okta.Zone.system | Number | True if this is a system zone, false if user\-created. |
+| Okta.Zone.system | Number | True if this is a system zone, false if user-created. |
 | Okta.Zone.type | String | Zone type, e.g., IP. |
-
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 #### Command Example
+
 ```!okta-get-zone zoneID=nzoqsmcx1qWYJ6wY33h7```
 
 #### Context Example
+
 ```
 {
     "Okta": {
@@ -2233,46 +2539,64 @@ Get a Zone by its ID
 #### Human Readable Output
 
 >### Okta Zones
+>
 >|name|id|gateways|status|system|lastUpdated|created|
 >|---|---|---|---|---|---|---|
 >| MyZone | nzoqsmcx1qWYJ6wY33h7 | {'type': 'CIDR', 'value': '1.3.1.3/32'},<br/>{'type': 'CIDR', 'value': '3.5.146.103/32'},<br/>{'type': 'CIDR', 'value': '3.5.1.228/32'},<br/>{'type': 'CIDR', 'value': '3.5.1.229/32'} | ACTIVE | false | 2020-06-05T08:57:57.000Z | 2020-04-06T22:23:12.000Z |
 
 ### okta-list-users
+
 ***
 Lists users in your organization.
-
 
 #### Base Command
 
 `okta-list-users`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| verbose | Whether to return extended user information. Can be "true" or "false". The default is "false". Possible values are: true, false. Default is false. | Optional | 
-
+| verbose | Whether to return extended user information. Can be "true" or "false". The default is "false". Possible values are: true, false. Default is false. | Optional |
+| limit | The maximum number of results to return. | Optional |
+| query | Searches the name property of groups for matching values. | Optional |
+| filter | Useful for performing structured queries where constraints on group attribute values can be explicitly targeted. <br/>The following expressions are supported(among others) for groups with the filter query parameter: <br/>type eq "OKTA_GROUP" - Groups that have a type of OKTA_GROUP; lastUpdated lt "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with profile last updated before a specific timestamp; lastMembershipUpdated eq "yyyy-MM-dd''T''HH:mm:ss.SSSZ" - Groups with memberships last updated at a specific timestamp; id eq "00g1emaKYZTWRYYRRTSK" - Group with a specified ID.
+For more information about filtering, visit https://developer.okta.com/docs/api/getting_started/design_principles#filtering. | Optional |
+| after | The cursor in which to retrive the results from and on. If the query didn't reach the end of results, the tag will be found in the readable output under the tag key. | Optional |
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Account.ID | String | Okta account ID. | 
-| Account.Email | String | Okta account email. | 
-| Account.Username | String | Okta account username. | 
-| Account.DisplayName | String | Okta account display name. | 
-| Account.Status | String | Okta account status. | 
-| Account.Created | Date | Timestamp for when the user was created. | 
-| Account.Activated | Date | Timestamp for when the user was activated. | 
-| Account.StatusChanged | Date | Timestamp for when the user's status was last changed. | 
-| Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. | 
-
+| Account.ID | String | Okta account ID. |
+| Account.Email | String | Okta account email. |
+| Account.Username | String | Okta account username. |
+| Account.DisplayName | String | Okta account display name. |
+| Account.Status | String | Okta account status. |
+| Account.Created | Date | Timestamp for when the user was created. |
+| Account.Activated | Date | Timestamp for when the user was activated. |
+| Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
+| Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
+| Okta.User.tag| String | The location of the next item, used with after param. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
 
 #### Command Example
+
 ```!okta-list-users```
 
 #### Context Example
+
 ```json
 {
+    "Okta":
+    {
+        "User":
+        {
+            "tag": "test12tag"
+        }
+    },
     "Account": [
         {
             "Created": "2018-07-24T20:20:04.000Z",
@@ -2289,9 +2613,203 @@ Lists users in your organization.
 
 #### Human Readable Output
 
->### Okta users found:
+>### Okta users found
+>
 > ### Users
+>
 >|First Name|ID|Last Login|Last Name|Login|Mobile Phone|Status|
 >|---|---|---|---|---|---|---|
 >| Dbot | XXXXX |  | XSOAR | dbot@xsoar.com |  | STAGED |
-> 
+>
+> ### tag: test12tag
+>
+### okta-create-zone
+
+***
+Creates a Zone with the specified name.
+
+#### Base Command
+
+`okta-create-zone`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| name | Zone name. | Required |
+| gateway_ips | Update Gateway IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2). | Optional |
+| proxies | Update Proxy IP addresses: CIDR range (1.1.0.0/16) or single IP address (2.2.2.2). | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
+
+### okta-create-group
+
+***
+Create a new group in Okta tenant.
+
+#### Base Command
+
+`okta-create-group`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| name | Name of the group to add. | Required |
+| description | Description of the group to add. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| OktaGroup.ID | Unknown | Group ID in Okta. |
+| OktaGroup.Name | Unknown | Group name in Okta. |
+| OktaGroup.Description | Unknown | Group description in Okta. |
+| OktaGroup.Type | Unknown | Group type in Okta. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
+
+#### Command example
+
+```!okta-create-group name="TestGroup" description="TestGroup description."```
+
+#### Context Example
+
+```json
+{
+    "OktaGroup": {
+        "Description": "TestGroup description.",
+        "ID": "00g3qb398kItYXzKd1d7",
+        "Name": "TestGroup",
+        "Type": "OKTA_GROUP"
+    }
+}
+```
+
+#### Human Readable Output
+
+>Group Created: [GroupID:00g3qb398kItYXzKd1d7, GroupName: TestGroup]
+
+### okta-assign-group-to-app
+
+***
+Assign a group to an application.
+
+#### Base Command
+
+`okta-assign-group-to-app`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| groupName | Name of the group to assign to the app. | Optional |
+| groupId | ID of the group to assign to the app. | Optional |
+| appName | Friendly name of the app that the group will be assigned to. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
+
+#### Command example
+
+```!okta-assign-group-to-app appName="Default-App" groupName="TestGroup"```
+
+#### Human Readable Output
+
+>Group: TestGroup added to PA App successfully
+>
+### okta-expire-password
+
+***
+Expires a password for an existing Okta user.
+
+#### Base Command
+
+`okta-expire-password`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| username | Okta username for which to expire the password. | Required |
+| temporary_password | When true, you'll need to change the password in the next login. Possible values are: true, false. Default is false. | Optional |
+| revoke_session | When true, revokes the user's existing sessions. | Optional |
+| hide_password | When true, prevents the password from being saved in the war room. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| Account.Activated | Date | Timestamp for when the user was activated. |
+| Account.Created | Date | Timestamp for when the user was created. |
+| Account.DisplayName | String | Okta account display name. |
+| Account.Email | String | Okta account email. |
+| Account.ID | String | Created Okta account ID. |
+| Account.PasswordChanged | Date | Timestamp for when the user's password was last changed. |
+| Account.Status | String | Okta account current status. |
+| Account.StatusChanged | Date | Timestamp for when the user's status was last changed. |
+| Account.Type | String | Okta account type. |
+| Account.Username | String | Okta account usernames returned by the search. |
+| Okta.Metadata.x-rate-limit-limit | Number | The rate limit ceiling that’s applicable for the current request. |
+| Okta.Metadata.x-rate-limit-remaining | Number | The amount of requests left for the current rate-limit window. |
+| Okta.Metadata.x-rate-limit-reset | Number | The time at which the rate limit resets, specified in UTC epoch time (in seconds). |
+
+#### Command example
+
+```!okta-expire-password username="4x1xh5rl@test.com" temporary_password="false"```
+
+#### Context Example
+
+```json
+{
+    "Account": {
+        "Activated": "2022-06-20T04:48:04.000Z",
+        "Created": "2022-06-20T04:47:59.000Z",
+        "DisplayName": "Test 1  Test1",
+        "Email": "4x1xh5rl@test.com",
+        "ID": "00u19cr5qv91HjELI0h8",
+        "PasswordChanged": "2022-06-20T04:48:07.000Z",
+        "Status": "PASSWORD_EXPIRED",
+        "StatusChanged": "2023-09-10T12:56:04.000Z",
+        "Type": "Okta",
+        "Username": "4x1xh5rl@test.com"
+    }
+}
+```
+
+#### Human Readable Output
+
+>### Okta Expired Password
+>
+>|_links|activated|created|credentials|id|lastUpdated|passwordChanged|profile|status|statusChanged|type|
+>|---|---|---|---|---|---|---|---|---|---|---|
+>| suspend: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/lifecycle/suspend", "method": "POST"}<br/>schema: {"href": "https://test.oktapreview.com/api/v1/meta/schemas/user/osc66lckcvDyVcGzS0h7"}<br/>resetPassword: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/lifecycle/reset_password", "method": "POST"}<br/>forgotPassword: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/credentials/forgot_password", "method": "POST"}<br/>expirePassword: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/lifecycle/expire_password", "method": "POST"}<br/>changeRecoveryQuestion: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/credentials/change_recovery_question", "method": "POST"}<br/>self: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8"}<br/>type: {"href": "https://test.oktapreview.com/api/v1/meta/types/user/oty66lckcvDyVcGzS0h7"}<br/>changePassword: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/credentials/change_password", "method": "POST"}<br/>deactivate: {"href": "https://test.oktapreview.com/api/v1/users/00u19cr5qv91HjELI0h8/lifecycle/deactivate", "method": "POST"} | 2022-06-20T04:48:04.000Z | 2022-06-20T04:47:59.000Z | password: {}<br/>recovery_question: {"question": "whats the first school?"}<br/>provider: {"type": "OKTA", "name": "OKTA"} | 00u19cr5qv91HjELI0h8 | 2023-09-10T12:56:04.000Z | 2022-06-20T04:48:07.000Z | firstName: Test 1 <br/>lastName: Test1<br/>preferredLanguage: en<br/>mobilePhone: null<br/>city: Tel-Aviv<br/>displayName: Test 1 that<br/>nickName: Testush<br/>secondEmail: null<br/>login: 4x1xh5rl@test.com<br/>email: 4x1xh5rl@test.com<br/>employeeNumber: 12345 | PASSWORD_EXPIRED | 2023-09-10T12:56:04.000Z | id: oty66lckcvDyVcGzS0h7 |
+
+### okta-auth-reset
+
+***
+Reset OAuth authentication data (authentication process will start from the beginning, and a new token will be generated).
+
+#### Base Command
+
+`okta-auth-reset`
+
+#### Input
+
+There are no input arguments for this command.
+
+#### Context Output
+
+There is no context output for this command.

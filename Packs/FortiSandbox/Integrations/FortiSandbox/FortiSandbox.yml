@@ -1,7 +1,9 @@
 category: Forensics & Malware Analysis
+provider: Fortinet
 commonfields:
   id: FortiSandbox
   version: -1
+deprecated: true
 configuration:
 - additionalinfo: URL of the Fortisandbox server.
   display: Server URL
@@ -16,12 +18,10 @@ configuration:
   defaultvalue: "true"
   display: Trust any certificate (not secure)
   name: secure
-  required: false
   type: 8
-description: FortiSandbox integration is used to submit files to FortiSandbox for
-  malware analysis and retrieving the report of the analysis. It can also provide
-  file rating based on hashes for already scanned files.
-display: FortiSandbox
+  required: false
+description: FortiSandbox integration is used to submit files to FortiSandbox for malware analysis and retrieving the report of the analysis. It can also provide file rating based on hashes for already scanned files. Deprecated. Use FortiSandboxv2 instead.
+display: FortiSandbox (Deprecated)
 name: FortiSandbox
 script:
   commands:
@@ -64,12 +64,10 @@ script:
       name: archive_password
     - description: VMs to scan the File on, comma seperated. (Ex.WIN7X86VM,WINXPVM)
       name: vm_csv_list
-    - description: Do not use this parameter if no step to skip. 1 = Skip AV, 2= Skip
-        Cloud, 4= Skip sandboxing, 8= Skip Static Scan.
+    - description: Do not use this parameter if no step to skip. 1 = Skip AV, 2= Skip Cloud, 4= Skip sandboxing, 8= Skip Static Scan.
       name: skip_steps
     - defaultValue: "0"
-      description: Set the value as "1" to require to add the sample to malware package
-        if it satisfy the malware critia. By default, the value is "0".
+      description: Set the value as "1" to require to add the sample to malware package if it satisfy the malware critia. By default, the value is "0".
       name: malpkg
     - description: File SHA-256 used to get scan report
       name: sha256
@@ -127,7 +125,7 @@ script:
       required: true
     description: Upload CSV URLs
     name: fortisandbox-upload-urls
-  dockerimage: demisto/python3:3.9.8.24399
+  dockerimage: demisto/python3:3.10.12.63474
   runonce: true
   script: ''
   subtype: python3

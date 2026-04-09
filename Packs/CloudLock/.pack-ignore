@@ -1,2 +1,8 @@
 [file:CiscoCloudLock.yml]
-ignore=IN145
+ignore=RM110
+
+[file:README.md]
+ignore=RM110
+
+[file:CiscoCloudLock_image.png]
+ignore=IM111

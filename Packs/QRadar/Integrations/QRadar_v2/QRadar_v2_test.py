@@ -295,6 +295,7 @@ class TestQRadarv2:
         mocker.patch.object(client, "get_search", side_effect=[ConnectionError, RAW_RESPONSES["qradar-get-search"]])
         mocker.patch.object(client, "get_search_results", return_value=RAW_RESPONSES["qradar-get-search-results"])
         mocker.patch.object(demisto, "debug")
+        mocker.patch.object(demisto, "error")
 
         actual = try_poll_offense_events_with_retry(client, offense_id, query_status, search_id, max_retries)
         assert actual == expected
@@ -320,6 +321,7 @@ class TestQRadarv2:
         mocker.patch.object(QRadar_v2, "is_reset_triggered", return_value=False)
         mocker.patch.object(client, "get_search", side_effect=[ConnectionError, RAW_RESPONSES["qradar-get-search"]])
         mocker.patch.object(demisto, "debug")
+        mocker.patch.object(demisto, "error")
 
         actual = try_poll_offense_events_with_retry(client, offense_id, query_status, search_id, max_retries)
         assert actual == []
@@ -442,7 +444,7 @@ class TestQRadarv2:
         assert res[0]['id'] == 1928
 
         # flatten properties check
-        assert res[0]['Unified Name'] == 'ec2-44-234-115-112.us-west-2.compute.amazonaws.com'
+        assert res[0]['Unified Name'] == 'ec2.eu.compute-1.amazonaws.com'
 
         # simplify interfaces check
         assert len(res_interfaces) == 3

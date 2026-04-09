@@ -108,9 +108,9 @@ def main():
         return timezonesidkey
 
     except Exception as e:
-        demisto.log(traceback.format_exc())
+        demisto.debug(traceback.format_exc())
         return_error(str(e))
 
 
-if __name__ in ['__main__', 'builtin', 'builtins']:
+if __name__ in ["__main__", "builtin", "builtins"]:
     main()

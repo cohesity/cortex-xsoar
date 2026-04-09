@@ -1,5 +1,5 @@
 [file:GoogleCloudSCC.yml]
-ignore=IN126,IN145
+ignore=IN126
 
 [file:README.md]
 ignore=RM104
@@ -9,3 +9,10 @@ ignore=BA101
 
 [file:incidentfield-GoogleCloudSCC_Finding_SourceProperties_Alert.json]
 ignore=IF100
+
+[file:incidentfield-GoogleCloudSCC_Finding_OrganizationID.json]
+ignore=IF115
+
+# GR103 is temporary, see CIAC-11656
+[file:layoutscontainer-Google_Cloud_SCC_Finding.json]
+ignore=GR103

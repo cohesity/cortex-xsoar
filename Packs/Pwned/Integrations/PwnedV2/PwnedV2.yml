@@ -1,35 +1,71 @@
 category: Data Enrichment & Threat Intelligence
+provider: Troy Hunt
 commonfields:
   id: Have I Been Pwned? V2
   version: -1
 configuration:
 - display: API Key
   name: api_key
-  required: true
   type: 4
+  hidden: true
+  required: false
+- displaypassword: API Key
+  name: credentials_api_key
+  hiddenusername: true
+  type: 9
+  required: false
 - defaultvalue: '30'
   display: Maximum time per request (in seconds)
   name: max_retry_time
-  required: false
   type: 0
+  required: false
 - defaultvalue: SUSPICIOUS
   display: 'Email Severity: The DBot reputation for compromised emails (SUSPICIOUS or MALICIOUS)'
   name: default_dbot_score_email
-  required: false
   type: 0
+  required: false
 - defaultvalue: SUSPICIOUS
   display: 'Domain Severity: The DBot reputation for compromised domains (SUSPICIOUS or MALICIOUS)'
   name: default_dbot_score_domain
-  required: false
   type: 0
+  required: false
 - display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  required: false
+- additionalinfo: Reliability of the source providing the intelligence data.
+  defaultvalue: A - Completely reliable
+  display: Source Reliability
+  name: integrationReliability
+  options:
+  - A+ - 3rd party enrichment
+  - A - Completely reliable
+  - B - Usually reliable
+  - C - Fairly reliable
+  - D - Not usually reliable
+  - E - Unreliable
+  - F - Reliability cannot be judged
+  type: 15
+  required: false
+- defaultvalue: indicatorType
+  name: feedExpirationPolicy
+  display: ''
+  options:
+  - never
+  - interval
+  - indicatorType
+  - suddenDeath
+  type: 17
+  required: false
+- defaultvalue: '20160'
+  name: feedExpirationInterval
+  display: ''
+  type: 1
+  required: false
 description: Uses the Have I Been Pwned? service to check whether email addresses, domains, or usernames were compromised in previous breaches.
 display: Have I Been Pwned? v2
 name: Have I Been Pwned? V2
@@ -41,10 +77,7 @@ script:
       isArray: true
       name: email
       required: true
-      secret: false
-    deprecated: false
     description: Checks if an email address was compromised.
-    execution: false
     name: pwned-email
     outputs:
     - contextPath: Account.Email.Pwned-V2.Compromised.Vendor
@@ -80,10 +113,7 @@ script:
       isArray: true
       name: domain
       required: true
-      secret: false
-    deprecated: false
     description: Checks if a domain was compromised.
-    execution: false
     name: pwned-domain
     outputs:
     - contextPath: Domain.Pwned-V2.Compromised.Vendor
@@ -108,7 +138,7 @@ script:
       description: The indicator type.
       type: String
     - contextPath: DBotScore.Vendor
-      description: Vendor used to calculate the score.
+      description: The vendor used to calculate the score.
       type: String
     - contextPath: DBotScore.Score
       description: The actual score.
@@ -119,10 +149,7 @@ script:
       isArray: true
       name: email
       required: true
-      secret: false
-    deprecated: false
     description: Checks if an email address was compromised.
-    execution: false
     name: email
     outputs:
     - contextPath: Account.Email.Pwned-V2.Compromised.Vendor
@@ -158,10 +185,7 @@ script:
       isArray: true
       name: domain
       required: true
-      secret: false
-    deprecated: false
     description: Checks if a domain was compromised.
-    execution: false
     name: domain
     outputs:
     - contextPath: Domain.Pwned-V2.Compromised.Vendor
@@ -186,7 +210,7 @@ script:
       description: The indicator type.
       type: String
     - contextPath: DBotScore.Vendor
-      description: Vendor used to calculate the score.
+      description: The vendor used to calculate the score.
       type: String
     - contextPath: DBotScore.Score
       description: The actual score.
@@ -197,10 +221,7 @@ script:
       isArray: true
       name: username
       required: true
-      secret: false
-    deprecated: false
     description: Checks if a username was compromised.
-    execution: false
     name: pwned-username
     outputs:
     - contextPath: Username.Pwned-V2.Compromised.Vendor
@@ -218,14 +239,10 @@ script:
     - contextPath: Username.Malicious.Description
       description: For malicious usernames, the reason that the vendor made the decision.
       type: String
-  feed: false
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
   runonce: false
   script: '-'
-  subtype: python2
-  dockerimage: demisto/python:2.7.18.24398
+  subtype: python3
+  dockerimage: demisto/python3:3.12.8.3296088
   type: python
 tests:
 - Pwned v2 test

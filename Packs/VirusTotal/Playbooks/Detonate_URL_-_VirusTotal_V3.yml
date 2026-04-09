@@ -192,7 +192,7 @@ tasks:
       Timeout:
         simple: "10"
       dt:
-        simple: VirusTotal.Analysis.data.attributes(val.status != 'completed')
+        simple: VirusTotal.Analysis.data(val.attributes.status != 'completed').id
     separatecontext: true
     loop:
       iscommand: false
@@ -291,7 +291,7 @@ inputs:
       accessor: Data
   required: false
   description: Entry ID of the file to detonate
-  playbookInputQuery: null
+  playbookInputQuery:
 outputs:
 - contextPath: VirusTotal.Analysis.data.attributes.stats.harmless
   description: Number of engines found the indicator harmless.

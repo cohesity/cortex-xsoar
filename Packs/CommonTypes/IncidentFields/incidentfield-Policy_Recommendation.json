@@ -5,7 +5,8 @@
 		"GCP Compute Engine Misconfiguration",
 		"AWS CloudTrail Misconfiguration",
 		"AWS IAM Policy Misconfiguration",
-		"AWS EC2 Instance Misconfiguration"
+		"AWS EC2 Instance Misconfiguration",
+		"Prisma Cloud - VM Alert Prioritization"
 	],
 	"breachScript": "",
 	"caseInsensitive": true,
@@ -31,7 +32,9 @@
 	"selectValues": [],
 	"sla": 0,
 	"system": false,
-	"systemAssociatedTypes": null,
+	"systemAssociatedTypes": [
+		"Prisma Cloud - VM Alert Prioritization"
+	],
 	"threshold": 72,
 	"type": "longText",
 	"unmapped": false,
@@ -39,6 +42,7 @@
 	"useAsKpi": false,
 	"validationRegex": "",
 	"version": -1,
-	"fromVersion": "5.0.0"
+	"fromVersion": "5.0.0",
+    "x2_fields": "policy_recommendation"
 }
 

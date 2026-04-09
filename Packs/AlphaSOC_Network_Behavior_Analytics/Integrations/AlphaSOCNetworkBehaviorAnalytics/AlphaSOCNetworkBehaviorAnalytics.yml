@@ -4,7 +4,8 @@ commonfields:
 name: AlphaSOC Network Behavior Analytics
 display: AlphaSOC Network Behavior Analytics
 category: Analytics & SIEM
-description: Retrieve alerts from the AlphaSOC Analytics Engine
+provider: AlphaSOC
+description: Retrieve alerts from the AlphaSOC Analytics Engine.
 configuration:
 - display: AlphaSOC Analytics Engine URL
   name: server
@@ -19,8 +20,7 @@ configuration:
 - display: Ignore events below severity
   name: severity
   defaultvalue: "4"
-  additionalinfo: "AlphaSOC alert severity: (1) info, (2) low, (3) medium, (4) high,\
-    \ (5) critical"
+  additionalinfo: "AlphaSOC alert severity: (1) info, (2) low, (3) medium, (4) high, (5) critical"
   type: 0
   required: true
 - display: Include policy violations
@@ -30,12 +30,10 @@ configuration:
   required: false
 - display: Use system proxy settings
   name: proxy
-  defaultvalue: ""
   type: 8
   required: false
 - display: Trust any certificate (not secure)
   name: insecure
-  defaultvalue: ""
   type: 8
   required: false
 - display: Fetch incidents
@@ -50,7 +48,6 @@ script:
   script: ''
   type: javascript
   isfetch: true
-  runonce: false
 tests:
 - No tests
 fromversion: 5.0.0

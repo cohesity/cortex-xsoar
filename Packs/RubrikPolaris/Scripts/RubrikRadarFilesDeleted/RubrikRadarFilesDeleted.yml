@@ -2,11 +2,10 @@ comment: Shows the Rubrik Radar amount of Files Deleted.
 commonfields:
   id: RubrikRadarFilesDeleted
   version: -1
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.8.3296088
 enabled: true
 name: RubrikRadarFilesDeleted
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

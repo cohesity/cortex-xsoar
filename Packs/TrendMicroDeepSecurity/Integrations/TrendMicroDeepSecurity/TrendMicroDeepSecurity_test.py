@@ -1,12 +1,13 @@
 import json
-from typing import Any, Dict, List, Union
+from typing import Any
 
+from CommonServerPython import *
 from TrendMicroDeepSecurity import Client, convert_args
 
 BASE_URL = "https://test.api.deepsecurity.trendmicro.com"
 
 
-def load_mock_response(filename: str) -> Union[List[Any], Dict[str, Any]]:
+def load_mock_response(filename: str) -> list[Any] | dict[str, Any]:
     return json.loads(open(f"test_data/{filename}.json").read())
 
 
@@ -81,9 +82,10 @@ def test_trendmicro_search_computers_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/computers/search", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(search_computers_command,
-                        {"field_name": "hostName", "field_type": "string", "operation": "equal",
-                         "value": "TestComputer", "max_items": "50"})
+    args = convert_args(
+        search_computers_command,
+        {"field_name": "hostName", "field_type": "string", "operation": "equal", "value": "TestComputer", "max_items": "50"},
+    )
     result = search_computers_command(client, **args)
 
     assert len(result.outputs) == 1
@@ -134,8 +136,9 @@ def test_trendmicro_modify_computer_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/computers/3", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(modify_computer_command,
-                        {"computer_id": "3", "description": "Test", "expand": "none", "overrides": "true"})
+    args = convert_args(
+        modify_computer_command, {"computer_id": "3", "description": "Test", "expand": "none", "overrides": "true"}
+    )
     result = modify_computer_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.Computers"
@@ -179,13 +182,15 @@ def test_trendmicro_get_computer_setting_command(requests_mock):
     from TrendMicroDeepSecurity import get_computer_setting_command
 
     mock_response = load_mock_response("computer_setting")
-    requests_mock.get(f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                      json=mock_response)
+    requests_mock.get(
+        f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled", json=mock_response
+    )
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(get_computer_setting_command,
-                        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                         "overrides": "true"})
+    args = convert_args(
+        get_computer_setting_command,
+        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled", "overrides": "true"},
+    )
     result = get_computer_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.ComputersSettings"
@@ -207,13 +212,15 @@ def test_trendmicro_modify_computer_setting_command(requests_mock):
     from TrendMicroDeepSecurity import modify_computer_setting_command
 
     mock_response = load_mock_response("computer_setting")
-    requests_mock.post(f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                       json=mock_response)
+    requests_mock.post(
+        f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled", json=mock_response
+    )
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(modify_computer_setting_command,
-                        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                         "overrides": "true", "value": "true"})
+    args = convert_args(
+        modify_computer_setting_command,
+        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled", "overrides": "true", "value": "true"},
+    )
     result = modify_computer_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.ComputersSettings"
@@ -236,13 +243,15 @@ def test_trendmicro_reset_computer_setting_command(requests_mock):
 
     mock_response = load_mock_response("computer_setting")
 
-    requests_mock.delete(f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                         json=mock_response)
+    requests_mock.delete(
+        f"{BASE_URL}/api/computers/3/settings/firewallSettingEngineOptionVerifyTcpChecksumEnabled", json=mock_response
+    )
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(reset_computer_setting_command,
-                        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled",
-                         "overrides": "true"})
+    args = convert_args(
+        reset_computer_setting_command,
+        {"computer_id": "3", "name": "firewallSettingEngineOptionVerifyTcpChecksumEnabled", "overrides": "true"},
+    )
     result = reset_computer_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.ComputersSettings"
@@ -295,8 +304,9 @@ def test_trendmicro_set_firewall_rule_ids_on_computer_command(requests_mock):
     requests_mock.put(f"{BASE_URL}/api/computers/3/firewall/assignments", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(set_firewall_rule_ids_to_computer_command,
-                        {"computer_id": "3", "overrides": "true", "rule_ids": "18,19,20"})
+    args = convert_args(
+        set_firewall_rule_ids_to_computer_command, {"computer_id": "3", "overrides": "true", "rule_ids": "18,19,20"}
+    )
     result = set_firewall_rule_ids_to_computer_command(client, **args)
 
     assert len(result.outputs["assignedRuleIDs"]) == 3
@@ -323,8 +333,7 @@ def test_trendmicro_add_firewall_rule_ids_to_computer_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/computers/3/firewall/assignments", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(add_firewall_rule_ids_to_computer_command,
-                        {"computer_id": "3", "overrides": "true", "rule_ids": "21"})
+    args = convert_args(add_firewall_rule_ids_to_computer_command, {"computer_id": "3", "overrides": "true", "rule_ids": "21"})
     result = add_firewall_rule_ids_to_computer_command(client, **args)
 
     assert len(result.outputs["assignedRuleIDs"]) == 4
@@ -427,9 +436,10 @@ def test_trendmicro_search_computer_groups_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/computergroups/search", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(search_computer_groups_command,
-                        {"field_name": "name", "field_type": "string", "operation": "equal", "value": "TestGroup",
-                         "max_items": "50"}, )
+    args = convert_args(
+        search_computer_groups_command,
+        {"field_name": "name", "field_type": "string", "operation": "equal", "value": "TestGroup", "max_items": "50"},
+    )
     result = search_computer_groups_command(client, **args)
 
     assert len(result.outputs) == 1
@@ -531,9 +541,10 @@ def test_trendmicro_search_firewall_rules_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/firewallrules/search", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(search_firewall_rules_command,
-                        {"field_type": "choice", "field_name": "action", "operation": "equal", "value": "allow",
-                         "max_items": "50"})
+    args = convert_args(
+        search_firewall_rules_command,
+        {"field_type": "choice", "field_name": "action", "operation": "equal", "value": "allow", "max_items": "50"},
+    )
     result = search_firewall_rules_command(client, **args)
 
     assert len(result.outputs) == 1
@@ -685,9 +696,10 @@ def test_trendmicro_search_policies_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/policies/search", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(search_policies_command,
-                        {"field_name": "name", "field_type": "string", "operation": "equal", "value": "TestPolicy",
-                         "max_items": "50"})
+    args = convert_args(
+        search_policies_command,
+        {"field_name": "name", "field_type": "string", "operation": "equal", "value": "TestPolicy", "max_items": "50"},
+    )
     result = search_policies_command(client, **args)
 
     assert len(result.outputs) == 1
@@ -812,8 +824,7 @@ def test_trendmicro_modify_default_policy_setting_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/policies/default/settings/webReputationSettingBlockedUrls", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(modify_default_policy_setting_command,
-                        {"name": "webReputationSettingBlockedUrls", "value": "true"})
+    args = convert_args(modify_default_policy_setting_command, {"name": "webReputationSettingBlockedUrls", "value": "true"})
     result = modify_default_policy_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.DefaultPolicySettings"
@@ -835,8 +846,7 @@ def test_trendmicro_reset_default_policy_setting_command(requests_mock):
     from TrendMicroDeepSecurity import reset_default_policy_setting_command
 
     mock_response = load_mock_response("default_policy_setting")
-    requests_mock.delete(f"{BASE_URL}/api/policies/default/settings/webReputationSettingBlockedUrls",
-                         json=mock_response)
+    requests_mock.delete(f"{BASE_URL}/api/policies/default/settings/webReputationSettingBlockedUrls", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
     args = convert_args(reset_default_policy_setting_command, {"name": "webReputationSettingBlockedUrls"})
@@ -890,8 +900,10 @@ def test_trendmicro_get_policy_setting_command(requests_mock):
     requests_mock.get(f"{BASE_URL}/api/policies/12/settings/firewallSettingEngineOptionsEnabled", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(get_policy_setting_command,
-                        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "overrides": "true"}, )
+    args = convert_args(
+        get_policy_setting_command,
+        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "overrides": "true"},
+    )
     result = get_policy_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.PolicySettings"
@@ -916,9 +928,10 @@ def test_trendmicro_modify_policy_setting_command(requests_mock):
     requests_mock.post(f"{BASE_URL}/api/policies/12/settings/firewallSettingEngineOptionsEnabled", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(modify_policy_setting_command,
-                        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "value": "true",
-                         "overrides": "true"}, )
+    args = convert_args(
+        modify_policy_setting_command,
+        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "value": "true", "overrides": "true"},
+    )
     result = modify_policy_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.PolicySettings"
@@ -944,8 +957,10 @@ def test_trendmicro_reset_policy_setting_command(requests_mock):
     requests_mock.delete(f"{BASE_URL}/api/policies/12/settings/firewallSettingEngineOptionsEnabled", json=mock_response)
 
     client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
-    args = convert_args(reset_policy_setting_command,
-                        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "overrides": "true"}, )
+    args = convert_args(
+        reset_policy_setting_command,
+        {"policy_id": "12", "name": "firewallSettingEngineOptionsEnabled", "overrides": "true"},
+    )
     result = reset_policy_setting_command(client, **args)
 
     assert result.outputs_prefix == "TrendMicro.PolicySettings"
@@ -1002,3 +1017,85 @@ def test_trendmicro_create_policy_command(requests_mock):
 
     assert result.outputs_prefix == "TrendMicro.Policies"
     assert result.outputs["name"] == "TestPolicy"
+
+
+def test_create_once_only_scan_scheduled_task_command(requests_mock):
+    """
+    Scenario: Create a new scheduled task for a computer ID
+
+    Given:
+        - name, type and computer ID arguments
+    When:
+        - create_once_only_scheduled_task_command is called.
+    Then:
+        - Ensure outputs prefix is correct.
+        - Ensure the context is valid (simply the raw api response)
+    """
+    from TrendMicroDeepSecurity import create_once_only_scan_scheduled_task_command
+
+    requests_mock.post(f"{BASE_URL}/api/scheduledtasks", json=load_mock_response("scheduled_task"))
+    client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
+    args = convert_args(
+        create_once_only_scan_scheduled_task_command, {"name": "test", "type": "scan-for-open-ports", "computer_id": "123"}
+    )
+    result = create_once_only_scan_scheduled_task_command(client, **args)
+
+    assert result.outputs
+    assert result.outputs_prefix == "TrendMicro.ScheduledTask"
+
+
+def test_delete_scheduled_task_command(mocker, requests_mock):
+    """
+    Scenario: Deletes scheduled task by task-ID
+
+    Given:
+        - 1 task ID which was deleted successfully
+        - 1 task ID which wasn't deleted successfully (error from the api)
+        - 1 task ID which wasn't deleted successfully (not an integer)
+    When:
+        - delete_scheduled_task_command is called
+    Then:
+        - Ensure ID 1 has readable output
+        - Ensure ID 2 returns error entry
+        - Ensure ID c returns error entry
+    """
+    from TrendMicroDeepSecurity import delete_scheduled_task_command
+
+    requests_mock.delete(f"{BASE_URL}/api/scheduledtasks/1", status_code=204)
+    requests_mock.delete(f"{BASE_URL}/api/scheduledtasks/2", exc=Exception("error"))
+    mocker.patch.object(demisto, "error")
+    client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
+    args = convert_args(delete_scheduled_task_command, {"task_ids": "1,2,c"})
+    result = delete_scheduled_task_command(client, **args)
+
+    assert "successfully deleted" in result[0].readable_output
+    assert result[0].entry_type == EntryType.NOTE
+    assert result[1].entry_type == EntryType.ERROR
+    assert result[2].entry_type == EntryType.ERROR
+
+
+def test_list_scheduled_task_command(requests_mock):
+    """
+    Scenario: Lists scheduled tasks
+
+    Given:
+        - task-id argument
+    When:
+        - list_scheduled_task_command is called.
+    Then:
+        - Ensure context output and human readable are parsed successfully
+    """
+
+    from TrendMicroDeepSecurity import list_scheduled_task_command
+
+    mock_response = load_mock_response("scheduled_task")
+    requests_mock.get(f"{BASE_URL}/api/scheduledtasks/1", json=mock_response)
+
+    client = Client(base_url=BASE_URL, api_key="xxx", use_ssl=False, use_proxy=False)
+    args = convert_args(list_scheduled_task_command, {"task_id": "1"})
+    result = list_scheduled_task_command(client, **args)
+
+    assert result.outputs
+    assert isinstance(result.outputs, list)
+    assert result.readable_output
+    assert result.outputs_prefix == "TrendMicro.ScheduledTask"

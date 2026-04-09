@@ -1,7 +1,7 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 import traceback
 
-import demistomock as demisto
-from CommonServerPython import *
 from CommonServerUserPython import *
 import os
 import base64
@@ -27,7 +27,7 @@ try:
         'customerLogo': customerLogo,
     })
 
-    with open(OUTPUT_FILE_PATH, 'rb') as f:
+    with open(OUTPUT_FILE_PATH, 'rb') as f:  # type: ignore
         encoded = base64.b64encode(f.read()).decode('utf-8', 'ignore')
 
     os.remove(OUTPUT_FILE_PATH)

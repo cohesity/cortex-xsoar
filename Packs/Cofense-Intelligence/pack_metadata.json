@@ -1,8 +1,9 @@
 {
-    "name": "Cofense Intelligence",
+    "name": "Cofense Intelligence (Deprecated)",
     "description": "Deprecated. Use Cofense Intelligence v2 instead. Use the Cofense Intelligence integration to check the reputation of URLs, IP addresses, file hashes, and email addresses.",
     "support": "xsoar",
-    "currentVersion": "1.0.2",
+    "hidden": true,
+    "currentVersion": "1.0.3",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
@@ -15,6 +16,10 @@
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix"
     ]
 }

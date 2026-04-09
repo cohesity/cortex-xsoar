@@ -1,4 +1,5 @@
 category: Forensics & Malware Analysis
+provider: ReversingLabs
 commonfields:
   id: ReversingLabs TitaniumScale
   version: -1
@@ -12,13 +13,11 @@ configuration:
   required: true
   type: 4
 - display: Verify host certificates
-  hidden: false
   name: verify
-  required: false
   type: 8
+  required: false
 - defaultvalue: C - Fairly reliable
   display: Reliability
-  hidden: false
   name: reliability
   options:
   - A+ - 3rd party enrichment
@@ -28,37 +27,55 @@ configuration:
   - D - Not usually reliable
   - E - Unreliable
   - F - Reliability cannot be judged
-  required: false
   type: 15
+  required: false
 - defaultvalue: '2'
   display: Wait time between report fetching retries (seconds). Deafult is 2 seconds.
-  hidden: false
   name: wait_time_seconds
-  required: false
   type: 0
+  required: false
 - defaultvalue: '30'
   display: Number of report fetching retries. Default is 30.
-  hidden: false
   name: num_of_retries
-  required: false
   type: 0
+  required: false
+- display: HTTP proxy address with the protocol and port number
+  name: http_proxy
+  type: 0
+  required: false
+- display: HTTP proxy username
+  name: http_credentials
+  displaypassword: HTTP proxy password
+  required: false
+  type: 9
+- display: HTTPS proxy address with the protocol and port number
+  name: https_proxy
+  type: 0
+  required: false
+- display: HTTPS proxy username
+  name: https_credentials
+  displaypassword: HTTPS proxy password
+  required: false
+  type: 9
 description: ReversingLabs advanced file decomposition appliance.
 detaileddescription: TitaniumScale provides real-time and deep inspection of files.
 display: ReversingLabs TitaniumScale
 name: ReversingLabs TitaniumScale
 script:
   commands:
-  - arguments:
-    - default: true
-      description: The file entry to upload
-      isArray: false
-      name: entryId
-      required: true
-      secret: false
-    deprecated: false
+  - name: reversinglabs-titaniumscale-upload-sample-and-get-results
     description: Upload sample to TitaniumScale and retrieve analysis report.
-    execution: false
-    name: reversinglabs-titaniumscale-upload-sample-and-get-results
+    arguments:
+    - name: entryId
+      required: true
+      default: true
+      description: The file entry to upload.
+    - name: custom_token
+      description: A custom token for filtering processing tasks.
+    - name: user_data
+      description: User-defined data in the form of a JSON string. This data is NOT included in file analysis reports.
+    - name: custom_data
+      description: User-defined data in the form of a JSON string. This data is included in file analysis reports.
     outputs:
     - contextPath: File.SHA256
       description: The SHA256 hash of the file.
@@ -97,34 +114,32 @@ script:
       description: The vendor used to calculate the score.
       type: String
     - contextPath: ReversingLabs.tc_report
-      description: Full report
+      description: Full report.
       type: String
-  - arguments:
-    - default: true
-      description: The file entry to upload
-      isArray: false
-      name: entryId
-      required: true
-      secret: false
-    deprecated: false
+  - name: reversinglabs-titaniumscale-upload-sample
     description: Upload sample to TitaniumScale for analysis.
-    execution: false
-    name: reversinglabs-titaniumscale-upload-sample
+    arguments:
+    - name: entryId
+      required: true
+      default: true
+      description: The file entry to upload.
+    - name: custom_token
+      description: A custom token for filtering processing tasks.
+    - name: user_data
+      description: User-defined data in the form of a JSON string. This data is NOT included in file analysis reports.
+    - name: custom_data
+      description: User-defined data in the form of a JSON string. This data is included in file analysis reports.
     outputs:
     - contextPath: ReversingLabs.task_Url
-      description: url to get report from
+      description: url to get report from.
       type: Unknown
-  - arguments:
+  - name: reversinglabs-titaniumscale-get-results
+    description: Retrieve report of a previously uploaded file from TitaniumScale.
+    arguments:
     - default: true
-      description: The file entry to upload
-      isArray: false
+      description: The file entry to upload.
       name: taskUrl
       required: true
-      secret: false
-    deprecated: false
-    description: Retrieve report of a previously uploaded file from TitaniumScale.
-    execution: false
-    name: reversinglabs-titaniumscale-get-results
     outputs:
     - contextPath: File.SHA256
       description: The SHA256 hash of the file.
@@ -163,13 +178,51 @@ script:
       description: The vendor used to calculate the score.
       type: String
     - contextPath: ReversingLabs.tc_report
-      description: Full report
+      description: Full report.
       type: String
-  dockerimage: demisto/reversinglabs-sdk-py3:2.0.0.23997
-  feed: false
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
+  - name: reversinglabs-titaniumscale-list-processing-tasks
+    description: List active processing tasks.
+    arguments:
+      - name: age
+        description: Task age in seconds.
+      - name: custom_token
+        description: A custom token for filtering processing tasks.
+    outputs:
+      - contextPath: ReversingLabs.list_processing_tasks
+        description: Processing tasks.
+        type: Unknown
+  - name: reversinglabs-titaniumscale-get-processing-task-info
+    description: Retrieves information about a completed file processing task.
+    arguments:
+      - name: task_id
+        required: true
+        default: true
+        description: Task ID.
+    outputs:
+      - contextPath: ReversingLabs.tc_report
+        description: Full report.
+        type: Unknown
+  - name: reversinglabs-titaniumscale-delete-processing-task
+    description: Deletes a processing task.
+    arguments:
+      - name: task_id
+        required: true
+        default: true
+        description: Task ID.
+  - name: reversinglabs-titaniumscale-delete-multiple-tasks
+    description: Deletes multiple processing tasks.
+    arguments:
+      - name: age
+        required: true
+        default: true
+        description: Task age in seconds.
+  - name: reversinglabs-titaniumscale-get-yara-id
+    description: Retrieves the identifier of the current set of YARA rules on the TitaniumScale Worker instance.
+    outputs:
+      - contextPath: ReversingLabs.yara_id
+        description: Identifier of the current set of YARA rules on the TitaniumScale Worker instance.
+        type: Unknown
+  dockerimage: demisto/reversinglabs-sdk-py3:2.0.0.1872154
   runonce: false
   script: '-'
   subtype: python3

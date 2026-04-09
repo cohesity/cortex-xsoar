@@ -1,15 +1,14 @@
-comment: "Read the installedpacks.json. \n\nCount and get packs names"
+comment: "Read the installedpacks.json. \n\nCount and get packs names."
 commonfields:
   id: HealthCheckInstalledPacks
   version: -1
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.12.6204436
 enabled: true
 name: HealthCheckInstalledPacks
 outputs:
 - contextPath: FileData
-  description: Data read from war room file
+  description: Data read from war room file.
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

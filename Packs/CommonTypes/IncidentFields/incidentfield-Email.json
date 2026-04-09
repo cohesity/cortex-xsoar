@@ -1,6 +1,10 @@
 {
     "associatedToAll": false,
     "associatedTypes": [
+        "SysAid Change",
+		"SysAid Incident",
+		"SysAid Problem",
+		"SysAid Request",
         "IAM - New Hire",
         "IAM - Terminate User",
         "IAM - Update User",
@@ -8,7 +12,10 @@
         "IAM - Sync User",
         "IAM - Rehire User",
         "IAM - AD User Activation",
-        "IAM - AD User Deactivation"
+        "IAM - AD User Deactivation",
+        "Vectra Account",
+        "CrowdStrike Falcon Mobile Detection",
+        "Exabeam Notable User"
     ],
     "caseInsensitive": true,
     "cliName": "email",

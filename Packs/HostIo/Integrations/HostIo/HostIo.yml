@@ -4,6 +4,7 @@ commonfields:
 name: HostIo
 display: HostIo
 category: Data Enrichment & Threat Intelligence
+provider: Access2IT Group BV
 description: Use the HostIo integration to enrich domains using the Host.io API.
 configuration:
 - defaultvalue: https://host.io
@@ -14,7 +15,13 @@ configuration:
 - display: API Key
   name: token
   type: 4
-  required: true
+  hidden: true
+  required: false
+- displaypassword: API Key
+  name: credentials_token
+  hiddenusername: true
+  type: 9
+  required: false
 - display: Trust any certificate (not secure)
   name: insecure
   type: 8
@@ -22,6 +29,35 @@ configuration:
 - display: Use system proxy settings
   name: proxy
   type: 8
+  required: false
+- additionalinfo: Reliability of the source providing the intelligence data.
+  defaultvalue: B - Usually reliable
+  display: Source Reliability
+  name: integrationReliability
+  options:
+  - A+ - 3rd party enrichment
+  - A - Completely reliable
+  - B - Usually reliable
+  - C - Fairly reliable
+  - D - Not usually reliable
+  - E - Unreliable
+  - F - Reliability cannot be judged
+  type: 15
+  required: false
+- defaultvalue: indicatorType
+  name: feedExpirationPolicy
+  display: ''
+  options:
+  - never
+  - interval
+  - indicatorType
+  - suddenDeath
+  type: 17
+  required: false
+- defaultvalue: '20160'
+  name: feedExpirationInterval
+  display: ''
+  type: 1
   required: false
 script:
   script: ''
@@ -51,9 +87,7 @@ script:
       required: true
       description: The value of the given field.
     - name: limit
-      required: false
-      description: 'The maximum number of domains to display. Possible values are:
-        "0", "1", "5", "10", "25", "100", "250", or 1"000. Default is "25".'
+      description: 'The maximum number of domains to display. Possible values are: "0", "1", "5", "10", "25", "100", "250", or 1"000. Default is "25".'
     outputs:
     - contextPath: HostIo.Search.Field
       description: The field to look up.
@@ -67,8 +101,7 @@ script:
     - contextPath: HostIo.Search.Total
       description: The total number of domains associated with the given field.
       type: Number
-    description: Returns a list of domains associated with a specific field, and the
-      total number of these domains.
+    description: Returns a list of domains associated with a specific field, and the total number of these domains.
   - name: domain
     arguments:
     - name: domain
@@ -105,15 +138,13 @@ script:
       description: The country of the registrant.
       type: String
     - contextPath: Domain.UpdatedDate
-      description: The date when the domain was last updated in ISO8601 format (i.e.,
-        '2020-04-30T10:35:00.000Z').
+      description: The date when the domain was last updated in ISO8601 format (i.e., '2020-04-30T10:35:00.000Z').
       type: Date
     - contextPath: Domain.NameServers
       description: Name of the server where the domain exists.
       type: String
     description: Returns domain information.
-  dockerimage: demisto/python3:3.9.9.25564
-  runonce: false
+  dockerimage: demisto/python3:3.12.8.3296088
   subtype: python3
 fromversion: 5.0.0
 tests:

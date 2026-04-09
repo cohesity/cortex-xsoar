@@ -1,5 +1,5 @@
-[file:FeedTAXII.yml]
-ignore=IN145
-
-[file:FeedTAXII2.yml]
-ignore=IN145
+[known_words]
+TLP
+stixid
+firstseenbysource
+trafficlightprotocol

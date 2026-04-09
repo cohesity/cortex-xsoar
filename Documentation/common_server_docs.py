@@ -5,10 +5,15 @@ import yaml
 import os
 import re
 from parinx import parser
-from demisto_sdk.commands.unify.yml_unifier import YmlUnifier
 import logging
 
 from Tests.scripts.utils.log_util import install_logging
+
+# temp handling of unifier import
+try:
+    from demisto_sdk.commands.unify.integration_script_unifier import IntegrationScriptUnifier as YmlUnifier
+except:  # noqa
+    from demisto_sdk.commands.prepare_content.integration_script_unifier import IntegrationScriptUnifier as YmlUnifier
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.abspath(SCRIPT_DIR + '/..')
@@ -26,7 +31,8 @@ PY_PRIVATE_FUNCS = ["raiseTable", "zoomField", "epochToTimestamp", "formatTimeCo
                     "BaseHTTPClient", "DemistoHandler", "DebugLogger", "FeedIndicatorType", "Indicator",
                     "IndicatorType", "EntryType", "EntryFormat", "abstractmethod",
                     "HTTPAdapter", "Retry", "Common", "randint", "GetDemistoVersion", "get_demisto_version",
-                    "BaseWidget", "UTC", "WarningsHandler", "__line__", "_find_relevant_module"]
+                    "BaseWidget", "UTC", "WarningsHandler", "__line__", "_find_relevant_module", "register_module_line",
+                    "fix_traceback_line_numbers"]
 
 PY_IRREGULAR_FUNCS = {"LOG": {"argList": ["message"]}}
 
@@ -39,13 +45,13 @@ MARKDOWN_DESCRIPTION_FUNCS = ["createEntry"]
 
 
 def read_json_file(file_path):
-    with open(file_path, 'r') as f:
+    with open(file_path) as f:
         out = json.load(f)
         return out
 
 
 def read_yml_file(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         out = yaml.safe_load(f)
         return out
 
@@ -58,7 +64,7 @@ def reformat_python_output(output, origin, language):
             continue
 
         if a.get("description", "") == "":
-            logging.error("Description is missing for Python function", a["name"])
+            logging.error("Description is missing for Python function %s", a["name"])
             is_error = True
 
         # format arguments
@@ -72,7 +78,7 @@ def reformat_python_output(output, origin, language):
                 arg_info["type"] = arg_info["type_name"]
                 if arg_info.get("description", "") == "":
                     is_error = True
-                    logging.info("Missing description for argument", arg_name, "in python function", a["name"])
+                    logging.info("Missing description for argument %s in python function %s", arg_name, a["name"])
                 del arg_info["type_name"]
                 z.append(arg_info)
 
@@ -100,14 +106,14 @@ def create_js_documentation(path, origin, language):
         if (a.get("deprecated", None) is not None) or a.get("name", "") in JS_PRIVATE_FUNCS:
             continue
 
-        y = dict()
+        y = {}
         y["name"] = a.get("name", "")
         if y["name"] == "":
-            logging.error("Error extracting function name for JS function with the following data:\n", a)
+            logging.error("Error extracting function name for JS function with the following data:\n%s", a)
             is_error = True
         y["description"] = a.get("description", "")
         if y["description"] == "":
-            logging.error("Description is missing for JS function", y["name"])
+            logging.error("Description is missing for JS function %s", y["name"])
             is_error = True
 
         for arg in a.get("params", []):
@@ -118,8 +124,8 @@ def create_js_documentation(path, origin, language):
                 del arg["optional"]
             if arg.get("name", "") == "" or arg.get("description", "") == "":
                 is_error = True
-                logging.error("Missing name/description for argument in JS function", y["name"], ".\n Arg name is",
-                              arg.get("name", ""), ", args description is", arg.get("description", ""))
+                logging.error("Missing name/description for argument in JS function %s.\nArg name is %s, args description is %s",
+                              y["name"], arg.get("name", ""), arg.get("description", ""))
         y["arguments"] = a.get("params", [])
 
         returns = a.get("returns", None)[0]
@@ -139,8 +145,11 @@ def create_js_documentation(path, origin, language):
 def create_py_documentation(path, origin, language):
     is_error_py = False
 
-    with open(path, 'r') as file:
+    with open(path) as file:
         py_script = YmlUnifier.clean_python_code(file.read(), remove_print_future=False)
+
+    logging.info("replacing DemistoClassApiModule: ")
+    py_script = re.sub(r'from DemistoClassApiModule import \*[ \t]*(#.*)?', "", py_script)
 
     code = compile(py_script, '<string>', 'exec')
     ns = {'demisto': demistomock}
@@ -155,7 +164,7 @@ def create_py_documentation(path, origin, language):
 
             docstring = inspect.getdoc(a_object)
             if not docstring:
-                logging.error("docstring for function {} is empty".format(a))
+                logging.error(f"docstring for function {a} is empty")
                 is_error_py = True
             elif 'ignore docstring' in docstring:
                 continue
@@ -163,7 +172,7 @@ def create_py_documentation(path, origin, language):
                 try:
                     y = parser.parse_docstring(docstring)
                     y["name"] = a
-                    logging.info('Processing {}'.format(a))
+                    logging.info(f'Processing {a}')
 
                     if inspect.isclass(a_object):
                         y["argList"] = list(inspect.getfullargspec(a_object.__init__))[0] \
@@ -179,7 +188,7 @@ def create_py_documentation(path, origin, language):
 
                     x.append(y)
                 except parser.MethodParsingException:
-                    logging.exception('Failed to parse {} class/function'.format(a))
+                    logging.exception(f'Failed to parse {a} class/function')
                     is_error_py = True
 
     if is_error_py:
@@ -190,10 +199,10 @@ def create_py_documentation(path, origin, language):
 def create_ps_documentation(path, origin, language):
     is_error_ps = False
 
-    with open(path, 'r') as file:
+    with open(path) as file:
         ps_script = file.read()
 
-    function_doc_list = list()
+    function_doc_list = []
     functions_list = re.findall(r'function\s([\w_]*)\s{\s*<#\s*(.*?)#>', ps_script, re.S)
 
     for function in functions_list:
@@ -209,7 +218,7 @@ def create_ps_documentation(path, origin, language):
         description = parameters[0].split('.DESCRIPTION')[1].strip()
         if not description:
             is_error_ps = True
-            logging.error("Missing description for PS function {}.\n".format(function_name))
+            logging.error(f"Missing description for PS function {function_name}.\n")
         function_doc['description'] = description
 
         arguments = []

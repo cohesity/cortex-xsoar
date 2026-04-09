@@ -1,9 +1,8 @@
-import demistomock as demisto
-from CommonServerPython import *
 import ast
 
-# disable insecure warnings
-requests.packages.urllib3.disable_warnings()
+import demistomock as demisto
+from CommonServerPython import *
+from MicrosoftApiModule import *  # noqa: E402
 
 """ GLOBAL VARS """
 
@@ -24,9 +23,11 @@ SUB_ID_REQUIRING_CMD = (
     "azure-sc-delete-jit",
     "azure-sc-list-storage",
 )
+RESOURCE_GROUP_REQUIRING_CMD = ("azure-sc-update-atp", "azure-sc-get-atp")
+DEFAULT_LIMIT = 50
 # API Versions
 SUBSCRIPTION_API_VERSION = "2015-01-01"
-ALERT_API_VERSION = "2019-01-01"
+ALERT_API_VERSION = "2022-01-01"
 LOCATION_API_VERSION = "2015-06-01-preview"
 ATP_API_VERSION = "2017-08-01-preview"
 APS_API_VERSION = "2017-08-01-preview"
@@ -34,21 +35,18 @@ IPP_API_VERSION = "2017-08-01-preview"
 JIT_API_VERSION = "2015-06-01-preview"
 STORAGE_API_VERSION = "2018-07-01"
 SECURE_STORES_API_VERSION = "2020-01-01"
+LIST_RESOURCE_GROUP_VERSION = "2021-04-01"
 
 """ HELPER FUNCTIONS """
 
 
 # Format ports in JIT access policy rule to (portNum, protocol, allowedAddress, maxDuration)
 def format_jit_port_rule(ports):
-    port_array = list()
+    port_array = []
     for port in ports:
         # for each item in unicode, has to use str to decode to ascii
         p_num = str(port.get("number"))
-        p_src_addr = (
-            str(port.get("allowedSourceAddressPrefix"))
-            if port.get("allowedSourceAddressPrefix") != "*"
-            else "any"
-        )
+        p_src_addr = str(port.get("allowedSourceAddressPrefix")) if port.get("allowedSourceAddressPrefix") != "*" else "any"
         p_protocol = str(port.get("protocol")) if port.get("protocol") != "*" else "any"
         p_max_duration = str(port.get("maxRequestAccessDuration"))
         port_array.append(str((p_num, p_protocol, p_src_addr, p_max_duration)))
@@ -57,15 +55,11 @@ def format_jit_port_rule(ports):
 
 # Format ports in JIT access request to (portNum, allowedAddress, endTime, status)
 def format_jit_port_request(ports):
-    port_array = list()
+    port_array = []
     for port in ports:
         # for each item in unicode, has to use str to decode to ascii
         p_num = str(port.get("number"))
-        p_src_addr = (
-            str(port.get("allowedSourceAddressPrefix"))
-            if port.get("allowedSourceAddressPrefix") != "*"
-            else "any"
-        )
+        p_src_addr = str(port.get("allowedSourceAddressPrefix")) if port.get("allowedSourceAddressPrefix") != "*" else "any"
         p_status = str(port.get("status"))
         p_end_time = str(port.get("endTimeUtc"))
         port_array.append(str((p_num, p_src_addr, p_end_time, p_status)))
@@ -89,20 +83,48 @@ class MsClient:
     Microsoft Client enables authorized access to Azure Security Center.
     """
 
-    def __init__(self, tenant_id, auth_id, enc_key, app_name, server, verify, proxy, self_deployed, subscription_id,
-                 ok_codes):
+    def __init__(
+        self,
+        tenant_id,
+        auth_id,
+        enc_key,
+        app_name,
+        server,
+        verify,
+        proxy,
+        self_deployed,
+        subscription_id,
+        ok_codes,
+        certificate_thumbprint,
+        private_key,
+        resource_group_name=None,
+        managed_identities_client_id=None,
+    ):
         base_url_with_subscription = f"{server}subscriptions/{subscription_id}/"
         self.ms_client = MicrosoftClient(
-            tenant_id=tenant_id, auth_id=auth_id, enc_key=enc_key, app_name=app_name,
-            base_url=base_url_with_subscription, verify=verify, proxy=proxy, self_deployed=self_deployed,
-            ok_codes=ok_codes, scope="https://management.azure.com/.default")
+            tenant_id=tenant_id,
+            auth_id=auth_id,
+            enc_key=enc_key,
+            app_name=app_name,
+            base_url=base_url_with_subscription,
+            verify=verify,
+            proxy=proxy,
+            self_deployed=self_deployed,
+            ok_codes=ok_codes,
+            scope="https://management.azure.com/.default",
+            certificate_thumbprint=certificate_thumbprint,
+            private_key=private_key,
+            managed_identities_client_id=managed_identities_client_id,
+            managed_identities_resource_uri=Resources.management_azure,
+            command_prefix="azure-sc",
+        )
         self.server = server
         self.subscription_id = subscription_id
+        self.resource_group_name = resource_group_name
 
-    def get_alert(self, resource_group_name, asc_location, alert_id):
+    def get_alert(self, asc_location, alert_id):
         """
         Args:
-            resource_group_name (str): ResourceGroupName
             asc_location (str): Azure Security Center location
             alert_id (str): Alert ID
 
@@ -110,17 +132,15 @@ class MsClient:
             response body (dict)
 
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}" if resource_group_name else ""
+        cmd_url = f"/resourceGroups/{self.resource_group_name}" if self.resource_group_name else ""
         cmd_url += f"/providers/Microsoft.Security/locations/{asc_location}/alerts/{alert_id}"
-        params = {'api-version': ALERT_API_VERSION}
-        return self.ms_client.http_request(
-            method="GET", url_suffix=cmd_url, params=params)
+        params = {"api-version": ALERT_API_VERSION}
+        return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
-    def list_alerts(self, resource_group_name, asc_location, filter_query, select_query, expand_query):
+    def list_alerts(self, asc_location, filter_query, select_query, expand_query):
         """Listing alerts
 
         Args:
-            resource_group_name (str): ResourceGroupName
             asc_location (str): Azure Security Center location
             filter_query (str): what to filter
             select_query (str): what to select
@@ -129,8 +149,8 @@ class MsClient:
         Returns:
             dict: contains response body
         """
-        if resource_group_name:
-            cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security"
+        if self.resource_group_name:
+            cmd_url = f"/resourceGroups/{self.resource_group_name}/providers/Microsoft.Security"
             # ascLocation must be using with specifying resourceGroupName
             if asc_location:
                 cmd_url += f"/locations/{asc_location}"
@@ -138,20 +158,19 @@ class MsClient:
         else:
             cmd_url = "/providers/Microsoft.Security/alerts"
 
-        params = {'api-version': ALERT_API_VERSION}
+        params = {"api-version": ALERT_API_VERSION}
         if filter_query:
-            params['$filter'] = filter_query
+            params["$filter"] = filter_query
         if select_query:
-            params['$select'] = select_query
+            params["$select"] = select_query
         if expand_query:
-            params['$expand'] = expand_query
+            params["$expand"] = expand_query
 
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
-    def update_alert(self, resource_group_name, asc_location, alert_id, alert_update_action_type):
+    def update_alert(self, asc_location, alert_id, alert_update_action_type):
         """
         Args:
-            resource_group_name (str): Resource Name Group
             asc_location (str): Azure Security Center Location
             alert_id (str): Alert ID
             alert_update_action_type (str): What update type need to update
@@ -159,12 +178,11 @@ class MsClient:
         Returns:
             dict: response body
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}" if resource_group_name else ""
-        cmd_url += f"/providers/Microsoft.Security/locations/{asc_location}/alerts/{alert_id}/" \
-                   f"{alert_update_action_type}"
+        cmd_url = f"/resourceGroups/{self.resource_group_name}" if self.resource_group_name else ""
+        cmd_url += f"/providers/Microsoft.Security/locations/{asc_location}/alerts/{alert_id}/{alert_update_action_type}"
         params = {"api-version": ALERT_API_VERSION}
         #  Using resp_type=response to avoid parsing error.
-        self.ms_client.http_request(method="POST", url_suffix=cmd_url, params=params, resp_type='response')
+        self.ms_client.http_request(method="POST", url_suffix=cmd_url, params=params, resp_type="response")
 
     def list_locations(self):
         """
@@ -175,10 +193,9 @@ class MsClient:
         params = {"api-version": LOCATION_API_VERSION}
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
-    def update_atp(self, resource_group_name, storage_account, setting_name, is_enabled):
+    def update_atp(self, storage_account, setting_name, is_enabled):
         """
         Args:
-            resource_group_name (str): Resource Group Name
             storage_account (str): Storange Account
             setting_name (str):  Setting Name
             is_enabled (str): true/false
@@ -186,13 +203,15 @@ class MsClient:
         Returns:
             dict: respones body
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Storage/storageAccounts/" \
-                  f"{storage_account}/providers/Microsoft.Security/advancedThreatProtectionSettings/{setting_name}"
+        cmd_url = (
+            f"/resourceGroups/{self.resource_group_name}/providers/Microsoft.Storage/storageAccounts/"
+            f"{storage_account}/providers/Microsoft.Security/advancedThreatProtectionSettings/{setting_name}"
+        )
         params = {"api-version": ATP_API_VERSION}
         data = {
-            "id": f"/subscriptions/{self.subscription_id}/resourceGroups/{resource_group_name}/providers/"
-                  f"Microsoft.Storage/storageAccounts/{storage_account}/providers/Microsoft.Security/"
-                  f"advancedThreatProtectionSettings/{setting_name}",
+            "id": f"/subscriptions/{self.subscription_id}/resourceGroups/{self.resource_group_name}/providers/"
+            f"Microsoft.Storage/storageAccounts/{storage_account}/providers/Microsoft.Security/"
+            f"advancedThreatProtectionSettings/{setting_name}",
             "name": setting_name,
             "type": "Microsoft.Security/advancedThreatProtectionSettings",
             "properties": {"isEnabled": is_enabled},
@@ -201,18 +220,19 @@ class MsClient:
         #  Using resp_type=response to avoid parsing error.
         return self.ms_client.http_request(method="PUT", url_suffix=cmd_url, json_data=data, params=params)
 
-    def get_atp(self, resource_group_name, storage_account, setting_name):
+    def get_atp(self, storage_account, setting_name):
         """
         Args:
-            resource_group_name (str): Resource Group Name
             storage_account (str): Storange Account
             setting_name (str):  Setting Name
 
         Returns:
 
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Storage/storageAccounts" \
-                  f"/{storage_account}/providers/Microsoft.Security/advancedThreatProtectionSettings/{setting_name}"
+        cmd_url = (
+            f"/resourceGroups/{self.resource_group_name}/providers/Microsoft.Storage/storageAccounts"
+            f"/{storage_account}/providers/Microsoft.Security/advancedThreatProtectionSettings/{setting_name}"
+        )
         params = {"api-version": ATP_API_VERSION}
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
@@ -291,17 +311,16 @@ class MsClient:
             return self.ms_client.http_request(method="GET", full_url=full_url, url_suffix="", params=params)
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
-    def list_jit(self, asc_location, resource_group_name):
+    def list_jit(self, asc_location):
         """
         Args:
             asc_location: Machine location
-            resource_group_name: Resource group name
 
         Returns:
             dict: response body
         """
         params = {"api-version": JIT_API_VERSION}
-        cmd_url = f"/resourceGroups/{resource_group_name}" if resource_group_name else ""
+        cmd_url = f"/resourceGroups/{self.resource_group_name}" if self.resource_group_name else ""
         cmd_url += f"/providers/Microsoft.Security/locations/{asc_location}" if asc_location else ""
         cmd_url += "/providers/Microsoft.Security/jitNetworkAccessPolicies"
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
@@ -316,8 +335,10 @@ class MsClient:
         Returns:
             dict: response body
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/" \
-                  f"jitNetworkAccessPolicies/{policy_name}"
+        cmd_url = (
+            f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/"
+            f"jitNetworkAccessPolicies/{policy_name}"
+        )
         params = {"api-version": JIT_API_VERSION}
 
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
@@ -337,8 +358,10 @@ class MsClient:
         Returns:
             dict: response body
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/" \
-                  f"jitNetworkAccessPolicies/{policy_name}/initiate"
+        cmd_url = (
+            f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/"
+            f"jitNetworkAccessPolicies/{policy_name}/initiate"
+        )
         params = {"api-version": JIT_API_VERSION}
 
         # only supports init access for one vm and one port now
@@ -357,8 +380,7 @@ class MsClient:
             ]
         }
         # response code should be 202 Accepted
-        return self.ms_client.http_request(method="POST", url_suffix=cmd_url, json_data=data, params=params,
-                                           resp_type="response")
+        return self.ms_client.http_request(method="POST", url_suffix=cmd_url, json_data=data, params=params, resp_type="response")
 
     def delete_jit(self, asc_location, resource_group_name, policy_name):
         """
@@ -367,13 +389,15 @@ class MsClient:
             resource_group_name: Resource group name
             policy_name: Policy name
         """
-        cmd_url = f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/" \
-                  f"jitNetworkAccessPolicies/{policy_name}"
+        cmd_url = (
+            f"/resourceGroups/{resource_group_name}/providers/Microsoft.Security/locations/{asc_location}/"
+            f"jitNetworkAccessPolicies/{policy_name}"
+        )
 
         params = {"api-version": JIT_API_VERSION}
 
         #  Using resp_type=text to avoid parsing error. response should be 204
-        self.ms_client.http_request(method="DELETE", url_suffix=cmd_url, params=params, resp_type='text')
+        self.ms_client.http_request(method="DELETE", url_suffix=cmd_url, params=params, resp_type="text")
 
     def list_sc_storage(self):
         """
@@ -406,6 +430,21 @@ class MsClient:
         params = {"api-version": SECURE_STORES_API_VERSION}
         return self.ms_client.http_request(method="GET", url_suffix=cmd_url, params=params)
 
+    def list_resource_groups(self, tag: str, limit: int, full_url: Optional[str] = None) -> dict:
+        """
+        List all resource groups.
+
+        Args:
+            tag str: Tag to filter by.
+            limit (int): Maximum number of resource groups to retrieve. Default is 50.
+
+        Returns:
+            List[dict]: API response from Azure.
+        """
+        filter_by_tag = azure_tag_formatter(tag) if tag else None
+        params = {"$filter": filter_by_tag, "$top": limit, "api-version": LIST_RESOURCE_GROUP_VERSION} if not full_url else {}
+        return self.ms_client.http_request(method="GET", url_suffix="resourcegroups", params=params, full_url=full_url)
+
 
 """ FUNCTIONS """
 
@@ -417,11 +456,10 @@ def get_alert_command(client: MsClient, args: dict):
     Args
         args (dict): dictionary containing commands args
     """
-    resource_group_name = args.get("resource_group_name")
     asc_location = args.get("asc_location")
     alert_id = args.get("alert_id")
-    alert = client.get_alert(resource_group_name, asc_location, alert_id)
-    final_output = list()
+    alert = client.get_alert(asc_location, alert_id)
+    final_output = []
 
     # Basic Property Table
     properties = alert.get("properties")
@@ -431,22 +469,14 @@ def get_alert_command(client: MsClient, args: dict):
                 "DisplayName": properties.get("alertDisplayName"),
                 "CompromisedEntity": properties.get("compromisedEntity"),
                 "Description": properties.get("description"),
-                "DetectedTime": properties.get("detectedTimeUtc"),
-                "ReportedTime": properties.get("reportedTimeUtc"),
-                "ReportedSeverity": properties.get("reportedSeverity"),
-                "ConfidenceScore": properties.get("confidenceScore", "None"),
-                "State": properties.get("state"),
-                "ActionTaken": properties.get("actionTaken"),
-                "CanBeInvestigated": properties.get("canBeInvestigated"),
+                "DetectedTime": properties.get("timeGeneratedUtc"),
+                "ReportedSeverity": properties.get("severity"),
+                "State": properties.get("status"),
                 "RemediationSteps": properties.get("remediationSteps"),
                 "VendorName": properties.get("vendorName"),
-                "AssociatedResource": properties.get("associatedResource"),
-                "AlertName": properties.get("alertName"),
-                "InstanceID": properties.get("instanceId", "None"),
                 "ID": alert.get("name"),
                 "ExtendedProperties": properties.get("extendedProperties"),
                 "Entities": properties.get("entities"),
-                "SubscriptionID": properties.get("subscriptionId"),
             }
         ]
 
@@ -458,19 +488,15 @@ def get_alert_command(client: MsClient, args: dict):
                 "CompromisedEntity",
                 "Description",
                 "DetectedTime",
-                "ReportedTime",
                 "ReportedSeverity",
-                "ConfidenceScore",
                 "State",
-                "ActionTaken",
-                "CanBeInvestigated",
                 "RemediationSteps",
                 "VendorName",
-                "AssociatedResource",
                 "AlertName",
-                "InstanceID",
-                "ID"],
-            removeNull=True)
+                "ID",
+            ],
+            removeNull=True,
+        )
 
         ec = {"AzureSecurityCenter.Alert(val.ID && val.ID === obj.ID)": basic_table_output}
 
@@ -485,12 +511,8 @@ def get_alert_command(client: MsClient, args: dict):
         final_output.append(basic_table_entry)
 
         # Extended Properties Table
-        if (
-                alert.get("properties")
-                and alert.get("properties")
-                and alert.get("properties").get("extendedProperties")
-        ):
-            extended_properties = dict()
+        if alert.get("properties") and alert.get("properties") and alert.get("properties").get("extendedProperties"):
+            extended_properties = {}
             properties = alert.get("properties")
             if isinstance(properties.get("extendedProperties"), dict):
                 for key, value in alert["properties"]["extendedProperties"].items():
@@ -510,32 +532,31 @@ def get_alert_command(client: MsClient, args: dict):
 
             # Entities Table
             entities = properties.get("entities")
-            if entities:
-                if isinstance(entities, dict):
-                    entities_table_output = list()
-                    for entity in entities:
-                        entities_table_output.append(
-                            {
-                                "Content": ast.literal_eval(str(entity)),
-                                "Type": entity["type"],
-                            }
-                        )
-
-                    md = tableToMarkdown(
-                        "Azure Security Center - Get Alert - Entity",
-                        entities_table_output,
-                        removeNull=True,
+            if entities and isinstance(entities, dict):
+                entities_table_output = []
+                for entity in entities:
+                    entities_table_output.append(
+                        {
+                            "Content": ast.literal_eval(str(entity)),
+                            "Type": entity["type"],
+                        }
                     )
 
-                    entities_table_entry = {
-                        "Type": entryTypes["note"],
-                        "Contents": alert.get("properties").get("entities"),
-                        "ContentsFormat": formats["json"],
-                        "ReadableContentsFormat": formats["markdown"],
-                        "HumanReadable": md,
-                    }
-                    final_output.append(entities_table_entry)
-    demisto.results(final_output)
+                md = tableToMarkdown(
+                    "Azure Security Center - Get Alert - Entity",
+                    entities_table_output,
+                    removeNull=True,
+                )
+
+                entities_table_entry = {
+                    "Type": entryTypes["note"],
+                    "Contents": alert.get("properties").get("entities"),
+                    "ContentsFormat": formats["json"],
+                    "ReadableContentsFormat": formats["markdown"],
+                    "HumanReadable": md,
+                }
+                final_output.append(entities_table_entry)
+    return final_output
 
 
 def list_alerts_command(client: MsClient, args: dict):
@@ -545,16 +566,13 @@ def list_alerts_command(client: MsClient, args: dict):
         client:
         args (dict): usually demisto.args()
     """
-    resource_group_name = args.get("resource_group_name")
     asc_location = args.get("asc_location")
     filter_query = args.get("filter")
     select_query = args.get("select")
     expand_query = args.get("expand")
 
-    alerts = client.list_alerts(
-        resource_group_name, asc_location, filter_query, select_query, expand_query
-    ).get("value")
-    outputs = list()
+    alerts = client.list_alerts(asc_location, filter_query, select_query, expand_query).get("value")
+    outputs = []
     for alert in alerts:
         properties = alert.get("properties")
         if properties:
@@ -562,12 +580,11 @@ def list_alerts_command(client: MsClient, args: dict):
                 {
                     "DisplayName": properties.get("alertDisplayName"),
                     "CompromisedEntity": properties.get("compromisedEntity"),
-                    "DetectedTime": properties.get("detectedTimeUtc"),
-                    "ReportedSeverity": properties.get("reportedSeverity"),
-                    "State": properties.get("state"),
-                    "ActionTaken": properties.get("actionTaken"),
                     "Description": properties.get("description"),
                     "ID": alert.get("name"),
+                    "DetectedTime": properties.get("timeGeneratedUtc"),
+                    "ReportedSeverity": properties.get("severity"),
+                    "State": properties.get("status"),
                 }
             )
 
@@ -580,7 +597,6 @@ def list_alerts_command(client: MsClient, args: dict):
             "DetectedTime",
             "ReportedSeverity",
             "State",
-            "ActionTaken",
             "Description",
             "ID",
         ],
@@ -599,11 +615,12 @@ def update_alert_command(client: MsClient, args: dict):
         client: MsClient
         args (dict): usually demisto.args()
     """
-    resource_group_name = args.get("resource_group_name")
     asc_location = args.get("asc_location")
     alert_id = args.get("alert_id")
     alert_update_action_type = args.get("alert_update_action_type")
-    client.update_alert(resource_group_name, asc_location, alert_id, alert_update_action_type)
+    if alert_update_action_type == "in_progress":
+        alert_update_action_type = "inProgress"
+    client.update_alert(asc_location, alert_id, alert_update_action_type)
     outputs = {"ID": alert_id, "ActionTaken": alert_update_action_type}
 
     ec = {"AzureSecurityCenter.Alert(val.ID && val.ID === obj.ID)": outputs}
@@ -616,15 +633,12 @@ def update_alert_command(client: MsClient, args: dict):
 
 
 def list_locations_command(client: MsClient):
-    """Getting all locations
-    """
+    """Getting all locations"""
     locations = client.list_locations().get("value")
-    outputs = list()
+    outputs = []
     if locations:
         for location in locations:
-            if location.get("properties") and location.get("properties").get(
-                    "homeRegionName"
-            ):
+            if location.get("properties") and location.get("properties").get("homeRegionName"):
                 home_region_name = location.get("properties").get("homeRegionName")
             else:
                 home_region_name = None
@@ -643,6 +657,7 @@ def list_locations_command(client: MsClient):
             )
             ec = {"AzureSecurityCenter.Location(val.ID && val.ID === obj.ID)": outputs}
             return md, ec, locations
+        return None
     else:
         return "No locations found", None, None
 
@@ -659,11 +674,10 @@ def update_atp_command(client: MsClient, args: dict):
         client:
         args (dict): usually demisto.args()
     """
-    resource_group_name = args.get("resource_group_name")
     setting_name = args.get("setting_name")
     is_enabled = args.get("is_enabled")
     storage_account = args.get("storage_account")
-    response = client.update_atp(resource_group_name, storage_account, setting_name, is_enabled)
+    response = client.update_atp(storage_account, setting_name, is_enabled)
     outputs = {
         "ID": response.get("id"),
         "Name": response.get("name"),
@@ -675,9 +689,7 @@ def update_atp_command(client: MsClient, args: dict):
         ["ID", "Name", "IsEnabled"],
         removeNull=True,
     )
-    ec = {
-        "AzureSecurityCenter.AdvancedThreatProtection(val.ID && val.ID === obj.ID)": outputs
-    }
+    ec = {"AzureSecurityCenter.AdvancedThreatProtection(val.ID && val.ID === obj.ID)": outputs}
     return md, ec, response
 
 
@@ -688,10 +700,9 @@ def get_atp_command(client: MsClient, args: dict):
         client:
         args (dict): usually demisto.args()
     """
-    resource_group_name = args.get("resource_group_name")
     setting_name = args.get("setting_name")
     storage_account = args.get("storage_account")
-    response = client.get_atp(resource_group_name, storage_account, setting_name)
+    response = client.get_atp(storage_account, setting_name)
     outputs = {
         "ID": response.get("id"),
         "Name": response.get("name"),
@@ -705,9 +716,7 @@ def get_atp_command(client: MsClient, args: dict):
         ["ID", "Name", "IsEnabled"],
         removeNull=True,
     )
-    ec = {
-        "AzureSecurityCenter.AdvancedThreatProtection(val.ID && val.ID === obj.ID)": outputs
-    }
+    ec = {"AzureSecurityCenter.AdvancedThreatProtection(val.ID && val.ID === obj.ID)": outputs}
     return md, ec, response
 
 
@@ -742,16 +751,12 @@ def update_aps_command(client: MsClient, args: dict):
         ["Name", "AutoProvision", "ID"],
         removeNull=True,
     )
-    ec = {
-        "AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs
-    }
+    ec = {"AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs}
     return md, ec, setting
 
 
 def list_aps_command(client: MsClient):
-    """List all Analytics Platform System
-
-    """
+    """List all Analytics Platform System"""
     settings = client.list_aps().get("value")
     outputs = []
     for setting in settings:
@@ -759,7 +764,8 @@ def list_aps_command(client: MsClient):
             {
                 "Name": setting.get("name"),
                 "AutoProvision": setting.get("properties").get("autoProvision")
-                if setting.get("properties") and setting.get("properties").get("autoProvision") else None,
+                if setting.get("properties") and setting.get("properties").get("autoProvision")
+                else None,
                 "ID": setting.get("id"),
             }
         )
@@ -771,9 +777,7 @@ def list_aps_command(client: MsClient):
         removeNull=True,
     )
 
-    ec = {
-        "AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs
-    }
+    ec = {"AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs}
     return md, ec, settings
 
 
@@ -790,7 +794,8 @@ def get_aps_command(client: MsClient, args: dict):
         {
             "Name": setting.get("name"),
             "AutoProvision": setting.get("properties").get("autoProvision")
-            if setting.get("properties") and setting.get("properties").get("autoProvision") else None,
+            if setting.get("properties") and setting.get("properties").get("autoProvision")
+            else None,
             "ID": setting["id"],
         }
     ]
@@ -800,9 +805,7 @@ def get_aps_command(client: MsClient, args: dict):
         ["Name", "AutoProvision", "ID"],
         removeNull=True,
     )
-    ec = {
-        "AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs
-    }
+    ec = {"AzureSecurityCenter.AutoProvisioningSetting(val.ID && val.ID === obj.ID)": outputs}
 
     return md, ec, setting
 
@@ -822,31 +825,24 @@ def list_ipp_command(client: MsClient, args: dict):
     """
     management_group = args.get("management_group")
     policies = client.list_ipp(management_group).get("value")
-    outputs = list()
+    outputs = []
     if policies:
         for policy in policies:
             if policy.get("properties") and policy.get("properties").get("labels"):
-                label_names = ", ".join(
-                    [
-                        label.get("displayName")
-                        for label in policy["properties"]["labels"].values()
-                    ]
-                )
+                label_names = ", ".join([label.get("displayName") for label in policy["properties"]["labels"].values()])
                 information_type_names = ", ".join(
-                    [
-                        it["displayName"]
-                        for it in policy["properties"]["informationTypes"].values()
-                    ]
+                    [it["displayName"] for it in policy["properties"]["informationTypes"].values()]
                 )
             else:
-                label_names, information_type_names = '', ''
+                label_names, information_type_names = "", ""
             outputs.append(
                 {
                     "Name": policy.get("name"),
                     "Labels": label_names,
                     "InformationTypeNames": information_type_names,
                     "InformationTypes": policy.get("properties").get("informationTypes")
-                    if policy.get("properties") and policy.get("properties").get("informationTypes") else None,
+                    if policy.get("properties") and policy.get("properties").get("informationTypes")
+                    else None,
                     "ID": policy["id"],
                 }
             )
@@ -857,9 +853,7 @@ def list_ipp_command(client: MsClient, args: dict):
             removeNull=True,
         )
 
-        ec = {
-            "AzureSecurityCenter.InformationProtectionPolicy(val.ID && val.ID === obj.ID)": outputs
-        }
+        ec = {"AzureSecurityCenter.InformationProtectionPolicy(val.ID && val.ID === obj.ID)": outputs}
 
         entry = {
             "Type": entryTypes["note"],
@@ -888,15 +882,8 @@ def get_ipp_command(client: MsClient, args: dict):
     labels = properties.get("labels")
     if properties and isinstance(labels, dict):
         # Basic Property table
-        labels = ", ".join(
-            [
-                (str(label.get("displayName")) + str(label.get("enabled")))
-                for label in labels.values()
-            ]
-        )
-        basic_table_output = [
-            {"Name": policy.get("name"), "Labels": labels, "ID": policy.get("id")}
-        ]
+        labels = ", ".join([(str(label.get("displayName")) + str(label.get("enabled"))) for label in labels.values()])
+        basic_table_output = [{"Name": policy.get("name"), "Labels": labels, "ID": policy.get("id")}]
 
         md = tableToMarkdown(
             "Azure Security Center - Get Information Protection Policy - Basic Property",
@@ -904,9 +891,7 @@ def get_ipp_command(client: MsClient, args: dict):
             ["Name", "Labels", "ID"],
             removeNull=True,
         )
-        ec = {
-            "AzureSecurityCenter.InformationProtectionPolicy(val.ID && val.ID === obj.ID)": basic_table_output
-        }
+        ec = {"AzureSecurityCenter.InformationProtectionPolicy(val.ID && val.ID === obj.ID)": basic_table_output}
 
         basic_table_entry = {
             "Type": entryTypes["note"],
@@ -918,11 +903,14 @@ def get_ipp_command(client: MsClient, args: dict):
         }
 
         # Information Type table
-        info_type_table_output = list()
+        info_type_table_output = []
         for information_type_data in properties.get("informationTypes").values():
             keywords = ", ".join(
-                [(str(keyword.get("displayName")) + str(keyword.get("custom")) + str(keyword.get("canBeNumeric")))
-                 for keyword in information_type_data.get("keywords", [])])
+                [
+                    (str(keyword.get("displayName")) + str(keyword.get("custom")) + str(keyword.get("canBeNumeric")))
+                    for keyword in information_type_data.get("keywords", [])
+                ]
+            )
             info_type_table_output.append(
                 {
                     "DisplayName": information_type_data.get("displayname"),
@@ -947,7 +935,7 @@ def get_ipp_command(client: MsClient, args: dict):
         }
         demisto.results([basic_table_entry, info_type_table_entry])
     else:
-        demisto.results("No properties found in {}".format(management_group))
+        demisto.results(f"No properties found in {management_group}")
 
 
 """ Information Protection Policies End """
@@ -963,8 +951,7 @@ def list_jit_command(client: MsClient, args: dict):
         args (dict): usually demisto.args()
     """
     asc_location = args.get("asc_location")
-    resource_group_name = args.get("resource_group_name")
-    policies = client.list_jit(asc_location, resource_group_name)["value"]
+    policies = client.list_jit(asc_location)["value"]
     outputs = []
     for policy in policies:
         # summarize rules in (VMName: allowPort,...) format
@@ -973,14 +960,9 @@ def list_jit_command(client: MsClient, args: dict):
             rules_summary_array = []
             for rule in rules_data:
                 ID = rule.get("id")
-                if isinstance(ID, str):
-                    vm_name = ID.split("/")[-1]
-                else:
-                    vm_name = None  # type: ignore
+                vm_name = ID.split("/")[-1] if isinstance(ID, str) else None
                 vm_ports = [str(port.get("number")) for port in rule.get("ports")]
-                rules_summary_array.append(
-                    "({}: {})".format(vm_name, ", ".join(vm_ports))
-                )
+                rules_summary_array.append("({}: {})".format(vm_name, ", ".join(vm_ports)))
             rules = ", ".join(rules_summary_array)
 
             outputs.append(
@@ -1021,10 +1003,12 @@ def get_jit_command(client: MsClient, args: dict):
             "Name": policy.get("name"),
             "Kind": policy.get("kind"),
             "ProvisioningState": policy.get("properties").get("provisioningState")
-            if policy.get("properties") and policy.get("properties", {}).get("provisioningState") else None,
+            if policy.get("properties") and policy.get("properties", {}).get("provisioningState")
+            else None,
             "Location": policy.get("location"),
             "Rules": policy.get("properties").get("virtualMachines")
-            if policy.get("properties") and policy.get("properties", {}).get("virtualMachines") else None,
+            if policy.get("properties") and policy.get("properties", {}).get("virtualMachines")
+            else None,
             "Requests": policy.get("properties").get("requests")
             if policy.get("properties") and policy.get("properties", {}).get("requests")
             else None,
@@ -1038,9 +1022,7 @@ def get_jit_command(client: MsClient, args: dict):
         removeNull=True,
     )
 
-    ec = {
-        "AzureSecurityCenter.JITPolicy(val.ID && val.ID === obj.ID)": property_table_output
-    }
+    ec = {"AzureSecurityCenter.JITPolicy(val.ID && val.ID === obj.ID)": property_table_output}
 
     property_table_entry = {
         "Type": entryTypes["note"],
@@ -1052,7 +1034,7 @@ def get_jit_command(client: MsClient, args: dict):
     }
 
     # Rules table
-    rules_table_output = list()
+    rules_table_output = []
     properties = policy.get("properties")
     virtual_machines = properties.get("virtualMachines")
     if isinstance(properties, dict) and virtual_machines:
@@ -1078,20 +1060,18 @@ def get_jit_command(client: MsClient, args: dict):
         }
 
         # Requests table
-        requests_table_output = list()
+        requests_table_output = []
 
         for requestData in properties.get("requests", []):
-            vms = list()
+            vms = []
             for vm in requestData.get("virtualMachines"):
                 vm_name = vm["id"].split("/")[-1]
                 vm_ports = format_jit_port_request(vm.get("ports"))
-                vms.append("[{}: {}]".format(vm_name, vm_ports))
+                vms.append(f"[{vm_name}: {vm_ports}]")
             requests_table_output.append(
                 {
                     "VirtualMachines": ", ".join(vms),
-                    "Requestor": requestData.get("requestor")
-                    if requestData.get("requestor")
-                    else "service-account",
+                    "Requestor": requestData.get("requestor") if requestData.get("requestor") else "service-account",
                     "StartTimeUtc": requestData.get("startTimeUtc"),
                 }
             )
@@ -1130,8 +1110,10 @@ def initiate_jit_command(client: MsClient, args: dict):
         source_address,
         duration,
     )
-    policy_id = f"/subscriptions/{client.subscription_id}/resourceGroups/{resource_group_name}/providers/" \
-                f"Microsoft.Security/locations/{asc_location}/jitNetworkAccessPolicies/{policy_name}"
+    policy_id = (
+        f"/subscriptions/{client.subscription_id}/resourceGroups/{resource_group_name}/providers/"
+        f"Microsoft.Security/locations/{asc_location}/jitNetworkAccessPolicies/{policy_name}"
+    )
     virtual_machines = response.get("virtualMachines")
     if virtual_machines and len(virtual_machines) > 0:
         machine = virtual_machines[0]
@@ -1163,9 +1145,7 @@ def initiate_jit_command(client: MsClient, args: dict):
 
         ec = {
             "AzureSecurityCenter.JITPolicy(val.ID && val.ID ="
-            "== obj.{}).Initiate(val.endTimeUtc === obj.EndTimeUtc)".format(
-                policy_id
-            ): outputs
+            f"== obj.{policy_id}).Initiate(val.endTimeUtc === obj.EndTimeUtc)": outputs
         }
 
         demisto.results(
@@ -1193,8 +1173,10 @@ def delete_jit_command(client: MsClient, args: dict):
     policy_name = args.get("policy_name")
     client.delete_jit(asc_location, resource_group_name, policy_name)
 
-    policy_id = f"/subscriptions/{client.subscription_id}/resourceGroups/{resource_group_name}/providers/" \
-                f"Microsoft.Security/locations/{asc_location}/jitNetworkAccessPolicies/{policy_name}"
+    policy_id = (
+        f"/subscriptions/{client.subscription_id}/resourceGroups/{resource_group_name}/providers/"
+        f"Microsoft.Security/locations/{asc_location}/jitNetworkAccessPolicies/{policy_name}"
+    )
 
     outputs = {"ID": policy_id, "Action": "deleted"}
 
@@ -1202,7 +1184,7 @@ def delete_jit_command(client: MsClient, args: dict):
     demisto.results(
         {
             "Type": entryTypes["note"],
-            "Contents": "Policy - {} has been deleted sucessfully.".format(policy_name),
+            "Contents": f"Policy - {policy_name} has been deleted sucessfully.",
             "ContentsFormat": formats["text"],
             "EntryContext": ec,
         }
@@ -1216,13 +1198,11 @@ def delete_jit_command(client: MsClient, args: dict):
 
 # Add this command to security center integration because ATP-related command requires storage account info
 def list_sc_storage_command(client: MsClient):
-    """Listing all Security Center Storages
-
-    """
+    """Listing all Security Center Storages"""
     accounts = client.list_sc_storage().get("value")
-    outputs = list()
+    outputs = []
     for account in accounts:
-        account_id_array = account.get("id", str()).split("/")
+        account_id_array = account.get("id", "").split("/")
         resource_group_name = account_id_array[account_id_array.index("resourceGroups") + 1]
         outputs.append(
             {
@@ -1249,11 +1229,9 @@ def list_sc_storage_command(client: MsClient):
 
 
 def list_sc_subscriptions_command(client: MsClient):
-    """Listing Subscriptions for this application
-
-    """
+    """Listing Subscriptions for this application"""
     subscriptions = client.list_sc_subscriptions().get("value")
-    outputs = list()
+    outputs = []
     for sub in subscriptions:
         outputs.append(
             {
@@ -1279,17 +1257,13 @@ def list_sc_subscriptions_command(client: MsClient):
 
 
 def get_secure_scores_command(client: MsClient, args: dict):
-
     secure_score_name = args.get("secure_score_name", "ascScore")
 
     securescore = client.get_secure_scores(secure_score_name)
 
-    md = tableToMarkdown(
-        "Azure Security Center - Secure Score",
-        securescore['properties']
-    )
+    md = tableToMarkdown("Azure Security Center - Secure Score", securescore["properties"])
 
-    ec = {"Azure.Securescore(val.ID && val.ID === obj.ID)": securescore['properties']}
+    ec = {"Azure.Securescore(val.ID && val.ID === obj.ID)": securescore["properties"]}
 
     return md, ec, securescore
 
@@ -1297,84 +1271,180 @@ def get_secure_scores_command(client: MsClient, args: dict):
 """ Secure Scores End"""
 
 
+def list_resource_groups_command(client: MsClient, args: dict[str, Any]) -> CommandResults:
+    """
+    List all resource groups in the subscription.
+
+    Args:
+        client (KeyVaultClient):  Azure Key Vault API client.
+        args (Dict[str, Any]): command arguments.
+
+    Returns:
+        CommandResults: Command results with raw response, outputs and readable outputs.
+
+    """
+    tag = args.get("tag", "")
+    limit = arg_to_number(args.get("limit")) or DEFAULT_LIMIT
+
+    raw_responses = []
+    resource_groups: List[dict] = []
+
+    next_link: bool | str = True
+    while next_link and len(resource_groups) < limit:
+        full_url = next_link if isinstance(next_link, str) else None
+        response = client.list_resource_groups(tag=tag, limit=limit, full_url=full_url)
+        value = response.get("value", [])
+        next_link = response.get("nextLink", "")
+
+        raw_responses.extend(value)
+        for resource_group in value:
+            resource_group_context = {
+                "Name": resource_group.get("name"),
+                "Location": resource_group.get("location"),
+                "Tags": resource_group.get("tags"),
+                "Provisioning State": resource_group.get("properties", {}).get("provisioningState"),
+            }
+            resource_groups.append(resource_group_context)
+
+    raw_responses = raw_responses[:limit]
+    resource_groups = resource_groups[:limit]
+    readable_output = tableToMarkdown("Resource Groups List", resource_groups, removeNull=True)
+
+    return CommandResults(
+        outputs_prefix="Azure.ResourceGroupName",
+        outputs_key_field="id",
+        outputs=raw_responses,
+        raw_response=raw_responses,
+        readable_output=readable_output,
+    )
+
+
 def test_module(client: MsClient):
     """
-       Performs basic GET request to check if the API is reachable and authentication is successful.
-       Returns ok if successful.
-       """
+    Performs basic GET request to check if the API is reachable and authentication is successful.
+    Returns ok if successful.
+    """
     if client.subscription_id:
         client.list_locations()
     else:
         client.list_sc_subscriptions()
-    demisto.results('ok')
+    demisto.results("ok")
 
 
 def main():
     params: dict = demisto.params()
-    server = params.get('server_url', '').rstrip('/') + '/'
-    tenant = params.get('tenant_id')
-    auth_and_token_url = params.get('auth_id', '')
-    enc_key = params.get('enc_key')
-    use_ssl = not params.get('unsecure', False)
-    self_deployed: bool = params.get('self_deployed', False)
-    proxy = params.get('proxy', False)
-    subscription_id = demisto.args().get("subscription_id") or params.get("default_sub_id")
-    ok_codes = (200, 201, 202, 204)
+    args = demisto.args()
+    command = demisto.command()
 
     try:
-        if demisto.command() in SUB_ID_REQUIRING_CMD and not subscription_id:
-            raise DemistoException("A subscription ID must be provided.")
-        client = MsClient(tenant_id=tenant, auth_id=auth_and_token_url, enc_key=enc_key, app_name=APP_NAME, proxy=proxy,
-                          server=server, verify=use_ssl, self_deployed=self_deployed, subscription_id=subscription_id,
-                          ok_codes=ok_codes)
+        server = params.get("server_url", "").rstrip("/") + "/"
+        tenant = params.get("credentials_tenant_id", {}).get("password") or params.get("tenant_id")
+        auth_and_token_url = params.get("credentials_auth_id", {}).get("password") or params.get("auth_id", "")
+        if not auth_and_token_url:
+            raise DemistoException("ID must be provided.")
+        enc_key = params.get("credentials_enc_key", {}).get("password") or params.get("enc_key")
+        use_ssl = not params.get("unsecure", False)
+        proxy = params.get("proxy", False)
+        subscription_id = (
+            args.get("subscription_id")
+            or params.get("credentials_default_sub_id", {}).get("password")
+            or params.get("default_sub_id")
+        )
+        resource_group_name = args.get("resource_group_name") or params.get("resource_group_name")
+        ok_codes = (200, 201, 202, 204)
+        certificate_thumbprint = params.get("credentials_certificate_thumbprint", {}).get("password") or params.get(
+            "certificate_thumbprint"
+        )
+        private_key = params.get("private_key")
+        managed_identities_client_id = get_azure_managed_identities_client_id(params)
+        self_deployed: bool = params.get("self_deployed", False) or managed_identities_client_id is not None
 
-        if demisto.command() == "test-module":
+        if not managed_identities_client_id:
+            if not (tenant and auth_and_token_url):
+                raise DemistoException(
+                    "Token and ID must be provided. For further information see "
+                    "https://xsoar.pan.dev/docs/reference/articles/microsoft-integrations---authentication"
+                )
+
+            if not self_deployed and not enc_key:
+                raise DemistoException(
+                    "Key must be provided. For further information see "
+                    "https://xsoar.pan.dev/docs/reference/articles/microsoft-integrations---authentication"
+                )
+            elif not enc_key and not (certificate_thumbprint and private_key):
+                raise DemistoException(
+                    "Key or Certificate Thumbprint and Private Key must be provided."
+                    "For further information see "
+                    "https://xsoar.pan.dev/docs/reference/articles/microsoft-integrations---authentication"
+                )
+
+        if command in SUB_ID_REQUIRING_CMD and not subscription_id:
+            raise DemistoException("A subscription ID must be provided.")
+        if command in RESOURCE_GROUP_REQUIRING_CMD and not resource_group_name:
+            raise DemistoException("A Resource Group Name must be provided.")
+        client = MsClient(
+            tenant_id=tenant,
+            auth_id=auth_and_token_url,
+            enc_key=enc_key,
+            app_name=APP_NAME,
+            proxy=proxy,
+            server=server,
+            verify=use_ssl,
+            self_deployed=self_deployed,
+            subscription_id=subscription_id,
+            ok_codes=ok_codes,
+            certificate_thumbprint=certificate_thumbprint,
+            private_key=private_key,
+            resource_group_name=resource_group_name,
+            managed_identities_client_id=managed_identities_client_id,
+        )
+
+        if command == "test-module":
             # If the command will fail, error will be thrown from the request itself
             test_module(client)
-        elif demisto.command() == "azure-sc-get-alert":
-            get_alert_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-list-alert":
-            return_outputs(*list_alerts_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-update-alert":
-            return_outputs(*update_alert_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-list-location":
+        elif command == "azure-sc-get-alert":
+            return_results(get_alert_command(client, args))
+        elif command == "azure-sc-list-alert":
+            return_outputs(*list_alerts_command(client, args))
+        elif command == "azure-sc-update-alert":
+            return_outputs(*update_alert_command(client, args))
+        elif command == "azure-sc-list-location":
             return_outputs(*list_locations_command(client))
-        elif demisto.command() == "azure-sc-update-atp":
-            return_outputs(*update_atp_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-get-atp":
-            return_outputs(*get_atp_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-update-aps":
-            return_outputs(*update_aps_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-list-aps":
+        elif command == "azure-sc-update-atp":
+            return_outputs(*update_atp_command(client, args))
+        elif command == "azure-sc-get-atp":
+            return_outputs(*get_atp_command(client, args))
+        elif command == "azure-sc-update-aps":
+            return_outputs(*update_aps_command(client, args))
+        elif command == "azure-sc-list-aps":
             return_outputs(*list_aps_command(client))
-        elif demisto.command() == "azure-sc-get-aps":
-            return_outputs(*get_aps_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-list-ipp":
-            list_ipp_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-get-ipp":
-            get_ipp_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-list-jit":
-            return_outputs(*list_jit_command(client, demisto.args()))
-        elif demisto.command() == "azure-sc-get-jit":
-            get_jit_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-initiate-jit":
-            initiate_jit_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-delete-jit":
-            delete_jit_command(client, demisto.args())
-        elif demisto.command() == "azure-sc-list-storage":
+        elif command == "azure-sc-get-aps":
+            return_outputs(*get_aps_command(client, args))
+        elif command == "azure-sc-list-ipp":
+            list_ipp_command(client, args)
+        elif command == "azure-sc-get-ipp":
+            get_ipp_command(client, args)
+        elif command == "azure-sc-list-jit":
+            return_outputs(*list_jit_command(client, args))
+        elif command == "azure-sc-get-jit":
+            get_jit_command(client, args)
+        elif command == "azure-sc-initiate-jit":
+            initiate_jit_command(client, args)
+        elif command == "azure-sc-delete-jit":
+            delete_jit_command(client, args)
+        elif command == "azure-sc-list-storage":
             return_outputs(*list_sc_storage_command(client))
-        elif demisto.command() == "azure-list-subscriptions":
+        elif command == "azure-list-subscriptions":
             return_outputs(*list_sc_subscriptions_command(client))
-        elif demisto.command() == "azure-get-secure-score":
-            return_outputs(*get_secure_scores_command(client, demisto.args()))
-
+        elif command == "azure-get-secure-score":
+            return_outputs(*get_secure_scores_command(client, args))
+        elif command == "azure-resource-group-list":
+            return_results(list_resource_groups_command(client, args))
+        elif command == "azure-sc-auth-reset":
+            return_results(reset_auth())
     except Exception as err:
-        LOG(str(err))
-        LOG.print_log()
-        return_error(str(err))
+        return_error(f"Failed to execute {command} command. Error: {err!s}")
 
 
-from MicrosoftApiModule import *  # noqa: E402
-
-if __name__ in ['__main__', 'builtin', 'builtins']:
+if __name__ in ["__main__", "builtin", "builtins"]:
     main()

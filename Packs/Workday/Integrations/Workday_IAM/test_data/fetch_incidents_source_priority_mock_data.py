@@ -1,11 +1,13 @@
 full_report = {
-    "Report_Entry": [{
-        "Employment_Status": "Active",
-        "Last_Day_Of_Work": "10/05/2035",
-        "Last_Hire_Date": "10/05/2020",
-        "Emp_ID": "100122",
-        "Email_Address": "rrahardjo@paloaltonetworks.com"
-    }]
+    "Report_Entry": [
+        {
+            "Employment_Status": "Active",
+            "Last_Day_Of_Work": "10/05/2035",
+            "Last_Hire_Date": "10/05/2020",
+            "Emp_ID": "100122",
+            "Email_Address": "rrahardjo@paloaltonetworks.com",
+        }
+    ]
 }
 
 employee_id_to_user_profile = {
@@ -18,22 +20,22 @@ employee_id_to_user_profile = {
         "email": "rrahardjo@paloaltonetworks.com",
         "sourcepriority": 1,
         "sourceoftruth": "Wand IAM",
-        "isprocessed": False
+        "isprocessed": False,
     }
 }
 
 email_to_user_profile = {
-   "rrahardjo@paloaltonetworks.com": {
-       "employmentstatus": "Active",
-       "lastdayofwork": "10/05/2035",
-       "hiredate": "10/05/2020",
-       "employeeid": "100122",
-       "username": "rrahardjo@paloaltonetworks.com",
-       "email": "rrahardjo@paloaltonetworks.com",
-       "sourcepriority": 1,
-       "sourceoftruth": "Wand IAM",
-       "isprocessed": False
-   }
+    "rrahardjo@paloaltonetworks.com": {
+        "employmentstatus": "Active",
+        "lastdayofwork": "10/05/2035",
+        "hiredate": "10/05/2020",
+        "employeeid": "100122",
+        "username": "rrahardjo@paloaltonetworks.com",
+        "email": "rrahardjo@paloaltonetworks.com",
+        "sourcepriority": 1,
+        "sourceoftruth": "Wand IAM",
+        "isprocessed": False,
+    }
 }
 
 mapped_workday_user = {
@@ -44,7 +46,7 @@ mapped_workday_user = {
     "Username": "rrahardjo@paloaltonetworks.com",
     "Email": "rrahardjo@paloaltonetworks.com",
     "Source Priority": 1,
-    "Source of Truth": "Wand IAM"
+    "Source of Truth": "Wand IAM",
 }
 
 event_data = []

@@ -9,7 +9,7 @@
 <li>In the managed system, create a managed account.<br>The name of the managed account will be the username/email (depending on how the instance is configured) and the password will be the password of the integration (when creating an instance).</li>
 </ol>
 <h2>Create a BeyondTrust API Key</h2>
-<p><span>To configure an integration instance, you need your BeyondTrust API key. The API key is generated after you configure an API Registration. For detailed instructions, see the </span><a href="https://www.beyondtrust.com/docs/archive/password-safe-beyondinsight/6-9/ps-admin-6-9-0.pdf" rel="nofollow">BeyondTrust Password Safe Admin Guide</a><span>.</span></p>
+<p><span>To configure an integration instance, you need your BeyondTrust API key. The API key is generated after you configure an API Registration. For detailed instructions, see the </span><a href="https://www.beyondtrust.com/docs/archive/password-safe-beyondinsight/21-2/ps-admin-21-2.pdf" rel="nofollow">BeyondTrust Password Safe Admin Guide</a><span>.</span></p>
 <h2>Configure BeyondTrust Password Safe on Cortex XSOAR</h2>
 <ol>
 <li>Navigate to<span> </span><strong>Settings</strong><span> </span>&gt;<span> </span><strong>Integrations</strong><span> </span>&gt;<span> </span><strong>Servers &amp; Services</strong>.</li>
@@ -565,3 +565,35 @@
 <pre>!beyondtrust-change-credentials account_id=8</pre>
 <h5>Human Readable Output</h5>
 <p>The password has been changed</p>
+<h5>Base Command</h5>
+<p><code>beyondtrust-get-credentials</code></p>
+<h5>Input</h5>
+<table style="width: 749px;">
+<thead>
+<tr>
+<th style="width: 170px;"><strong>Argument Name</strong></th>
+<th style="width: 478px;"><strong>Description</strong></th>
+<th style="width: 92px;"><strong>Required</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 170px;">request_id</td>
+<td style="width: 478px;">ID of the Request for which to retrieve the credentials</td>
+<td style="width: 92px;">Required</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<h5>Context Output</h5>
+<p>There is no context output for this command.</p>
+<h5>Command Example</h5>
+<pre>!beyondtrust-get-credentials request_id=294\</pre>
+<h5>Human Readable Output</h5>
+<p>The credentials for BeyondTrust request: shelly</p>
+<h3 id="h_7e528ef9-336c-4b9d-bc6a-26141cfa1e2b">6. Update credentials for a managed account</h3>
+<hr>
+<p>Generates a list of active BeyondTrust requests.</p>
+<h5>Base Command</h5>
+<p><code>beyondtrust-list-release-requests</code></p>
+<p> </p>

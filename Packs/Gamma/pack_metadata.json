@@ -1,31 +1,17 @@
 {
     "name": "Gamma",
     "description": "Streamline discovery, classification and remediation of data loss instances across Enterprise SaaS applications (Slack, Jira, Github, Gdrive, Gmail, O365, etc.). Playbook engages with users while simultaneously allowing the Security team to instantly investigate and/or automatically remediate.",
-    "support": "partner",
-    "currentVersion": "1.0.5",
-    "author": "Gamma Engineering",
-    "url": "https://gamma.ai/contact-us",
-    "email": "developer@gammanet.com",
+    "support": "xsoar",
+    "currentVersion": "1.0.25",
+    "author": "Cortex XSOAR",
+    "url": "https://www.paloaltonetworks.com/cortex",
+    "email": "",
     "created": "2020-12-23T20:46:43Z",
     "categories": [
         "Network Security"
     ],
-    "tags": [
-        "Security",
-        "Compliance",
-        "GDPR",
-        "HIPAA",
-        "PII",
-        "IT",
-        "Machine Learning"
-    ],
-    "useCases": [
-        "Compliance",
-        "Employee Offboarding",
-        "GDPR Breach Notification",
-        "HIPAA Breach Notification",
-        "Hunting"
-    ],
+    "tags": [],
+    "useCases": [],
     "keywords": [
         "Gamma",
         "DLP",
@@ -53,11 +39,13 @@
         "Machine Learning",
         "User Training"
     ],
-    "githubUser": [
-        "nargun"
-    ],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

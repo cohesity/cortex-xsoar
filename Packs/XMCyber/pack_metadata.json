@@ -1,25 +1,35 @@
 {
     "name": "XM Cyber",
-    "description": "XMCyber continuously finds attack vectors to critical assets. This integration fetches events (incidents) on new critical assets at risk, new choke points, and trends in the overall risk score. Additionally incidents are enriched with incoming attack vectors to the incident's endpoints, and critical assets at risk form the incident.",
+    "description": "XSOAR is a comprehensive SOAR platform that integrates different security tools to centralize incident management, driving better detection, investigation, and response to suspicious activity across your organization.The integration uses attack graph context and prioritization data that XSOAR receives from XM CEM, and also allows XSOAR to feed relevant entities back to CEM to be defined as breach points in CEM scenarios.",
     "support": "partner",
-    "currentVersion": "1.0.11",
+    "currentVersion": "2.0.0",
     "author": "XM Cyber",
-    "url": "https://www.xmcyber.com",
+    "url": "https://customers.xmcyber.com",
     "email": "support@xmcyber.com",
     "created": "2020-09-02T19:59:58Z",
     "categories": [
         "Data Enrichment & Threat Intelligence"
     ],
     "tags": [
-        "Breach",
-        "Simulation",
-        "Network",
-        "IT",
-        "Alerts",
-        "Attack"
+        "Breach Simulation"
     ],
-    "useCases": [],
-    "keywords": [],
+    "useCases": [
+        "Breach and Attack Simulation",
+        "Compliance",
+        "Incident Response",
+        "Threat Intelligence Management",
+        "Vulnerability Management"
+    ],
+    "keywords": [
+        "Prioritization",
+        "Choke point",
+        "chokepoint Critical Assets",
+        "Exposure Management",
+        "Context",
+        "MITRE Attack",
+        "XM Cyber",
+        "Cortex"
+    ],
     "githubUser": [
         "matan-xmcyber",
         "MarkRachmanXMCyber"
@@ -27,6 +37,11 @@
     "certification": "certified",
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

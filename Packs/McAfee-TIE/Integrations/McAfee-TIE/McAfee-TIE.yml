@@ -1,7 +1,9 @@
 category: Data Enrichment & Threat Intelligence
+provider: Trellix
 commonfields:
   id: McAfee Threat Intelligence Exchange
   version: -1
+deprecated: true
 configuration:
 - display: Broker CA certificates content (see `brokercerts.crt` in Integration Tips)
   name: broker_ca_bundle
@@ -15,14 +17,41 @@ configuration:
   name: private_key
   required: true
   type: 14
-- display: 'A CSV list of broker URLs in the format:  [ssl://]<hostname>[:port]) Get
-    the hostname and port from the `brokerlist.properties` file (in instructions).
-    The broker should be reachable from Demisto server.'
+- display: 'A CSV list of broker URLs in the format:  [ssl://]<hostname>[:port]) Get the hostname and port from the `brokerlist.properties` file (in instructions). The broker should be reachable from Demisto server.'
   name: broker_urls
   required: true
   type: 0
-description: Connect to McAfee TIE using the McAfee DXL client.
-display: McAfee Threat Intelligence Exchange
+- additionalinfo: Reliability of the source providing the intelligence data.
+  defaultvalue: C - Fairly reliable
+  display: Source Reliability
+  name: integrationReliability
+  options:
+  - A+ - 3rd party enrichment
+  - A - Completely reliable
+  - B - Usually reliable
+  - C - Fairly reliable
+  - D - Not usually reliable
+  - E - Unreliable
+  - F - Reliability cannot be judged
+  type: 15
+  required: false
+- defaultvalue: indicatorType
+  name: feedExpirationPolicy
+  display: ''
+  options:
+  - never
+  - interval
+  - indicatorType
+  - suddenDeath
+  type: 17
+  required: false
+- defaultvalue: '20160'
+  name: feedExpirationInterval
+  display: ''
+  type: 1
+  required: false
+description: Deprecated. Use McAfee Threat Intelligence Exchange V2 integration instead.
+display: McAfee Threat Intelligence Exchange (Deprecated)
 name: McAfee Threat Intelligence Exchange
 script:
   commands:
@@ -32,11 +61,7 @@ script:
       isArray: true
       name: file
       required: true
-      secret: false
-    deprecated: false
-    description: Retrieves the reputations for the specified hash. Can be "MD5", "SHA1",
-      or "SHA256".
-    execution: false
+    description: Retrieves the reputations for the specified hash. Can be "MD5", "SHA1", or "SHA256".
     name: file
     outputs:
     - contextPath: File.MD5
@@ -77,16 +102,11 @@ script:
       type: Number
   - arguments:
     - default: true
-      description: Hash of the file for which to set the reputation. Can be "MD5",
-        "SHA1", or "SHA256".
-      isArray: false
+      description: Hash of the file for which to set the reputation. Can be "MD5", "SHA1", or "SHA256".
       name: file
       required: true
-      secret: false
     - auto: PREDEFINED
-      default: false
       description: The new trust level for the file.
-      isArray: false
       name: trust_level
       predefined:
       - NOT_SET
@@ -99,37 +119,18 @@ script:
       - KNOWN_TRUSTED
       - KNOWN_TRUSTED_INSTALLER
       required: true
-      secret: false
-    - default: false
-      description: A file name to associate with the file.
-      isArray: false
+    - description: A file name to associate with the file.
       name: filename
-      required: false
-      secret: false
-    - default: false
-      description: A comment to associate with the file.
-      isArray: false
+    - description: A comment to associate with the file.
       name: comment
-      required: false
-      secret: false
-    deprecated: false
-    description: Sets the “Enterprise” reputation (trust level) of a specified file.
-      Permissions are required to invoke this method. See the 'How-to' in instance
-      instruction.
-    execution: false
+    description: Sets the “Enterprise” reputation (trust level) of a specified file. Permissions are required to invoke this method. See the 'How-to' in instance instruction.
     name: tie-set-file-reputation
   - arguments:
     - default: true
-      description: '  Hash of the file for which to search. Can be "MD5", "SHA1",
-        or "SHA256".'
-      isArray: false
+      description: '  Hash of the file for which to search. Can be "MD5", "SHA1", or "SHA256".'
       name: file
       required: true
-      secret: false
-    deprecated: false
-    description: Retrieves the set of systems which have referenced (typically executed)
-      the specified file.
-    execution: false
+    description: Retrieves the set of systems which have referenced (typically executed) the specified file.
     name: tie-file-references
     outputs:
     - contextPath: File.MD5
@@ -147,11 +148,7 @@ script:
     - contextPath: File.References.Date
       description: The time the system first referenced the file.
       type: Unknown
-  dockerimage: demisto/dxl2:1.0.0.24033
-  feed: false
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
+  dockerimage: demisto/dxl2:1.0.0.38570
   runonce: false
   script: '-'
   subtype: python2

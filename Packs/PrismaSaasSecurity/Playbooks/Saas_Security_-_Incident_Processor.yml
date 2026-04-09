@@ -43,10 +43,10 @@ tasks:
       version: -1
       name: Send Notification Email
       description: Sends an email using EWS.
-      script: EWS Mail Sender|||send-mail
+      script: '|||send-mail'
       type: regular
       iscommand: true
-      brand: EWS Mail Sender
+      brand: ""
     nexttasks:
       '#none#':
       - "8"
@@ -56,12 +56,15 @@ tasks:
           Dear admin,
               An incident generated on your asset ${incident.saassecurityassetname}. Please  check if there is any risks in this file.
 
-          Prisma Saas Support Team
+          SaaS Security Support Team
       subject:
-        simple: An Incident Found in Prisma Saas Platform
+        simple: An Incident Found in SaaS Security Platform
       to:
-        simple: ${incident.itemowneremail}
+        complex:
+          root: incident
+          accessor: itemowneremail
     separatecontext: false
+    continueonerrortype: ""
     view: |-
       {
         "position": {
@@ -230,7 +233,7 @@ tasks:
             iscontext: true
           right:
             value:
-              simple: open
+              simple: Open
     view: |-
       {
         "position": {
@@ -391,12 +394,6 @@ view: |-
     }
   }
 inputs:
-- key: updated_at
-  value:
-    simple: ${incident.lastupdatetime}
-  required: false
-  description: This is the incident updated at timestamp.
-  playbookInputQuery:
 - key: tenant_admin
   value: {}
   required: false

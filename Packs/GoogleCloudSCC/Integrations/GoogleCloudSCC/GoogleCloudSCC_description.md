@@ -1,4 +1,4 @@
-Security Command Center is a security and risk management platform for Google Cloud. This integration uses Pub/Sub to fetch the incidents. To set up the initial parameters of Google SCC in Cortex XSOAR, please follow the below instructions -
+Security Command Center is a security and risk management platform for Google Cloud. This integration uses Pub/Sub to fetch the incidents. This integration supports multiple organizations. In order to fetch data from multiple organizations, configure multiple instances for different organizations. To set up the initial parameters of Google SCC in Cortex XSOAR, please follow the below instructions. For more information, refer to this [guide](https://cloud.google.com/security-command-center/docs/how-to-configure-scc-cortex-xsoar) by Google SCC for configuring Cortex XSOAR Integration.
 
 ### Scope
 We need to provide the below mentioned OAuth scope to execute the commands: https://www.googleapis.com/auth/cloud-platform.
@@ -7,6 +7,11 @@ We need to provide the below mentioned OAuth scope to execute the commands: http
 1. Go to the [Google documentation](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount) and follow the procedure mentioned in the _Creating a Service Account_ section. After you create a service account, a Service Account Private Key file is downloaded. You will need this file when configuring an instance of the integration.
 2. Grant the Security Command Center admin permission to the Service Account to enable the Service Account to perform certain Google Cloud API commands.
 3. In Cortex XSOAR, configure an instance of the Google Cloud Security Command Center integration. For the Service Account Private Key parameter, add the Service Account Private Key file contents (JSON).
+
+### Steps to configure workload identity federation:
+1. Follow the [steps](https://cloud.google.com/iam/docs/configuring-workload-identity-federation) to construct a workload identity pool and a workload identity pool provider to leverage workload identity federation.
+2. Navigate to the '[Granting external identities permission to impersonate a service account](https://cloud.google.com/iam/docs/using-workload-identity-federation#impersonate)' section.
+3. Follow the step-1 mentioned in the [Google documentation](https://cloud.google.com/iam/docs/using-workload-identity-federation#generate-automatic) to create a credential file for external identities. The contents of the downloaded file should be given into the 'Service Account Configuration' parameter.
 
 ### Getting your Organization ID
 The Organization ID is a unique identifier for an organization and is automatically created when your organization resource is created.

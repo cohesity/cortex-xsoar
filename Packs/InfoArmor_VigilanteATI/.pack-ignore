@@ -1,2 +1,4 @@
-[file:integration-InfoArmor_VigilanteATI.yml]
-ignore=IN145
+[known_words]
+infoarmor
+vigilanteati
+

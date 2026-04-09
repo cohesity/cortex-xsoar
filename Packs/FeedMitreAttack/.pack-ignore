@@ -7,5 +7,14 @@ ignore=RM102
 [file:layoutscontainer-MITRE_ATT&CK.json]
 ignore=BA101
 
-[file:playbook-Mitre_Attack_List_2_Indicators_Feed_Test.yml]
-ignore=auto-test
+[file:MITRE_ATT&CK.json]
+ignore=BA101,GR107
+
+[file:FeedMitreAttack_image.png]
+ignore=IM111
+
+[file:reputation-mitreAttck.json]
+ignore=GR107
+
+[file:MitreIDLayoutDynamicSection.yml]
+ignore=BA124

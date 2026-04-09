@@ -244,8 +244,7 @@ inputs:
 - key: Timeout
   value: {}
   required: true
-  description: Amount of time to poll before declaring a timeout and resuming the
-    playbook (in minutes).
+  description: Amount of time to poll before declaring a timeout and resuming the playbook (in minutes).
   playbookInputQuery:
 - key: InstanceName
   value: {}
@@ -259,10 +258,13 @@ inputs:
   required: false
   description: |-
     Additional polling commands are relevant when using StatePolling, and there is more than one ServiceNow instance. It will specify the polling command to use a specific instance to run on. 
-    If so, please add "Using" to the value. 
+    If so, please add "using" to the value.
     The polling command will then take the instance name as the instance to use. 
   playbookInputQuery:
 outputs: []
 tests:
 - Create ServiceNow Ticket and State Polling Test
 fromversion: 6.0.0
+supportedModules:
+- agentix
+- xsiam

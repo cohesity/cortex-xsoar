@@ -2,13 +2,17 @@
     "name": "Common Scripts",
     "description": "Frequently used scripts pack.",
     "support": "xsoar",
-    "currentVersion": "1.6.22",
+    "currentVersion": "1.21.4",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
     "created": "2020-05-14T08:33:25Z",
-    "categories": [],
-    "tags": [],
+    "categories": [
+        "Utilities"
+    ],
+    "tags": [
+        "Core"
+    ],
     "useCases": [],
     "keywords": [],
     "dependencies": {
@@ -16,13 +20,13 @@
             "mandatory": true,
             "display_name": "Demisto REST API"
         },
+        "FeedMitreAttackv2": {
+            "mandatory": false,
+            "display_name": "MITRE ATT&CK v2"
+        },
         "Gmail": {
             "mandatory": false,
             "display_name": "Gmail"
-        },
-        "EWSMailSender": {
-            "mandatory": false,
-            "display_name": "EWS Mail Sender"
         },
         "MailSenderNew": {
             "mandatory": false,
@@ -45,8 +49,24 @@
             "display_name": "RemoteAccess v2"
         }
     },
+    "excludedDependencies": [
+        "GoogleMaps",
+        "Slack"
+    ],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "xpanse",
+        "platform"
+    ],
+    "supportedModules": [
+        "asm",
+        "exposure_management",
+        "agentix",
+        "cloud",
+        "cloud_runtime_security",
+        "cloud_posture",
+        "xsiam",
+        "edr"
     ]
 }

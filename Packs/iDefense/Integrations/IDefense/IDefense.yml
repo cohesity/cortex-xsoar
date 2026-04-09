@@ -5,6 +5,7 @@ deprecated: true
 name: iDefense
 display: iDefense (Deprecated)
 category: Data Enrichment & Threat Intelligence
+provider: Accenture
 description: Deprecated. Use the iDefense v2 integration instead.
 configuration:
 - display: URL
@@ -165,5 +166,4 @@ script:
     - contextPath: DBotScore.Score
       description: The actual score.
     description: Get specific indicator reputation
-  runonce: false
 fromversion: 5.0.0

@@ -1,7 +1,8 @@
 {
     "associatedToAll": false,
     "associatedTypes": [
-        "Rubrik Radar"
+        "Rubrik Radar",
+        "Rubrik Threat Monitoring Object"
     ],
     "caseInsensitive": true,
     "cliName": "rubrikcdmclustername",
@@ -25,5 +26,8 @@
     "unsearchable": false,
     "useAsKpi": false,
     "version": -1,
-    "fromVersion": "6.0.0"
+    "fromVersion": "6.0.0",
+    "marketplaces": [
+        "xsoar"
+    ]
 }

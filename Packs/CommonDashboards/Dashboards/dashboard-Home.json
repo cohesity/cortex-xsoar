@@ -223,7 +223,7 @@
     "params": {
      "groupBy": [
       "occurred(d)",
-      "type"
+      "rawType"
      ]
     },
     "size": 0,
@@ -271,5 +271,8 @@
    }
   }
  ],
- "isPredefined": true
+ "isPredefined": true,
+ "marketplaces": [
+     "xsoar"
+ ]
 }

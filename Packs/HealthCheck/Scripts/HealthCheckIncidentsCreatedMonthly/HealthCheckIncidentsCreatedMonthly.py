@@ -1,68 +1,53 @@
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
 
-incident = demisto.incidents()[0]
-accountName = incident.get('account')
-accountName = f"acc_{accountName}" if accountName != "" else ""
 
-stats = demisto.executeCommand(
-    "demisto-api-post",
-    {
-        "uri": f"{accountName}/statistics/widgets/query",
-        "body": {
-            "size": 13,
-            "dataType": "incidents",
-            "query": "",
-            "dateRange": {
-                "period": {
-                    "byFrom": "months",
-                    "fromValue": 12
-                }
-            },
-            "widgetType": "line",
-            "params": {
-                "groupBy": [
-                    "occurred(m)",
-                    "null"
-                ],
-                "timeFrame": "months"
+def queryWidget(uri):
+    stats = demisto.executeCommand(
+        "core-api-post",
+        {
+            "uri": uri,
+            "body": {
+                "size": 31,
+                "dataType": "incidents",
+                "query": "",
+                "dateRange": {"period": {"byFrom": "months", "fromValue": 12}},
+                "widgetType": "line",
+                "params": {"groupBy": ["occurred(m)"], "timeFrame": "months"},
             },
         },
-    })
+    )
+    if is_demisto_version_ge("8.0.0"):
+        res = stats[0]["Contents"]["response"]["groups"]
+    else:
+        res = stats[0]["Contents"]["response"]
 
-res = stats[0]["Contents"]["response"]
+    data = {"Type": 17, "ContentsFormat": "line", "Contents": {"stats": res, "params": {"timeFrame": "months"}}}
+    return data
 
-buildNumber = demisto.executeCommand("DemistoVersion", {})[0]['Contents']['DemistoVersion']['buildNumber']
-buildNumber = f'{buildNumber}' if buildNumber != "REPLACE_THIS_WITH_CI_BUILD_NUM" else "618658"
 
-if int(buildNumber) >= 618657:
-    # Line graph:
+ctx = demisto.context()
+dataFromCtx = ctx.get("widgets")
+
+if not dataFromCtx:
+    # version 8
+    if is_demisto_version_ge("8.0.0"):
+        uri = "/xsoar/v2/statistics/widgets/query"
+        res = queryWidget(uri)
+        return_results(res)
+
+    else:
+        incident = demisto.incidents()[0]
+        accountName = incident.get("account")
+        accountName = f"acc_{accountName}/" if accountName != "" else ""
+        uri = f"{accountName}statistics/widgets/query"
+        res = queryWidget(uri)
+        return_results(res)
+
+else:
     data = {
         "Type": 17,
         "ContentsFormat": "line",
-        "Contents": {
-            "stats": res,
-            "params": {
-                "timeFrame": "months"
-            }
-        }
+        "Contents": {"stats": dataFromCtx["IncidentsCreatedMonthly"], "params": {"timeFrame": "months"}},
     }
-
-else:
-    # Bar graph:
-    output = []
-    for entry in res:
-        output.append({"name": entry["name"], "data": entry["data"]})
-
-    data = {
-        "Type": 17,
-        "ContentsFormat": "bar",
-        "Contents": {
-            "stats": output,
-            "params": {
-                "layout": "horizontal"
-            }
-        }
-    }
-
-demisto.results(data)
+    demisto.results(data)

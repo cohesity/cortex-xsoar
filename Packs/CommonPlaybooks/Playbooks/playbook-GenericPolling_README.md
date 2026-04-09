@@ -7,7 +7,9 @@ The remote action should have the following structure:
 2. Poll to check if the operation completed.
 3. (optional) Get the results of the operation.
 
-For more information on Generic-Polling visit [this article](https://xsoar.pan.dev/docs/playbooks/generic-polling).
+**NOTE: This playbook should be run *only* when the playbook's context is using the "Private to sub-playbook" option.**
+
+For more information on polling, go to [Playbook Polling (Cortex XSOAR 6.x)](https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/6.x/Cortex-XSOAR-Playbook-Design-Guide/Playbook-Polling) or [Playbook Polling (Cortex XSOAR 8 Cloud)](https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8/Cortex-XSOAR-Cloud-Documentation/Playbook-polling) or [Playbook Polling (Cortex XSOAR 8.7 On-prem)](https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8.7/Cortex-XSOAR-On-prem-Documentation/Playbook-polling).
 
 ## Dependencies
 This playbook uses the following sub-playbooks, integrations, and scripts.
@@ -39,6 +41,7 @@ This playbook does not use any commands.
 | dt | The DT filter for polling IDs. Polling will stop when no results are returned. Use single quotes, for example: WildFire.Report(val.Status!=='Success').SHA256. | - | Required |
 | AdditionalPollingCommandArgNames | The names of additional arguments for the polling command. For example, "arg1,arg2,...". | - | Optional |
 | AdditionalPollingCommandArgValues | The values of the additional arguments for the polling command. For example, "value1,value2,...". | - | Optional |
+| ExtractMode | Indicator Extraction mode for the command sequence. (In XSOAR 8 and above, for first run command set manually the RunPollingCommand task in the playbook, Advanced -> Indicator Extraction mode). | Optional |
 
 ## Playbook Outputs
 ---
@@ -46,4 +49,4 @@ There are no outputs for this playbook.
 
 ## Playbook Image
 ---
-![GenericPolling](https://raw.githubusercontent.com/demisto/content/1bdd5229392bd86f0cc58265a24df23ee3f7e662/docs/images/playbooks/GenericPolling.png)
+![GenericPolling](../doc_files/GenericPolling.png)

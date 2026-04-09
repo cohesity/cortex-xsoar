@@ -2,12 +2,12 @@
     "name": "Web Scraper",
     "description": "Web Scrap websites and html pages matching a navigation tree.",
     "support": "community",
-    "currentVersion": "1.0.0",
+    "currentVersion": "1.0.6",
     "author": "Ayman Mahmoud",
     "url": "",
     "email": "amahmoud@paloaltonetworks.com",
     "categories": [
-        "IT Services"
+        "Utilities"
     ],
     "tags": [],
     "useCases": [],
@@ -18,6 +18,11 @@
     "githubUser": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

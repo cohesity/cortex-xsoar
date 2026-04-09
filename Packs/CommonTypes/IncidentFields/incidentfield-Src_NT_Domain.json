@@ -27,7 +27,8 @@
   "Access",
   "Traps",
   "Malware",
-  "Brute Force"
+  "Brute Force",
+  "CrowdStrike Falcon IDP Detection"
  ],
  "systemAssociatedTypes": [
   "Access",
@@ -38,5 +39,8 @@
  "associatedToAll": false,
  "unmapped": false,
  "unsearchable": false,
- "fromVersion": "5.0.0"
+ "fromVersion": "5.0.0",
+ "marketplaces": [
+  "xsoar"
+ ]
 }

@@ -6,6 +6,7 @@ description: Deprecated. Use the Cofense Triage v2 integration instead.
 display: Cofense Triage (Deprecated)
 deprecated: true
 category: Data Enrichment & Threat Intelligence
+provider: Cofense
 configuration:
 - display: Server URL (e.g., https://192.168.0.1)
   name: host
@@ -62,8 +63,8 @@ configuration:
   required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  required: false
 script:
   script: '-'
   type: python
@@ -239,7 +240,6 @@ script:
     description: 'Retrieves a report by the report ID number. '
   dockerimage: demisto/python3:3.8.3.8715
   isfetch: true
-  runonce: false
 tests:
 - No test
 fromversion: 5.0.0

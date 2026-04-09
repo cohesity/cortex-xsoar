@@ -1,7 +1,9 @@
 id: Get File Sample From Path - Generic V2
 version: -1
 name: Get File Sample From Path - Generic V2
+deprecated: true
 description: |
+  Deprecated. Use `Get File Sample From Path - Generic V3` instead.
   This playbook returns a file sample correlating to a path into the War Room using the following sub-playbooks:
   inputs:
   1) Get File Sample From Path - D2.
@@ -192,8 +194,7 @@ tasks:
       description: |-
         This playbook retrieves a file from a path on an endpoint using VMware Carbon Black EDR (Live Response API).
         Make sure to provide the Carbon Black sensor ID of the endpoint from which you want to retrieve the file.
-      playbookName: Get File Sample From Path - VMware Carbon Black EDR - Live Response
-        API
+      playbookName: Get File Sample From Path - VMware Carbon Black EDR - Live Response API
       type: playbook
       iscommand: false
       brand: ""
@@ -264,8 +265,7 @@ inputs:
 - key: Agent_ID
   value: {}
   required: false
-  description: The ID of the agent, or of the endpoint, in the relevant integration
-    (such as EDR).
+  description: The ID of the agent, or of the endpoint, in the relevant integration (such as EDR).
   playbookInputQuery:
 outputs:
 - contextPath: File.Size

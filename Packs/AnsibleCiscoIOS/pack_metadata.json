@@ -2,7 +2,7 @@
     "name": "Ansible Cisco IOS",
     "description": "Manage and control Cisco IOS based network devices.",
     "support": "xsoar",
-    "currentVersion": "1.0.1",
+    "currentVersion": "1.0.19",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
@@ -16,10 +16,16 @@
     "useCases": [],
     "keywords": [
         "Asset Management",
-        "Network Security"
+        "Network Security",
+        "Network Configuration"
     ],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

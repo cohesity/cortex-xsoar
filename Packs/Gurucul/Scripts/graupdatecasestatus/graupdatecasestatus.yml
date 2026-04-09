@@ -6,18 +6,17 @@ script: |
 type: python
 tags:
 - post-processing
-comment: GRA Update Case Status
+comment: GRA Update Case Status.
 enabled: true
 args:
 - name: closeNotes
-  description: Close Note
+  description: Close Note.
 - name: closeReason
-  description: Close reason
+  description: Close reason.
 scripttarget: 0
 subtype: python3
 timeout: 60ns
-runonce: false
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.8.3296088
 runas: DBotWeakRole
 fromversion: 5.5.0
 tests:

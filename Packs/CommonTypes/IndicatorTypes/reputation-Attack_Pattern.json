@@ -48,7 +48,7 @@
         }
     },
     "mergeContext": false,
-    "regex": "(T\\d{3,4}\\.\\d{3}|T\\d{3,4})",
+    "regex": "\\bT\\d{4}(?:\\.\\d{3})?\\b",
     "reputationCommand": "",
     "reputationScriptName": "",
     "sortValues": null,
@@ -56,6 +56,7 @@
     "updateAfter": 0,
     "version": -1,
     "fromVersion": "6.2.0",
+    "toVersion": "6.9.9",
     "layout": "STIX Attack Pattern"
 
 }

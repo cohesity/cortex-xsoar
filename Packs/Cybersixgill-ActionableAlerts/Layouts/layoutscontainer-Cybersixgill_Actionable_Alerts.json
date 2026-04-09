@@ -69,7 +69,7 @@
                                 "fieldId": "sourceinstance",
                                 "height": 22,
                                 "id": "43cfe2d0-9bee-11e9-9a3f-8b4b2158e260",
-                                "index": 5,
+                                "index": 6,
                                 "sectionItemType": "field",
                                 "startCol": 0
                             },
@@ -79,8 +79,17 @@
                                 "fieldId": "sourcebrand",
                                 "height": 22,
                                 "id": "42f03130-9bee-11e9-9a3f-8b4b2158e260",
-                                "index": 6,
+                                "index": 7,
                                 "listId": "fce71720-98b0-11e9-97d7-ed26ef9e46c8",
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            },
+                            {
+                                "endCol": 2,
+                                "fieldId": "cybersixgillposturl",
+                                "height": 53,
+                                "id": "aff39d50-9809-11ee-8cb8-c9b8d635ed4b",
+                                "index": 4,
                                 "sectionItemType": "field",
                                 "startCol": 0
                             }
@@ -112,7 +121,7 @@
                         "type": "notes",
                         "w": 1,
                         "x": 1,
-                        "y": 4
+                        "y": 6
                     },
                     {
                         "displayType": "ROW",
@@ -150,7 +159,7 @@
                         "type": "evidence",
                         "w": 1,
                         "x": 0,
-                        "y": 6
+                        "y": 8
                     },
                     {
                         "displayType": "ROW",
@@ -169,7 +178,7 @@
                         "type": "team",
                         "w": 1,
                         "x": 1,
-                        "y": 6
+                        "y": 8
                     },
                     {
                         "displayType": "ROW",
@@ -314,18 +323,20 @@
                             {
                                 "endCol": 2,
                                 "fieldId": "incidentlink",
-                                "height": 22,
+                                "height": 53,
                                 "id": "21a4a950-4c65-11ec-9b4f-d370b97e00c8",
                                 "index": 0,
                                 "sectionItemType": "field",
                                 "startCol": 0
                             },
                             {
+                                "dropEffect": "move",
                                 "endCol": 1,
                                 "fieldId": "cybersixgillstatus",
                                 "height": 53,
                                 "id": "3bf8dc80-4617-11ec-a3e6-073e7f7f29fa",
-                                "index": 0,
+                                "index": 1,
+                                "listId": "1vduzkpmlh-d8316060-ac70-11e9-a30b-53d47e1ea7d7",
                                 "sectionItemType": "field",
                                 "startCol": 0
                             },
@@ -335,30 +346,21 @@
                                 "fieldId": "cybersixgilltriggeredassets",
                                 "height": 53,
                                 "id": "96c217b0-46ff-11ec-a87f-9f90967a78ae",
-                                "index": 1,
+                                "index": 2,
                                 "listId": "1vduzkpmlh-d8316060-ac70-11e9-a30b-53d47e1ea7d7",
                                 "sectionItemType": "field",
                                 "startCol": 0
                             },
                             {
-                                "endCol": 2,
-                                "fieldId": "cyberthreatlevel",
-                                "height": 53,
-                                "id": "a58f34a0-41a0-11ea-ab50-c5b3863b3e71",
-                                "index": 2,
-                                "sectionItemType": "field",
-                                "startCol": 0
-                            },
-                            {
-                                "dropEffect": "move",
                                 "endCol": 2,
                                 "fieldId": "cybersixgillthreatlevel",
                                 "height": 53,
                                 "id": "3ec2aae0-4617-11ec-a3e6-073e7f7f29fa",
-                                "index": 0,
-                                "listId": "1vduzkpmlh-d8316060-ac70-11e9-a30b-53d47e1ea7d7",
+                                "index": 1,
                                 "sectionItemType": "field",
-                                "startCol": 1
+                                "startCol": 1,
+                                "dropEffect": "move",
+                                "listId": "1vduzkpmlh-d8316060-ac70-11e9-a30b-53d47e1ea7d7"
                             },
                             {
                                 "dropEffect": "move",
@@ -366,7 +368,7 @@
                                 "fieldId": "cybersixgillthreattype",
                                 "height": 53,
                                 "id": "3fbe48f0-4617-11ec-a3e6-073e7f7f29fa",
-                                "index": 1,
+                                "index": 2,
                                 "listId": "1vduzkpmlh-d8316060-ac70-11e9-a30b-53d47e1ea7d7",
                                 "sectionItemType": "field",
                                 "startCol": 1
@@ -383,7 +385,7 @@
                         "y": 0
                     },
                     {
-                        "displayType": "CARD",
+                        "displayType": "ROW",
                         "h": 4,
                         "hideName": false,
                         "i": "1vduzkpmlh-a1d27840-4617-11ec-a3e6-073e7f7f29fa",
@@ -392,9 +394,9 @@
                                 "dropEffect": "move",
                                 "endCol": 2,
                                 "fieldId": "cybersixgillsite",
-                                "height": 53,
+                                "height": 22,
                                 "id": "2abe92a0-46ff-11ec-a87f-9f90967a78ae",
-                                "index": 0,
+                                "index": 1,
                                 "listId": "1vduzkpmlh-a1d27840-4617-11ec-a3e6-073e7f7f29fa",
                                 "sectionItemType": "field",
                                 "startCol": 0
@@ -403,7 +405,7 @@
                                 "dropEffect": "move",
                                 "endCol": 2,
                                 "fieldId": "cybersixgillactor",
-                                "height": 53,
+                                "height": 22,
                                 "id": "34185f20-46ff-11ec-a87f-9f90967a78ae",
                                 "index": 1,
                                 "listId": "1vduzkpmlh-a1d27840-4617-11ec-a3e6-073e7f7f29fa",
@@ -413,9 +415,9 @@
                             {
                                 "endCol": 2,
                                 "fieldId": "details",
-                                "height": 106,
+                                "height": 44,
                                 "id": "bb70d990-4617-11ec-a3e6-073e7f7f29fa",
-                                "index": 2,
+                                "index": 3,
                                 "sectionItemType": "field",
                                 "startCol": 0
                             }
@@ -445,7 +447,7 @@
                         "type": "indicators",
                         "w": 3,
                         "x": 0,
-                        "y": 8
+                        "y": 10
                     },
                     {
                         "displayType": "CARD",
@@ -481,6 +483,91 @@
                         "w": 1,
                         "x": 2,
                         "y": 0
+                    },
+                    {
+                        "h": 2,
+                        "i": "1vduzkpmlh-6a8c8470-aa67-11ec-99a4-873a879bfdf2",
+                        "items": [],
+                        "maxW": 3,
+                        "minH": 1,
+                        "minW": 1,
+                        "moved": false,
+                        "name": "War Room Entries",
+                        "query": null,
+                        "queryType": "warRoomFilter",
+                        "static": false,
+                        "type": "invTimeline",
+                        "w": 1,
+                        "x": 0,
+                        "y": 6
+                    },
+                    {
+                        "displayType": "ROW",
+                        "h": 2,
+                        "hideName": false,
+                        "i": "1vduzkpmlh-f284d860-b664-11ec-80cd-0f1330d55686",
+                        "items": [
+                            {
+                                "endCol": 2,
+                                "fieldId": "cve",
+                                "height": 22,
+                                "id": "2b1dfb20-b665-11ec-80cd-0f1330d55686",
+                                "index": 0,
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            },
+                            {
+                                "dropEffect": "move",
+                                "endCol": 2,
+                                "fieldId": "cybersixgilldvescore",
+                                "height": 22,
+                                "id": "4f0f8770-a52a-11ec-8e55-0dece3c5f18c",
+                                "index": 1,
+                                "listId": "1vduzkpmlh-f284d860-b664-11ec-80cd-0f1330d55686",
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            },
+                            {
+                                "dropEffect": "move",
+                                "endCol": 2,
+                                "fieldId": "cybersixgillcvss20",
+                                "height": 22,
+                                "id": "4d78e1e0-a52a-11ec-8e55-0dece3c5f18c",
+                                "index": 2,
+                                "listId": "1vduzkpmlh-f284d860-b664-11ec-80cd-0f1330d55686",
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            },
+                            {
+                                "dropEffect": "move",
+                                "endCol": 2,
+                                "fieldId": "cybersixgillcvss31",
+                                "height": 22,
+                                "id": "43a810a0-a52a-11ec-8e55-0dece3c5f18c",
+                                "index": 3,
+                                "listId": "1vduzkpmlh-f284d860-b664-11ec-80cd-0f1330d55686",
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            },
+                            {
+                                "endCol": 2,
+                                "fieldId": "cybersixgillattributes",
+                                "height": 44,
+                                "id": "36562ef0-a52a-11ec-8e55-0dece3c5f18c",
+                                "index": 4,
+                                "sectionItemType": "field",
+                                "startCol": 0
+                            }
+                        ],
+                        "maxW": 3,
+                        "minH": 1,
+                        "minW": 1,
+                        "moved": false,
+                        "name": "CVE Details",
+                        "static": false,
+                        "w": 1,
+                        "x": 1,
+                        "y": 4
                     }
                 ],
                 "type": "custom"
@@ -518,5 +605,8 @@
     "group": "incident",
     "system": false,
     "fromVersion": "6.0.0",
+    "marketplaces": [
+        "xsoar"
+    ],
     "description": ""
 }

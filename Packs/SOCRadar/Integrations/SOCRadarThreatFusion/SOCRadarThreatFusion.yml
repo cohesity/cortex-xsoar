@@ -1,4 +1,5 @@
 category: Data Enrichment & Threat Intelligence
+provider: SOCRadar
 commonfields:
   id: SOCRadarThreatFusion
   version: -1
@@ -10,29 +11,54 @@ configuration:
   type: 4
 - display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  required: false
+- additionalinfo: Reliability of the source providing the intelligence data.
+  defaultvalue: B - Usually reliable
+  display: Source Reliability
+  name: integrationReliability
+  options:
+  - A+ - 3rd party enrichment
+  - A - Completely reliable
+  - B - Usually reliable
+  - C - Fairly reliable
+  - D - Not usually reliable
+  - E - Unreliable
+  - F - Reliability cannot be judged
+  type: 15
+  required: false
+- defaultvalue: indicatorType
+  name: feedExpirationPolicy
+  display: ''
+  options:
+  - never
+  - interval
+  - indicatorType
+  - suddenDeath
+  type: 17
+  required: false
+- defaultvalue: '20160'
+  name: feedExpirationInterval
+  display: ''
+  type: 1
+  required: false
 defaultclassifier: 'null'
-description: Enrich indicators by obtaining enhanced information and reputation via
-  ThreatFusion of SOCRadar.
+description: Enrich indicators by obtaining enhanced information and reputation via ThreatFusion of SOCRadar.
 display: SOCRadar ThreatFusion
 name: SOCRadarThreatFusion
 script:
   commands:
   - arguments:
     - default: true
-      description: IP entities to score. (IPv4 or IPv6)
+      description: IP entities to score. (IPv4 or IPv6).
       isArray: true
       name: ip
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided IP entities' reputation in SOCRadar ThreatFusion.
-    execution: false
     name: ip
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Risk Score
@@ -42,8 +68,7 @@ script:
       description: Risk score details of queried IP address.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        IP address in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried IP address in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.IP
       description: Queried IP address.
@@ -124,47 +149,37 @@ script:
       description: ASN field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.AsnCode
-      description: ASN code field Geographical location information of queried IP
-        address.
+      description: ASN code field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.AsnName
-      description: ASN name field Geographical location information of queried IP
-        address.
+      description: ASN name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Cidr
       description: CIDR field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CityName
-      description: City name field Geographical location information of queried IP
-        address.
+      description: City name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CountryCode
-      description: Country code field Geographical location information of queried
-        IP address.
+      description: Country code field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CountryName
-      description: Country name field Geographical location information of queried
-        IP address.
+      description: Country name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Latitude
-      description: Latitude field Geographical location information of queried IP
-        address.
+      description: Latitude field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Longitude
-      description: Longitude field Geographical location information of queried IP
-        address.
+      description: Longitude field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.RegionName
-      description: Region name field Geographical location information of queried
-        IP address.
+      description: Region name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Timezone
-      description: Timezone field Geographical location information of queried IP
-        address.
+      description: Timezone field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.ZipCode
-      description: Zip code field Geographical location information of queried IP
-        address.
+      description: Zip code field Geographical location information of queried IP address.
       type: String
     - contextPath: DBotScore.Indicator
       description: The indicator that was tested.
@@ -176,17 +191,16 @@ script:
       description: The indicator type.
       type: String
     - contextPath: DBotScore.Vendor
-      description: The vendor used to calculate the indicator score.
+      description: The vendor used to calculate the score.
       type: String
     - contextPath: IP.Address
-      description: IP address
+      description: IP address.
       type: String
     - contextPath: IP.ASN
       description: 'The autonomous system name for the IP address, for example: "AS8948".'
       type: String
     - contextPath: IP.Geo.Location
-      description: 'The geolocation where the IP address is located, in the format:
-        latitude:longitude.'
+      description: 'The geolocation where the IP address is located, in the format: latitude:longitude.'
       type: String
     - contextPath: IP.Geo.Country
       description: The country in which the IP address is located.
@@ -197,10 +211,7 @@ script:
       isArray: true
       name: domain
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided domain entities' reputation in SOCRadar ThreatFusion.
-    execution: false
     name: domain
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Risk Score
@@ -210,8 +221,7 @@ script:
       description: Risk score details of queried domain.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        domain in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried domain in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Domain
       description: Queried domain.
@@ -283,7 +293,7 @@ script:
       description: The indicator type.
       type: String
     - contextPath: DBotScore.Vendor
-      description: The vendor used to calculate the indicator score.
+      description: The vendor used to calculate the score.
       type: String
     - contextPath: Domain.Name
       description: 'The domain name, for example: "google.com".'
@@ -325,7 +335,7 @@ script:
       description: The name of the registrant.
       type: String
     - contextPath: Domain.WHOIS.Registrar.Name
-      description: 'The name of the registrar, for example: "GoDaddy"'
+      description: 'The name of the registrar, for example: "GoDaddy".'
       type: String
     - contextPath: Domain.Geo.Country
       description: The country in which the domain address is located.
@@ -338,14 +348,11 @@ script:
       type: String
   - arguments:
     - default: true
-      description: Hash entities to score. (MD5 or SHA1)
+      description: Hash entities to score. (MD5 or SHA1).
       isArray: true
       name: file
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided hash entities' reputation in SOCRadar ThreatFusion.
-    execution: false
     name: file
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.Risk Score
@@ -355,8 +362,7 @@ script:
       description: Risk score details of queried hash.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        hash in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried hash in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.File
       description: Queried hash.
@@ -371,7 +377,7 @@ script:
       description: The indicator type.
       type: String
     - contextPath: DBotScore.Vendor
-      description: The vendor used to calculate the indicator score.
+      description: The vendor used to calculate the score.
       type: String
     - contextPath: File.MD5
       description: The MD5 hash of the file.
@@ -380,15 +386,10 @@ script:
       description: The SHA1 hash of the file.
       type: String
   - arguments:
-    - default: false
-      description: IP entity to score. (IPv4 or IPv6)
-      isArray: false
+    - description: IP entity to score. (IPv4 or IPv6).
       name: ip
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided IP entity's reputation in SOCRadar ThreatFusion.
-    execution: false
     name: socradar-score-ip
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Risk Score
@@ -398,8 +399,7 @@ script:
       description: Risk score details of queried IP address.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        IP address in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried IP address in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.IP
       description: Queried IP address.
@@ -480,47 +480,37 @@ script:
       description: ASN field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.AsnCode
-      description: ASN code field Geographical location information of queried IP
-        address.
+      description: ASN code field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.AsnName
-      description: ASN name field Geographical location information of queried IP
-        address.
+      description: ASN name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Cidr
       description: CIDR field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CityName
-      description: City name field Geographical location information of queried IP
-        address.
+      description: City name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CountryCode
-      description: Country code field Geographical location information of queried
-        IP address.
+      description: Country code field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.CountryName
-      description: Country name field Geographical location information of queried
-        IP address.
+      description: Country name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Latitude
-      description: Latitude field Geographical location information of queried IP
-        address.
+      description: Latitude field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Longitude
-      description: Longitude field Geographical location information of queried IP
-        address.
+      description: Longitude field Geographical location information of queried IP address.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.RegionName
-      description: Region name field Geographical location information of queried
-        IP address.
+      description: Region name field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.Timezone
-      description: Timezone field Geographical location information of queried IP
-        address.
+      description: Timezone field Geographical location information of queried IP address.
       type: String
     - contextPath: SOCRadarThreatFusion.Reputation.IP.Geo Location.ZipCode
-      description: Zip code field Geographical location information of queried IP
-        address.
+      description: Zip code field Geographical location information of queried IP address.
       type: String
     - contextPath: DBotScore.Indicator
       description: The indicator that was tested.
@@ -535,15 +525,10 @@ script:
       description: The vendor used to calculate the indicator score.
       type: String
   - arguments:
-    - default: false
-      description: Domain entity to score.
-      isArray: false
+    - description: Domain entity to score.
       name: domain
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided domain entity's reputation in SOCRadar ThreatFusion.
-    execution: false
     name: socradar-score-domain
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Risk Score
@@ -553,8 +538,7 @@ script:
       description: Risk score details of queried domain.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        domain in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried domain in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.Domain.Domain
       description: Queried domain.
@@ -629,15 +613,10 @@ script:
       description: The vendor used to calculate the indicator score.
       type: String
   - arguments:
-    - default: false
-      description: Hash entity to score. (MD5 or SHA1)
-      isArray: false
+    - description: Hash entity to score. (MD5 or SHA1).
       name: hash
       required: true
-      secret: false
-    deprecated: false
     description: Scores provided hash entity's reputation in SOCRadar ThreatFusion.
-    execution: false
     name: socradar-score-hash
     outputs:
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.Risk Score
@@ -647,8 +626,7 @@ script:
       description: Risk score details of queried hash.
       type: JSON
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.Total Encounters
-      description: Number of times that SOCRadar has encountered with the queried
-        hash in its threat sources.
+      description: Number of times that SOCRadar has encountered with the queried hash in its threat sources.
       type: Number
     - contextPath: SOCRadarThreatFusion.Reputation.Hash.File
       description: Queried hash.
@@ -665,11 +643,7 @@ script:
     - contextPath: DBotScore.Vendor
       description: The vendor used to calculate the indicator score.
       type: String
-  dockerimage: demisto/python3:3.9.8.24399
-  feed: false
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
+  dockerimage: demisto/python3:3.12.8.3296088
   runonce: false
   script: '-'
   subtype: python3

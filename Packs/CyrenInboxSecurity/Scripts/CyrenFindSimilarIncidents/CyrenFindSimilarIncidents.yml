@@ -1,16 +1,18 @@
 args:
-- description: the case id of incidents to return
+- description: the case id of incidents to return.
   name: case_id
 comment: |-
   Finds similar incidents by Cyren Case ID
 
   This automation runs using the default Limited User role, unless you explicitly change the permissions.
   For more information, see the section about permissions here:
-  https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-2/cortex-xsoar-admin/playbooks/automations.html
+  - For Cortex XSOAR 6 see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/6.x/Cortex-XSOAR-Playbook-Design-Guide/Automations 
+  - For Cortex XSOAR 8 Cloud see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8/Cortex-XSOAR-Cloud-Documentation/Create-a-script
+  - For Cortex XSOAR 8.7 On-prem see https://docs-cortex.paloaltonetworks.com/r/Cortex-XSOAR/8.7/Cortex-XSOAR-On-prem-Documentation/Create-a-script
 commonfields:
   id: Cyren-Find-Similar-Incidents
   version: -1
-dockerimage: demisto/python3:3.9.8.24399
+dockerimage: demisto/python3:3.12.8.3296088
 enabled: true
 name: Cyren-Find-Similar-Incidents
 outputs:
@@ -27,12 +29,11 @@ outputs:
   description: Similar incident name.
   type: string
 - contextPath: cyrenSimilarIncidentList
-  description: an array if similar incidents
+  description: an array if similar incidents.
   type: Unknown
 - contextPath: cyrenSimilarIncidentCsv
-  description: comma separated raw ids
+  description: comma separated raw ids.
   type: Unknown
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

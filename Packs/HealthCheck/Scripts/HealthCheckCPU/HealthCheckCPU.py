@@ -1,9 +1,11 @@
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
 
-
-RESOLUTION = 'Performance Tuning of Cortex XSOAR Server: https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-0/' \
-             'cortex-xsoar-admin/cortex-xsoar-overview/performance-tuning-of-cortex-xsoar-server'
+RESOLUTION = (
+    "Performance Tuning of Cortex XSOAR Server: https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-0/"
+    "cortex-xsoar-admin/cortex-xsoar-overview/performance-tuning-of-cortex-xsoar-server"
+)
+XSOARV8_HTML_STYLE = "color:#FFBE98;text-align:center;font-size:150%;>"
 
 
 def analyze_data(res):
@@ -16,7 +18,7 @@ def analyze_data(res):
 
     for item in res:
         if not lowRes:
-            if item['data'][0] >= 70:
+            if item["data"][0] >= 70:
                 lowFound += 1
                 if lowFound >= 60:
                     lowRes = True
@@ -24,7 +26,7 @@ def analyze_data(res):
                 lowFound = 0
 
         if not medRes:
-            if item['data'][0] >= 30:
+            if item["data"][0] >= 30:
                 medFound += 1
                 if medFound >= 5:
                     medRes = True
@@ -32,7 +34,7 @@ def analyze_data(res):
                 medFound = 0
 
         if not highRes:
-            if item['data'][0] >= 90:
+            if item["data"][0] >= 90:
                 highFound += 1
                 if highFound >= 1:
                     highRes = True
@@ -43,113 +45,109 @@ def analyze_data(res):
         addActions = []
 
         if highRes:
-            addActions.append({'category': 'CPU analysis', 'severity': 'High',
-                               'description': 'CPU has reached 90%', 'resolution': RESOLUTION})
+            addActions.append(
+                {"category": "CPU analysis", "severity": "High", "description": "CPU has reached 90%", "resolution": RESOLUTION}
+            )
 
         if medRes:
-            addActions.append({'category': 'CPU analysis', 'severity': 'Medium',
-                               'description': 'CPU has reached 80% for 10 minutes', 'resolution': RESOLUTION})
+            addActions.append(
+                {
+                    "category": "CPU analysis",
+                    "severity": "Medium",
+                    "description": "CPU has reached 80% for 10 minutes",
+                    "resolution": RESOLUTION,
+                }
+            )
 
         if lowRes:
-            addActions.append({'category': 'CPU analysis', 'severity': 'Low',
-                               'description': 'CPU has reached 70% for 30 minutes', 'resolution': RESOLUTION})
+            addActions.append(
+                {
+                    "category": "CPU analysis",
+                    "severity": "Low",
+                    "description": "CPU has reached 70% for 30 minutes",
+                    "resolution": RESOLUTION,
+                }
+            )
         return addActions
     else:
         return None
 
 
 def main(args):
+    if is_demisto_version_ge("8.0.0"):
+        msg = "Not Available for XSOAR v8"
+        html = f"<h3 style={XSOARV8_HTML_STYLE}{msg!s}</h3>"
+        demisto.results({"ContentsFormat": formats["html"], "Type": entryTypes["note"], "Contents": html})
+        sys.exit()
     incident = demisto.incidents()[0]
-    account_name = incident.get('account')
-    account_name = f'acc_{account_name}/' if account_name != "" else ""
+    account_name = incident.get("account")
+    account_name = f"acc_{account_name}/" if account_name != "" else ""
 
-    is_widget = argToBoolean(args.get('isWidget', True))
+    is_widget = argToBoolean(args.get("isWidget", True))
     res = execute_command(
-        'demisto-api-post',
+        "core-api-post",
         {
-            'uri': f'{account_name}statistics/widgets/query',
-            'body': {
-                'size': 1440,
-                'dataType': 'system',
-                'params': {
-                    'timeFrame': 'minutes',
-                    'format': 'HH:mm',
+            "uri": f"{account_name}statistics/widgets/query",
+            "body": {
+                "size": 1440,
+                "dataType": "system",
+                "params": {
+                    "timeFrame": "minutes",
+                    "format": "HH:mm",
                 },
-                'query': 'cpu.usedPercent',
-                'dateRange': {
-                    'period': {
-                        'byFrom': 'hours',
-                        'fromValue': 24,
+                "query": "cpu.usedPercent",
+                "dateRange": {
+                    "period": {
+                        "byFrom": "hours",
+                        "fromValue": 24,
                     }
                 },
-                'widgetType': 'line',
-            }
-        })
+                "widgetType": "line",
+            },
+        },
+    )
 
-    stats = res['response']
+    stats = res["response"]
     output = []
     counter = 0
     higher = 0
     if is_widget is True:
-        build_number = get_demisto_version()['buildNumber']
-        # in local development instances, the build number will be "REPLACE_THIS_WITH_CI_BUILD_NUM"
-        build_number = f'{build_number}' if build_number != "REPLACE_THIS_WITH_CI_BUILD_NUM" else "618658"
-        if int(build_number) >= 618657:
-            # Line graph:
+        ctx = demisto.context()
+        dataFromCtx = ctx.get("widgets")
+        if not dataFromCtx:
             for entry in stats:
-                higher = max(entry['data'][0], higher)
+                higher = max(entry["data"][0], higher)
                 if counter % 2 == 0:
-                    output.append({'name': counter, 'data': [higher]})
+                    output.append({"name": counter, "data": [higher]})
                     higher = 0
                 counter += 1
 
             data = {
-                'Type': 17,
-                'ContentsFormat': 'line',
-                'Contents': {
-                    'stats': output,
-                    'params': {
-                        'timeFrame': 'minutes',
-                        'format': 'HH:mm',
-                        'layout': 'vertical'
-                    }
-                }
+                "Type": 17,
+                "ContentsFormat": "line",
+                "Contents": {"stats": output, "params": {"timeFrame": "minutes", "format": "HH:mm", "layout": "vertical"}},
             }
 
+            return data
         else:
-            # Bar graph:
-            now = datetime.utcnow()
-            then = now - timedelta(days=1)
-            for entry in stats:
-                higher = max(entry['data'][0], higher)
-                if counter % 60 == 0:
-                    then += timedelta(hours=1)
-                    name = then.strftime('%H:%M')
-                    output.append({'name': name, 'data': [higher]})
-                    higher = 0
-                counter += 1
-
+            # Fetching data from context to widget
             data = {
-                'Type': 17,
-                'ContentsFormat': 'bar',
-                'Contents': {
-                    'stats': output,
-                    'params': {
-                        'layout': 'horizontal'
-                    }
-                }
+                "Type": 17,
+                "ContentsFormat": "line",
+                "Contents": {
+                    "stats": dataFromCtx["CPUUsage"],
+                    "params": {"timeFrame": "minutes", "format": "HH:mm", "layout": "vertical"},
+                },
             }
-
-        return data
+            return data
     else:
         add_actions = analyze_data(stats)
         results = CommandResults(
-            readable_output='analyzeCPUUsage Done',
-            outputs_prefix='HealthCheck.ActionableItems',
-            outputs=add_actions)
+            readable_output="analyzeCPUUsage Done", outputs_prefix="HealthCheck.ActionableItems", outputs=add_actions
+        )
 
         return results
 
 
-if __name__ in ('__main__', '__builtin__', 'builtins'):  # pragma: no cover
+if __name__ in ("__main__", "__builtin__", "builtins"):  # pragma: no cover
     return_results(main(demisto.args()))

@@ -1,4 +1,4 @@
-Queries Mimecast emails.
+Deprecated. Use mimecast-query command instead.
 
 ## Script Data
 ---

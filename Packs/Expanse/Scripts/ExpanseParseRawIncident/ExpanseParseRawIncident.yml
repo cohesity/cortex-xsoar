@@ -2,17 +2,15 @@ args:
 - default: true
   defaultValue: '{}'
   description: raw json object from incident
-  isArray: false
   name: expanse_raw_json_event
   required: true
-  secret: false
-comment: Parses incident from Expanse in raw json to readable output
+comment: Deprecated. No available replacement
+deprecated: true
 tags:
 - Expanse
 commonfields:
   id: ExpanseParseRawIncident
   version: -1
-enabled: false
 name: ExpanseParseRawIncident
 outputs:
 - contextPath: Expanse.Event.eventType
@@ -86,7 +84,6 @@ outputs:
   type: String
 script: '-'
 subtype: python3
-system: false
 timeout: '0'
 type: python
 fromversion: 5.0.0

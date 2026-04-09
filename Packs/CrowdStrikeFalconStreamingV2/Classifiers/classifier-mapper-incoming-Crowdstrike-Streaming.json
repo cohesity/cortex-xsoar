@@ -9,11 +9,11 @@
 		"Malware": {
 			"internalMapping": {
 				"Dest": {
-					"simple": "event.ComputerName",
+					"simple": "event.Hostname",
 					"complex": null
 				},
 				"Dest NT Domain": {
-					"simple": "event.MachineDomain",
+					"simple": "event.LogonDomain",
 					"complex": null
 				},
 				"File Hash": {
@@ -37,12 +37,50 @@
 					"complex": null
 				},
 				"details": {
-					"simple": "event.DetectDescription",
-					"complex": null
+					"complex": {
+						"accessor": "Description",
+						"filters": [],
+						"root": "event",
+						"transformers": [
+							{
+								"args": {
+									"applyIfEmpty": {
+										"isContext": false
+									},
+									"defaultValue": {
+										"isContext": true,
+										"value": {
+											"simple": "event.Description"
+										}
+									}
+								},
+								"operator": "SetIfEmpty"
+							}
+						]
+					}
 				},
 				"name": {
-					"simple": "event.DetectName",
-					"complex": null
+					"complex": {
+						"accessor": "Name",
+						"filters": [],
+						"root": "event",
+						"transformers": [
+							{
+								"args": {
+									"applyIfEmpty": {
+										"isContext": false
+									},
+									"defaultValue": {
+										"isContext": true,
+										"value": {
+											"simple": "event.Name"
+										}
+									}
+								},
+								"operator": "SetIfEmpty"
+							}
+						]
+					}
 				}
 			},
 			"dontMapEventToLabels": true

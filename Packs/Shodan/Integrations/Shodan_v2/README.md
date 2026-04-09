@@ -1,30 +1,30 @@
-A search engine used for searching Internet-connected devices.
+Shodan is a search engine for Internet-connected devices. Unlike traditional search engines that index websites, Shodan indexes information about the devices connected to the internet, such as servers, routers, webcams, and other IoT devices.
 
-## Configure Shodan v2 on Cortex XSOAR
+## Configure Shodan v2 in Cortex
 
-1. Navigate to **Settings** > **Integrations** > **Servers & Services**.
-2. Search for Shodan v2.
-3. Click **Add instance** to create and configure a new integration instance.
+| **Parameter** | **Description** | **Required** |
+| --- | --- | --- |
+| API Key |  | False |
+| Base URL to Shodan API |  | True |
+| Trust any certificate (not secure) |  | False |
+| Use system proxy settings |  | False |
+| Source Reliability | Reliability of the source providing the intelligence data. | False |
+| The maximum number of events per fetch |  | False |
 
-    | **Parameter** | **Required** |
-    | --- | --- |
-    | Api Key | True |
-    | Base url to Shodan API | True |
-    | Trust any certificate (not secure) | False |
-    | Use system proxy settings | False |
-
-4. Click **Test** to validate the URLs, token, and connection.
 ## Commands
-You can execute these commands from the Cortex XSOAR CLI, as part of an automation, or in a playbook.
+
+You can execute these commands from the CLI, as part of an automation, or in a playbook.
 After you successfully execute a command, a DBot message appears in the War Room with the command details.
+
 ### search
+
 ***
 Searches Shodan using facets to get summary information on properties.
-
 
 #### Base Command
 
 `search`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -32,7 +32,7 @@ Searches Shodan using facets to get summary information on properties.
 | query | The query for searching the database of banners. The search query supports filtering using the "filter:value" format to narrow your search. For example, the query "apache country:DE" returns Apache web servers located in Germany. | Required |
 | facets | A CSV list of properties on which to get summary information. The search query supports filtering using the "property:count" format to define the number of facets to return for a property. For example, the query "country:100" returns the top 100 countries. | Optional |
 | page | The page number of the fetched results. Each page contains a maximum of 100 results. Default is 1. | Optional |
-
+| return_json | Whether to return a JSON file containing the full search results for further processing. Possible values are: Yes, No. Default is No. | Optional |
 
 #### Context Output
 
@@ -53,12 +53,51 @@ Searches Shodan using facets to get summary information on properties.
 | Shodan.Banner.Timestamp | Date | The timestamp in UTC format indicating when the banner was fetched from the searched device. |
 | Shodan.Banner.Domains | String | An array of strings containing the top-level domains for the host names of the searched device. It is a utility property for filtering by a top-level domain instead of a subdomain. It supports handling global top-level domains that have several dots in the domain. For example, "co.uk". |
 | Shodan.Banner.OS | String | The operating system that powers the searched device. |
-
+| Shodan.Banner.Product | String | Name of the software that powers the service. |
+| Shodan.Banner.Ntlm.OSBuild | String | OS build reported by the service. |
+| Shodan.Banner.Ntlm.DNSForestName | String | DNS Forest Name reported by the service. |
+| Shodan.Banner.Ntlm.Timestamp | Number | Timestamp. |
+| Shodan.Banner.Ntlm.FQDN | String | FQDN. |
+| Shodan.Banner.Ntlm.NetBIOSDomainName | String | Netbios Domain Name. |
+| Shodan.Banner.Ntlm.NetBIOSComputerName | String | Netbios Computer Name. |
+| Shodan.Banner.Ntlm.TargetRealm | String | Target Realm. |
+| Shodan.Banner.Ntlm.OS | Unknown | OS. |
+| Shodan.Banner.Ntlm.DNSDomainName | String | DNS Domain Name. |
+| Shodan.Banner.Hash | Number | Numeric hash of the "data" property which is helpful for finding other IPs with the exact same information. |
+| Shodan.Banner.Tags | Unknown | Tag applied by Shodan analysis. |
+| Shodan.Banner.SslCert.SigAlg | String | Certificate Signature Algorithm. |
+| Shodan.Banner.SslCert.Issued | Date | Timestamp of the beginning of certificate validity \(Not Valid Before\). |
+| Shodan.Banner.SslCert.Expires | Date | Timestamp of the end of certificate validity \(Not Valid After\). |
+| Shodan.Banner.SslCert.Version | Number | X.509 Certificate Version. |
+| Shodan.Banner.SslCert.Serial | Number | Serial Number assigned by the issuer. |
+| Shodan.Banner.SslCert.Subject.CN | String | Subject Common Name. |
+| Shodan.Banner.SslCert.Subject.O | String | Subject Organization. |
+| Shodan.Banner.SslCert.Subject.L | String | Subject Locality or City. |
+| Shodan.Banner.SslCert.Subject.ST | String | Subject State or Province. |
+| Shodan.Banner.SslCert.Subject.C | String | Subject Country Name. |
+| Shodan.Banner.SslCert.Expired | Boolean | Boolean indicating whether the certificate is expired. |
+| Shodan.Banner.SslCert.Issuer.CN | String | Issuer Certificate Common Name. |
+| Shodan.Banner.SslCert.Issuer.O | String | Issuer Organization. |
+| Shodan.Banner.SslCert.Issuer.OU | String | Issuer Organizational Unit. |
+| Shodan.Banner.SslCert.Issuer.L | String | Issuer Locality or City. |
+| Shodan.Banner.SslCert.Issuer.ST | String | Issuer State or Province. |
+| Shodan.Banner.SslCert.Issuer.C | String | Issuer Country Name. |
+| Shodan.Banner.Data | String | The raw data returned fro the service. |
+| Shodan.Banner.CPE23 | Unknown | CPE information in the 2.3 format. |
+| Shodan.Banner.Device | String | Device identified by Shodan. |
+| Shodan.Banner.DeviceType | String | The Device Type identified by Shodan. |
+| Shodan.Banner.Info | String | Additional information provided by Shodan. |
+| Shodan.Banner.IPv6 | String | The IPv6 address of the host as a string. |
+| Shodan.Banner.Link | String | The Link identified by Shodan. |
+| Shodan.Banner.Platform | String | The Platform identified by Shodan. |
+| Shodan.Banner.Product | String | The Product identified by Shodan. |
 
 #### Command Example
+
 ```!search query="country:HK org:RLL-HK -port:80 -port:443 -port:21 -port:25 has_ssl:false" using-brand=Shodan_v2```
 
 #### Context Example
+
 ```json
 {
     "Shodan": [
@@ -138,25 +177,25 @@ Searches Shodan using facets to get summary information on properties.
 #### Human Readable Output
 
 >Search results for query "country:HK org:RLL-HK -port:80 -port:443 -port:21 -port:25 has_ssl:false" - page 1, facets: None
+>
 >|IP|Port|Timestamp|
 >|---|---|---|
 >| 1.2.3.4 | 5353 | 2021-08-17T03:13:54.617598 |
 
-
 ### ip
+
 ***
 Returns all services that have been found on the IP address of the searched host.
-
 
 #### Base Command
 
 `ip`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | ip | The IP address of the host. | Required |
-
 
 #### Context Output
 
@@ -168,6 +207,7 @@ Returns all services that have been found on the IP address of the searched host
 | IP.Geo.Description | Unknown | The description of the location. |
 | IP.Geo.Location | Unknown | The latitude and longitude of an IP address. |
 | IP.Hostname | Unknown | The hostname of the IP address. |
+| IP.Relationships | Unknown | The relationships between the ip and it's CVEs. |
 | Shodan.IP.Tags | String | The tags associated with the IP address. |
 | Shodan.IP.Latitude | Number | The latitude of the geolocation of the searched device. |
 | Shodan.IP.Org | String | The name of the organization to which the IP space for the searched device is assigned. |
@@ -179,15 +219,18 @@ Returns all services that have been found on the IP address of the searched host
 | Shodan.IP.OS | String | The operating system on which the searched device is running. |
 | Shodan.IP.Port | Number | The port number on which the service is operating. |
 | Shodan.IP.Address | String | The IP address of the host as a string. |
-| DBotScore.Indicator | String | The indicator value. |
-| DBotScore.Score | Number | The indicator score according to the vendor. |
+| Shodan.IP.Vulnerabilities | Unknown | A list of Vulnerabilities. |
+| DBotScore.Indicator | String | The indicator that was tested. |
+| DBotScore.Score | Number | The actual score. |
 | DBotScore.Type | String | The indicator type. |
-| DBotScore.Vendor | String | The vendor name. |
+| DBotScore.Vendor | String | The vendor used to calculate the score. |
 
 #### Command Example
+
 ```!ip ip="8.8.8.8" using-brand="Shodan_v2"```
 
 #### Context Example
+
 ```json
 {
     "IP": {
@@ -197,7 +240,16 @@ Returns all services that have been found on the IP address of the searched host
             "Country": "United States",
             "Location": "37.406,-122.078"
         },
-        "Hostname": "dns.google"
+        "Hostname": "dns.google",
+        "Relationships": [
+          {
+            "EntityA": "8.8.8.8",
+            "EntityAType": "IP",
+            "EntityB": "CVE-2016-11111",
+            "EntityBType": "CVE",
+            "Relationship": "related-to"
+          }
+        ]
     },
     "Shodan": {
         "IP": {
@@ -213,7 +265,8 @@ Returns all services that have been found on the IP address of the searched host
             "Port": [
                 53
             ],
-            "Tag": []
+            "Tag": [],
+            "Vulnerabilities": ["CVE-2016-11111"]
         }
     },
     "DBotScore": {
@@ -228,25 +281,25 @@ Returns all services that have been found on the IP address of the searched host
 #### Human Readable Output
 
 >Shodan details for IP 8.8.8.8
+>
 >|ASN|Country|Hostname|ISP|Location|Ports|
 >|---|---|---|---|---|---|
 >| AS15169 | United States | dns.google | Google LLC | 37.406,-122.078 | 53 |
 
-
 ### shodan-search-count
+
 ***
 Returns the total number of results that match only the specified query or facet settings. This command does not return host results. This command does not consume query credits.
-
 
 #### Base Command
 
 `shodan-search-count`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | query | The query for searching the database of banners. The search query supports filtering using the "filter:value" format to narrow your search. For example, the query "apache country:DE" returns Apache web servers located in Germany. | Required |
-
 
 #### Context Output
 
@@ -254,11 +307,12 @@ Returns the total number of results that match only the specified query or facet
 | --- | --- | --- |
 | Shodan.Search.ResultCount | Number | The number of results matched in the search query. |
 
-
 #### Command Example
+
 ```!shodan-search-count query="country:HK product:Apache"```
 
 #### Context Example
+
 ```json
 {
     "Shodan": {
@@ -274,19 +328,19 @@ Returns the total number of results that match only the specified query or facet
 >498645 results for query "country:HK product:Apache"
 
 ### shodan-scan-ip
+
 ***
 Requests Shodan to crawl a network.
-
 
 #### Base Command
 
 `shodan-scan-ip`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | ips | A CSV list of IP addresses or netblocks for Shodan to crawl defined in CIDR notation. | Required |
-
 
 #### Context Output
 
@@ -295,11 +349,12 @@ Requests Shodan to crawl a network.
 | Shodan.Scan.ID | String | The unique ID of the scan. |
 | Shodan.Scan.Status | String | The status of the scan. |
 
-
 #### Command Example
+
 ```!shodan-scan-ip ips=8.8.8.8```
 
 #### Context Example
+
 ```json
 {
     "Shodan": {
@@ -314,19 +369,20 @@ Requests Shodan to crawl a network.
 #### Human Readable Output
 
 >Scanning results for scan wQEp0bIIEHklpAwa
+>
 >|ID|Status|
 >|---|---|
 >| wQEp0bIIEHklpAwa | PROCESSING |
 
-
 ### shodan-scan-internet
+
 ***
 Requests for Shodan to perform a scan on the specified port and protocol.
-
 
 #### Base Command
 
 `shodan-scan-internet`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -334,35 +390,32 @@ Requests for Shodan to perform a scan on the specified port and protocol.
 | port | The port for which Shodan crawls the Internet. | Required |
 | protocol | The name of the protocol used to interrogate the port. | Required |
 
-
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | Shodan.Scan.ID | String | The ID of the initial scan. |
 
-
 #### Command Example
-``` ```
+
+``````
 
 #### Human Readable Output
 
-
-
 ### shodan-scan-status
+
 ***
 Checks the progress of a previously submitted scan request on the specified port and protocol.
-
 
 #### Base Command
 
 `shodan-scan-status`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | scanID | The unique ID of the initial scan. | Required |
-
 
 #### Context Output
 
@@ -371,11 +424,12 @@ Checks the progress of a previously submitted scan request on the specified port
 | Shodan.Scan.Id | String | The unique ID of the scan request checked for progress. |
 | Shodan.Scan.Status | String | The status of the scan job checked for progress. |
 
-
 #### Command Example
+
 ```!shodan-scan-status scanID=7rbp1CAtx91BMwcg```
 
 #### Context Example
+
 ```json
 {
     "Shodan": {
@@ -390,19 +444,20 @@ Checks the progress of a previously submitted scan request on the specified port
 #### Human Readable Output
 
 >Scanning results for scan 7rbp1CAtx91BMwcg
+>
 >|ID|Status|
 >|---|---|
 >| 7rbp1CAtx91BMwcg | DONE |
 
-
 ### shodan-create-network-alert
+
 ***
 Creates a network alert for a defined IP address or netblock used for subscribing to changes or events that are discovered within the netblock's range.
-
 
 #### Base Command
 
 `shodan-create-network-alert`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -411,7 +466,6 @@ Creates a network alert for a defined IP address or netblock used for subscribin
 | ip | A list of IP addresses or network ranges defined in CIDR notation. | Required |
 | expires | The number of seconds for the network alert to remain active. | Optional |
 
-
 #### Context Output
 
 | **Path** | **Type** | **Description** |
@@ -419,11 +473,12 @@ Creates a network alert for a defined IP address or netblock used for subscribin
 | Shodan.Alert.ID | String | The ID of the subscription of the specified network alert. |
 | Shodan.Alert.Expires | String | The number of seconds that the specified network alert remains active. |
 
-
 #### Command Example
+
 ```!shodan-create-network-alert alertName="test_alert" ip="1.1.1.1"```
 
 #### Context Example
+
 ```json
 {
     "Shodan": {
@@ -438,25 +493,25 @@ Creates a network alert for a defined IP address or netblock used for subscribin
 #### Human Readable Output
 
 >Alert ID CB68M776ICCMS36L
+>
 >|Expires|IP|Name|
 >|---|---|---|
 >| 0 | 1.1.1.1 | test_alert |
 
-
 ### shodan-network-get-alert-by-id
+
 ***
 Gets the details of a network alert.
-
 
 #### Base Command
 
 `shodan-network-get-alert-by-id`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | alertID | The ID of the network alert. | Required |
-
 
 #### Context Output
 
@@ -465,11 +520,12 @@ Gets the details of a network alert.
 | Shodan.Alert.ID | String | The ID of the subscription of the network alert. |
 | Shodan.Alert.Expires | String | The number of seconds that the network alert remains active. |
 
-
 #### Command Example
+
 ```!shodan-network-get-alert-by-id alertID="0EKRH38BBQEHTQ3E"```
 
 #### Context Example
+
 ```json
 {
     "Shodan": {
@@ -484,19 +540,20 @@ Gets the details of a network alert.
 #### Human Readable Output
 
 >Alert ID 0EKRH38BBQEHTQ3E
+>
 >|Expires|IP|Name|
 >|---|---|---|
 >| 0 | 1.2.3.4 | test_alert |
 
-
 ### shodan-network-get-alerts
+
 ***
 Gets a list of all created network alerts.
-
 
 #### Base Command
 
 `shodan-network-get-alerts`
+
 #### Input
 
 There are no input arguments for this command.
@@ -508,11 +565,12 @@ There are no input arguments for this command.
 | Shodan.Alert.ID | String | The IDs of the subscriptions of the network alerts. |
 | Shodan.Alert.Expires | String | The number of seconds that the network alerts remain active. |
 
-
 #### Command Example
+
 ```!shodan-network-get-alerts```
 
 #### Context Example
+
 ```json
 {
     "Shodan": [
@@ -547,31 +605,32 @@ There are no input arguments for this command.
 #### Human Readable Output
 
 >Alert ID VXGB6CZ536X5AWE6
+>
 >|Expires|IP|Name|
 >|---|---|---|
 >| 0 | 1.1.1.1 | test_alert |
 
-
 ### shodan-network-delete-alert
+
 ***
 Removes the specified network alert.
-
 
 #### Base Command
 
 `shodan-network-delete-alert`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | alertID | The ID of the network alert to remove. | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
+
 ```!shodan-network-delete-alert alertID="0EKRH38BBQEHTQ3E"```
 
 #### Human Readable Output
@@ -579,13 +638,14 @@ There is no context output for this command.
 >Deleted alert 0EKRH38BBQEHTQ3E
 
 ### shodan-network-alert-set-trigger
+
 ***
 Enables receiving notifications for network alerts that are set off by the specified triggers.
-
 
 #### Base Command
 
 `shodan-network-alert-set-trigger`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -593,12 +653,12 @@ Enables receiving notifications for network alerts that are set off by the speci
 | alertID | The ID of the network alert for which to enable notifications. | Required |
 | Trigger | The name of the trigger. | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
+
 ```!shodan-network-alert-set-trigger alertID="0EKRH38BBQEHTQ3E" Trigger=any```
 
 #### Human Readable Output
@@ -606,13 +666,14 @@ There is no context output for this command.
 >Set trigger "any" for alert 0EKRH38BBQEHTQ3E
 
 ### shodan-network-alert-remove-trigger
+
 ***
 Disables receiving notifications for network alerts that are set off by the specified triggers.
-
 
 #### Base Command
 
 `shodan-network-alert-remove-trigger`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -620,12 +681,12 @@ Disables receiving notifications for network alerts that are set off by the spec
 | alertID | The ID of the network alert for which to disable notifications. | Required |
 | Trigger | The name of the trigger. | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
+
 ```!shodan-network-alert-remove-trigger alertID="0EKRH38BBQEHTQ3E" Trigger="any"```
 
 #### Human Readable Output
@@ -633,13 +694,14 @@ There is no context output for this command.
 >Deleted trigger "any" for alert 0EKRH38BBQEHTQ3E
 
 ### shodan-network-alert-whitelist-service
+
 ***
 Ignores the specified services for network alerts that are set off by the specified triggers.
-
 
 #### Base Command
 
 `shodan-network-alert-whitelist-service`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -648,12 +710,12 @@ Ignores the specified services for network alerts that are set off by the specif
 | trigger | The name of the trigger. | Required |
 | service | The service specified in the "ip:port" format. For example, "1.1.1.1:80". | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
+
 ```!shodan-network-alert-whitelist-service alertID="0EKRH38BBQEHTQ3E" trigger="any" service="1.1.1.1:80"```
 
 #### Human Readable Output
@@ -661,13 +723,14 @@ There is no context output for this command.
 >Whitelisted service "1.1.1.1:80" for trigger any in alert 0EKRH38BBQEHTQ3E
 
 ### shodan-network-alert-remove-service-from-whitelist
+
 ***
 Resumes receiving notifications for network alerts that are set off by the specified triggers.
-
 
 #### Base Command
 
 `shodan-network-alert-remove-service-from-whitelist`
+
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
@@ -676,14 +739,46 @@ Resumes receiving notifications for network alerts that are set off by the speci
 | trigger | The name of the trigger. | Required |
 | service | The service specified in the "ip:port" format. For example, "1.1.1.1:80". | Required |
 
-
 #### Context Output
 
 There is no context output for this command.
 
 #### Command Example
+
 ```!shodan-network-alert-remove-service-from-whitelist alertID="0EKRH38BBQEHTQ3E" trigger="any" service="1.1.1.1:80"```
 
 #### Human Readable Output
 
 >Removed service "1.1.1.1:80" for trigger any in alert 0EKRH38BBQEHTQ3E from the allow list
+>
+### shodan-get-events
+
+***
+Retrieves events from Shodan.
+
+#### Base Command
+
+`shodan-get-events`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| should_push_events | If set to 'True', the command will create events; otherwise, it will only display them. Possible values are: True, False. Default is False. | Optional |
+| start_date | Fetch events created after this date. You can also use relative terms like "3 days ago". Default is 3 days ago. | Optional |
+| max_fetch | The maximum amount of events to return. Default is 50000. | Optional |
+
+#### Context Output
+
+There is no context output for this command.
+
+## Fetch Events
+
+Fetch process returns a listing of all the network alerts that are currently active on the account.
+
+To enable the Shodan integration you need to have an API key, which you can get for free by creating a Shodan account <https://account.shodan.io/register>
+Once you have an API key, you insert it into the *API Key* field and click the **Test** button.
+
+## Rate Limits
+
+All API plans are subject to a rate limit of 1 request per second - [docs](https://account.shodan.io/billing)

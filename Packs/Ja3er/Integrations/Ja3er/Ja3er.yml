@@ -1,12 +1,13 @@
 category: Data Enrichment & Threat Intelligence
+provider: Ja3er
 commonfields:
   id: Ja3er
   version: -1
 configuration:
 - display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  required: false
 description: Query the ja3er API for MD5 hashes of JA3 fingerprints.
 display: Ja3er
 name: Ja3er
@@ -21,15 +22,15 @@ script:
     name: ja3-search
     outputs:
     - contextPath: JA3.Count
-      description: 'Number of times seen'
+      description: Number of times seen.
       type: Number
     - contextPath: JA3.Last_seen
-      description: 'Last seen date'
+      description: Last seen date.
       type: Date
     - contextPath: JA3.User-Agent
-      description: 'User-Agent'
+      description: User-Agent.
       type: String
-  dockerimage: demisto/python3:3.9.8.24399
+  dockerimage: demisto/python3:3.12.8.3296088
   runonce: false
   script: ''
   subtype: python3

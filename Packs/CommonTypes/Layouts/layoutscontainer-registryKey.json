@@ -2,9 +2,9 @@
     "id": "registryKey",
     "group": "indicator",
     "name": "Registry Key Indicator",
-    "description": "",
     "version": -1,
     "fromVersion": "6.0.0",
+    "toVersion": "6.9.9",
     "indicatorsDetails": {
         "tabs": [
             {
@@ -203,7 +203,7 @@
                         "minH": 1,
                         "minW": 1,
                         "moved": false,
-                        "name": "Reputation",
+                        "name": "Verdict",
                         "static": false,
                         "type": "reputationSources",
                         "w": 1,
@@ -577,7 +577,7 @@
                         "h": 2,
                         "i": "indicator-quick-view-info-reputationSources",
                         "moved": false,
-                        "name": "Reputation",
+                        "name": "Verdict",
                         "static": false,
                         "type": "reputationSources",
                         "w": 1,
@@ -702,5 +702,6 @@
                 "type": "custom"
             }
         ]
-    }
+    },
+    "description": ""
 }

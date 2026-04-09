@@ -1,7 +1,8 @@
 {
     "associatedToAll": false,
     "associatedTypes": [
-        "Qradar Generic"
+        "Qradar Generic",
+        "Prisma Cloud Compute Compliance v2"
     ],
     "breachScript": "",
     "caseInsensitive": true,
@@ -14,7 +15,6 @@
     "editForm": true,
     "extractIndicatorTypesIDs": [],
     "fieldCalcScript": "",
-    "fromServerVersion": "",
     "group": 0,
     "hidden": false,
     "id": "incident_compliancenotes",
@@ -34,7 +34,10 @@
     "selectValues": [],
     "sla": 0,
     "system": false,
-    "systemAssociatedTypes": null,
+    "systemAssociatedTypes": [
+        "Qradar Generic",
+        "Prisma Cloud Compute Compliance v2"
+    ],
     "threshold": 72,
     "toServerVersion": "",
     "type": "multiSelect",

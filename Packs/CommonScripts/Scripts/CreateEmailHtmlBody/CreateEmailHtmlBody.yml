@@ -8,7 +8,9 @@ tags:
 - email
 - communication
 comment: |-
-  This script allows sending an HTML email, using a template stored as a list item under Lists (Settings -> Advanced -> Lists).
+  This script allows sending an HTML email, using a template stored as a list item under Lists: 
+  - Cortex XSIAM: Settings -> Configurations -> Lists.
+  - Cortex XSOAR: Settings -> Lists.
   Placeholders are marked in DT format (i.e. ${incident.id} for incident ID).
   Available placeholders for example:
   - ${incident.labels.Email/from}
@@ -40,7 +42,6 @@ outputs:
 - contextPath: htmlBody
   description: HTML Body.
 scripttarget: 0
-runonce: false
 tests:
 - CreateEmailHtmlBody_test_pb
 fromversion: 5.0.0

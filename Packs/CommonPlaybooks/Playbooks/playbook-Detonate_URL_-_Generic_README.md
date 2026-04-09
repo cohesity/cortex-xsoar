@@ -1,36 +1,52 @@
 Detonate URL through active integrations that support URL detonation.
 
 ## Dependencies
+
 This playbook uses the following sub-playbooks, integrations, and scripts.
 
 ### Sub-playbooks
-* Detonate URL - ThreatGrid
-* Detonate URL - Group-IB TDS Polygon
+
 * Detonate URL - JoeSecurity
-* Detonate URL - CrowdStrike
-* Detonate URL - Cuckoo
-* Detonate URL - McAfee ATD
-* Detonate URL - CrowdStrike Falcon X
+* Detonate URL - Hybrid Analysis
 * Detonate URL - Lastline v2
+* Detonate URL - ThreatGrid
+* Detonate URL - WildFire v2.1
+* Detonate URL - McAfee ATD
 * Detonate URL - ANYRUN
+* Detonate URL - Group-IB TDS Polygon
+* Detonate URL - CrowdStrike Falcon Intelligence Sandbox
+* Detonate URL - VirusTotal (API v3)
+* Detonate URL - Hatching Triage
+* Detonate URL - FireEye AX
+* Detonate URL - Cuckoo
+* Detonate URL - SecneurX Analysis
+* Detonate URL - VMRay
+* Detonate URL - ThreatStream
 
 ### Integrations
-This playbook does not use any integrations.
+
+* CrowdStrike Falcon Sandbox V2
+* OPSWAT Filescan
 
 ### Scripts
+
 This playbook does not use any scripts.
 
 ### Commands
-This playbook does not use any commands.
+
+* cs-falcon-sandbox-submit-url
+* opswat-filescan-scan-url
 
 ## Playbook Inputs
+
 ---
 
 | **Name** | **Description** | **Default Value** | **Required** |
 | --- | --- | --- | --- |
-| URL | The URL object of the URL to be detonated. | URL.None | Optional |
+| URL | The URL object of the URL to be detonated. | URL | Optional |
 
 ## Playbook Outputs
+
 ---
 
 | **Path** | **Description** | **Type** |
@@ -42,25 +58,25 @@ This playbook does not use any commands.
 | File.SHA256 | The SHA256 hash of the file. | string |
 | File.SHA1 | The SHA1 hash of the file. | string |
 | File.MD5 | The MD5 hash of the file. | string |
-| File.Malicious.Vendor | The vendor that decides the file is malicious. | string |
-| File.Malicious.Description | The reason the vendor decides the file is malicious. | string |
+| File.Malicious.Vendor | The vendor that decided the file is malicious. | string |
+| File.Malicious.Description | The reason the vendor decided the file is malicious. | string |
 | DBotScore | The indicator's object. | string |
 | DBotScore.Type | The indicator type. | string |
 | DBotScore.Indicator | The indicator that was tested. | string |
 | DBotScore.Vendor | The vendor used to calculate the score. | string |
 | DBotScore.Score | The actual score. | number |
-| Joe.Analysis.WebID | The  Joe Analysis-related Web ID. | string |
+| Joe.Analysis.WebID | The Joe Analysis-related web ID. | string |
 | Joe.Analysis.Status | The Joe Analysis-related status. | string |
 | Joe.Analysis.Comments | The Joe Analysis-related comments. | string |
 | Joe.Analysis.Time | The Joe Analysis-related submitted time. | date |
 | Joe.Analysis.Runs | The Joe Analysis-related sub-analysis information. | string |
 | Joe.Analysis.Result | The Joe Analysis-related results. | string |
 | Joe.Analysis.Errors | The Joe Analysis-related errors raised during sampling. | string |
-| Joe.Analysis.Systems | The Joe Analysis-related OS. | string |
+| Joe.Analysis.Systems | The Joe Analysis-related operating systems. | string |
 | Joe.Analysis.MD5 | The MD5 hash of the Joe Analysis-related sample. | string |
 | Joe.Analysis.SHA1 | The SHA1 hash of the Joe Analysis-related sample. | string |
 | Joe.Analysis.SHA256 | The SHA256 hash of the Joe Analysis-related sample. | string |
-| Joe.Analysis.SampleName | The Joe Analysis-related sample data name, can be a file name or a URL. | string |
+| Joe.Analysis.SampleName | The Joe Analysis-related sample data name. Can be a file name or a URL. | string |
 | InfoFile.Name | The file name. | string |
 | InfoFile.EntryID | The EntryID of the sample. | string |
 | InfoFile.Size | The file size. | number |
@@ -68,7 +84,7 @@ This playbook does not use any commands.
 | InfoFile.Info | The file basic information. | string |
 | Sample.State | The sample state. | string |
 | Sample.ID | The sample ID. | string |
-| IP.Address | The IPs relevant to the sample. | string |
+| IP.Address | The IP addresses relevant to the sample. | string |
 | InfoFile | The report file's object. | string |
 | Cuckoo.Task.Category | The Cuckoo-related task category. | unknown |
 | Cuckoo.Task.Machine | The Cuckoo-related task machine. | unknown |
@@ -103,7 +119,7 @@ This playbook does not use any commands.
 | ANYRUN.Task.Connection.Country | The ANY.RUN connection country. | String |
 | ANYRUN.Task.Connection.Protocol | The ANY.RUN connection protocol. | String |
 | ANYRUN.Task.Connection.Port | The ANY.RUN connection port number. | Number |
-| ANYRUN.Task.Connection.IP | The ANY.RUN connection IP number. | String |
+| ANYRUN.Task.Connection.IP | The ANY.RUN connection IP address. | String |
 | ANYRUN.Task.DnsRequest.Reputation | The ANY.RUN process reputation of the DNS request. | String |
 | ANYRUN.Task.DnsRequest.IP | The ANY.RUN IP addresses associated with a DNS request. | string |
 | ANYRUN.Task.DnsRequest.Domain | The ANY.RUN domain resolution of a DNS request. | String |
@@ -127,14 +143,14 @@ This playbook does not use any commands.
 | ANYRUN.Task.HttpRequest.Host | The ANY.RUN HTTP request host. | String |
 | ANYRUN.Task.HttpRequest.Method | The ANY.RUN HTTP request method type. | String |
 | ANYRUN.Task.FileInfo | The ANY.RUN submitted file details. | String |
-| ANYRUN.Task.OS | The ANY.RUN OS of the sandbox in which the file was analyzed. | String |
+| ANYRUN.Task.OS | The ANY.RUN operating system of the sandbox in which the file was analyzed. | String |
 | ANYRUN.Task.ID | The unique ANY.RUN task ID. | String |
 | ANYRUN.Task.MIME | The ANY.RUN MIME of the file submitted for analysis. | String |
 | ANYRUN.Task.Verdict | The ANY.RUN verdict for the maliciousness of the submitted file or URL. | String |
 | ANYRUN.Task.Process.FileName | The ANY.RUN process file name. | String |
 | ANYRUN.Task.Process.PID | The ANY.RUN process identification number. | Number |
 | ANYRUN.Task.Process.PPID | The ANY.RUN process parent process identification number. | Number |
-| ANYRUN.Task.Process.ProcessUUID | The Unique ANY.RUN process UUID. | String |
+| ANYRUN.Task.Process.ProcessUUID | The unique ANY.RUN process UUID. | String |
 | ANYRUN.Task.Process.CMD | The ANY.RUN process command. | String |
 | ANYRUN.Task.Process.Path | The path of the executed ANY.RUN process command. | String |
 | ANYRUN.Task.Process.User | The user who executed the ANY.RUN process command. | String |
@@ -145,10 +161,37 @@ This playbook does not use any commands.
 | ANYRUN.Task.Process.Version.Description | The description of the ANY.RUN process program type. | String |
 | ANYRUN.Task.Process.Version.Version | The version of the executed program. | String |
 | URL.Data | The URL data. | String |
-| URL.Malicious.Vendor | The vendor that decides the URL is malicious. | String |
-| URL.Malicious.Description | The reason the vendor decides the URL is malicious. | String |
+| URL.Malicious.Vendor | The vendor that decided the URL is malicious. | String |
+| URL.Malicious.Description | The reason the vendor decided the URL is malicious. | String |
 | ANYRUN.Task.Status | The task analysis status. | String |
+| FireEyeAX.Submissions.Key | The submission key | unknown |
+| FireEyeAX.Submissions.Severity | The severity level of the file | unknown |
+| FireEyeAX.Submissions.InfoLevel | The info level of the report. | unknown |
+| DBotScore.Score | The actual score. | unknown |
+| DBotScore.Indicator | The indicator that was tested. | unknown |
+| DBotScore.Vendor | The vendor used to calculate the score. | unknown |
+| Triage.sample-summaries.completed | The date the sample analysis was completed. | unknown |
+| Triage.sample-summaries.created | The date the analysis report was created. | unknown |
+| Triage.sample-summaries.custom | The custom sample analysis. | unknown |
+| Triage.sample-summaries.owner | The owner of the sample summaries. | unknown |
+| Triage.sample-summaries.sample | The unique identifier of the sample. | unknown |
+| Triage.sample-summaries.score | The score of the sample on a scale of 0 to 10. | unknown |
+| Triage.sample-summaries.sha256 | The SHA256 of the sample. | unknown |
+| Triage.sample-summaries.status | The status of the analysis. | unknown |
+| Triage.sample-summaries.target | The target for the analysis. | unknown |
+| Triage.sample-summaries.tasks | The tasks performed in the analysis. | unknown |
+| HybridAnalysis.URL.Scanner.Name | The URL scanner name. | unknown |
+| HybridAnalysis.URL.Scanner.Positives | The number of positive scanners. | unknown |
+| HybridAnalysis.URL.Scanner.Status | The status of the scanning. | unknown |
+| HybridAnalysis.URL.Scanner | The place holder for the scanner data. | unknown |
+| SecneurXAnalysis.Report.SHA256 | SHA256 value of the analyzed sample | string |
+| SecneurXAnalysis.Report.Verdict | Summary result of the analyzed sample | string |
+| SecneurXAnalysis.Report.Tags | More details of the analyzed sample | string |
+| SecneurXAnalysis.Report.IOC | List of IOC's observed in the analyzed sample | string |
+| SecneurXAnalysis.Report.Status | Analysis queued sample state | String |
 
 ## Playbook Image
+
 ---
+
 ![Detonate URL - Generic](../doc_files/Detonate_URL_-_Generic.png)

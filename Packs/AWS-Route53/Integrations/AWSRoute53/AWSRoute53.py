@@ -1,366 +1,322 @@
-import boto3
-import demistomock as demisto  # noqa: F401
-from CommonServerPython import *  # noqa: F401
 from datetime import date
+from http import HTTPStatus
 
-AWS_DEFAULT_REGION = None
-AWS_roleArn = demisto.params()['roleArn']
-AWS_roleSessionName = demisto.params()['roleSessionName']
-AWS_roleSessionDuration = demisto.params()['sessionDuration']
-AWS_rolePolicy = None
+import demistomock as demisto  # noqa: F401
+import urllib3.util
+from AWSApiModule import *  # noqa :E402
+from CommonServerPython import *  # noqa: F401
 
+# Disable insecure warnings
+urllib3.disable_warnings()
 
-def aws_session(service='route53', region=None, roleArn=None, roleSessionName=None, roleSessionDuration=None, rolePolicy=None):
-    kwargs = {}
-    if roleArn and roleSessionName is not None:
-        kwargs.update({
-            'RoleArn': roleArn,
-            'RoleSessionName': roleSessionName,
-        })
-    elif AWS_roleArn and AWS_roleSessionName is not None:
-        kwargs.update({
-            'RoleArn': AWS_roleArn,
-            'RoleSessionName': AWS_roleSessionName,
-        })
+SERVICE = "route53"
+DEFAULT_RETRIES = 5
 
-    if roleSessionDuration is not None:
-        kwargs.update({'DurationSeconds': int(roleSessionDuration)})
-    elif AWS_roleSessionDuration is not None:
-        kwargs.update({'DurationSeconds': int(AWS_roleSessionDuration)})
-
-    if rolePolicy is not None:
-        kwargs.update({'Policy': rolePolicy})
-    elif AWS_rolePolicy is not None:
-        kwargs.update({'Policy': AWS_rolePolicy})
-
-    if kwargs:
-        sts_client = boto3.client('sts')
-        sts_response = sts_client.assume_role(**kwargs)
-        if region is not None:
-            client = boto3.client(
-                service_name=service,
-                region_name=region,
-                aws_access_key_id=sts_response['Credentials']['AccessKeyId'],
-                aws_secret_access_key=sts_response['Credentials']['SecretAccessKey'],
-                aws_session_token=sts_response['Credentials']['SessionToken']
-            )
-        else:
-            client = boto3.client(
-                service_name=service,
-                region_name=AWS_DEFAULT_REGION,
-                aws_access_key_id=sts_response['Credentials']['AccessKeyId'],
-                aws_secret_access_key=sts_response['Credentials']['SecretAccessKey'],
-                aws_session_token=sts_response['Credentials']['SessionToken']
-            )
-    else:
-        if region is not None:
-            client = boto3.client(service_name=service, region_name=region)
-        else:
-            client = boto3.client(service_name=service, region_name=AWS_DEFAULT_REGION)
-
-    return client
+"""HELPER FUNCTIONS"""
 
 
 class DatetimeEncoder(json.JSONEncoder):
-    def default(self, obj):  # pylint: disable=E0202
+    # pylint: disable=method-hidden
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, datetime):
-            return obj.strftime('%Y-%m-%dT%H:%M:%S')
+            return obj.strftime("%Y-%m-%dT%H:%M:%S")
         elif isinstance(obj, date):
-            return obj.strftime('%Y-%m-%d')
+            return obj.strftime("%Y-%m-%d")
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
 
-def create_entry(title, data, ec):
-    return {
-        'ContentsFormat': formats['json'],
-        'Type': entryTypes['note'],
-        'Contents': data,
-        'ReadableContentsFormat': formats['markdown'],
-        'HumanReadable': tableToMarkdown(title, data) if data else 'No result were found',
-        'EntryContext': ec
-    }
+def create_entry(title: str, data: Union[Dict[str, Any], List[Any]], outputs: Any, outputs_prefix: str) -> CommandResults:
+    return CommandResults(
+        entry_type=EntryType.NOTE,
+        content_format=EntryFormat.JSON,
+        readable_output=tableToMarkdown(title, data, removeNull=True) if data else "No result were found",
+        outputs=outputs,
+        outputs_prefix=outputs_prefix,
+    )
 
 
-def raise_error(error):
-    return {
-        'Type': entryTypes['error'],
-        'ContentsFormat': formats['text'],
-        'Contents': str(error)
-    }
+def raise_error(error: Any) -> CommandResults:
+    demisto.error(f"Error occurred in {SERVICE} - {error!s}")
+    return CommandResults(content_format=EntryFormat.TEXT, entry_type=EntryType.ERROR, readable_output=str(error))
 
 
-def create_record(args):
+def create_record(
+    args: Dict[Any, Any],
+    aws_session: Any,
+) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
-        kwargs = {
-            'HostedZoneId': args.get('hostedZoneId'),
-            'ChangeBatch': {
-                'Changes': [
-                    {
-                        'Action': 'CREATE',
-                        'ResourceRecordSet': {
-                            'Name': args.get('source'),
-                            'Type': args.get('type'),
-                            'TTL': int(args.get('ttl')),
-                            'ResourceRecords': [{'Value': args.get('target')}]
-                        }
-                    }
-                ]
-            }
+        change_batch: Dict[Any, Any] = {
+            "Changes": [
+                {
+                    "Action": "CREATE",
+                    "ResourceRecordSet": {
+                        "Name": args.get("source"),
+                        "Type": args.get("type"),
+                        "TTL": arg_to_number(args.get("ttl"), "ttl", True),
+                        "ResourceRecords": [{"Value": args.get("target")}],
+                    },
+                }
+            ]
         }
 
-        if args.get('comment') is not None:
-            kwargs['ChangeBatch'].update({'Comment': args.get('comment')})
+        if args.get("comment"):
+            change_batch["Comment"] = args.get("comment")
 
-        response = client.change_resource_record_sets(**kwargs)
-        record = response['ChangeInfo']
-        data = ({
-            'Id': record['Id'],
-            'Status': record['Status']
-        })
+        kwargs = {"HostedZoneId": args.get("hostedZoneId"), "ChangeBatch": change_batch}
 
-        output = json.dumps(response['ChangeInfo'], cls=DatetimeEncoder)
-        raw = json.loads(output)
-        ec = {'AWS.Route53.RecordSetsChange': raw}
-        return create_entry('AWS Route53 record created', data, ec)
+        response = aws_session.change_resource_record_sets(**kwargs)
+        record = response["ChangeInfo"]
+        data = {"Id": record["Id"], "Status": record["Status"]}
 
-    except Exception as e:
-        return raise_error(e)
+        output = json.loads(json.dumps(response["ChangeInfo"], cls=DatetimeEncoder))
+        return create_entry("AWS Route53 record created", data, output, "AWS.Route53.RecordSetsChange")
+
+    except Exception as error:
+        return raise_error(error)
 
 
-def delete_record(args):
+def delete_record(args: Dict[Any, Any], aws_session: Any) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
         kwargs = {
-            'HostedZoneId': args.get('hostedZoneId'),
-            'ChangeBatch': {
-                'Changes': [
+            "HostedZoneId": args.get("hostedZoneId"),
+            "ChangeBatch": {
+                "Changes": [
                     {
-                        'Action': 'DELETE',
-                        'ResourceRecordSet': {
-                            'Name': args.get('source'),
-                            'Type': args.get('type'),
-                            'TTL': int(args.get('ttl')),
-                            'ResourceRecords': [{'Value': args.get('target')}]
-                        }
+                        "Action": "DELETE",
+                        "ResourceRecordSet": {
+                            "Name": args.get("source"),
+                            "Type": args.get("type"),
+                            "TTL": arg_to_number(args.get("ttl"), "ttl", True),
+                            "ResourceRecords": [{"Value": args.get("target")}],
+                        },
                     }
                 ]
-            }
+            },
         }
 
-        response = client.change_resource_record_sets(**kwargs)
-        record = response['ChangeInfo']
-        data = ({
-            'Id': record['Id'],
-            'Status': record['Status']
-        })
+        response = aws_session.change_resource_record_sets(**kwargs)
+        record = response["ChangeInfo"]
+        data = {"Id": record["Id"], "Status": record["Status"]}
 
-        output = json.dumps(response['ChangeInfo'], cls=DatetimeEncoder)
-        raw = json.loads(output)
-        ec = {'AWS.Route53.RecordSetsChange': raw}
-        return create_entry('AWS Route53 record deleted', data, ec)
+        output = json.loads(json.dumps(response["ChangeInfo"], cls=DatetimeEncoder))
+        return create_entry("AWS Route53 record deleted", data, output, "AWS.Route53.RecordSetsChange")
 
-    except Exception as e:
-        return raise_error(e)
+    except Exception as error:
+        return raise_error(error)
 
 
-def upsert_record(args):
+def upsert_record(args: Dict[Any, Any], aws_session: Any) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
-        kwargs = {
-            'HostedZoneId': args.get('hostedZoneId'),
-            'ChangeBatch': {
-                'Changes': [
-                    {
-                        'Action': 'UPSERT',
-                        'ResourceRecordSet': {
-                            'Name': args.get('source'),
-                            'Type': args.get('type'),
-                            'TTL': int(args.get('ttl')),
-                            'ResourceRecords': [{'Value': args.get('target')}]
-                        }
-                    }
-                ]
-            }
+        change_batch: Dict[Any, Any] = {
+            "Changes": [
+                {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": args.get("source"),
+                        "Type": args.get("type"),
+                        "TTL": arg_to_number(args.get("ttl"), "ttl", True),
+                        "ResourceRecords": [{"Value": args.get("target")}],
+                    },
+                }
+            ]
         }
 
-        if args.get('comment') is not None:
-            kwargs['ChangeBatch'].update({'Comment': args.get('comment')})
+        if args.get("comment"):
+            change_batch["Comment"] = args.get("comment")
+        kwargs = {"HostedZoneId": args.get("hostedZoneId"), "ChangeBatch": change_batch}
 
-        response = client.change_resource_record_sets(**kwargs)
-        record = response['ChangeInfo']
-        data = ({
-            'Id': record['Id'],
-            'Status': record['Status']
-        })
+        response = aws_session.change_resource_record_sets(**kwargs)
+        record = response["ChangeInfo"]
+        data = {"Id": record["Id"], "Status": record["Status"]}
 
-        output = json.dumps(response['ChangeInfo'], cls=DatetimeEncoder)
-        raw = json.loads(output)
-        ec = {'AWS.Route53.RecordSetsChange': raw}
-        return create_entry('AWS Route53 record Upsert', data, ec)
+        output = json.loads(json.dumps(response["ChangeInfo"], cls=DatetimeEncoder))
+        return create_entry("AWS Route53 record Upsert", data, output, "AWS.Route53.RecordSetsChange")
 
-    except Exception as e:
-        return raise_error(e)
+    except Exception as error:
+        return raise_error(error)
 
 
-def list_hosted_zones(args):
+def list_hosted_zones(aws_session: Any) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
         data = []
-        response = client.list_hosted_zones()
-        for hostedzone in response['HostedZones']:
-            data.append({
-                'Name': hostedzone['Name'],
-                'Id': hostedzone['Id'],
-                'ResourceRecordSetCount': hostedzone['ResourceRecordSetCount'],
-            })
-        output = json.dumps(response['HostedZones'], cls=DatetimeEncoder)
-        raw = json.loads(output)
-        ec = {'AWS.Route53.HostedZones': raw}
-        return create_entry('AWS Route53 Hosted Zones', data, ec)
+        response = aws_session.list_hosted_zones()
+        for hosted_zone in response["HostedZones"]:
+            data.append(
+                {
+                    "Name": hosted_zone["Name"],
+                    "Id": hosted_zone["Id"],
+                    "ResourceRecordSetCount": hosted_zone["ResourceRecordSetCount"],
+                }
+            )
+        output = json.loads(json.dumps(data, cls=DatetimeEncoder))
+        return create_entry("AWS Route53 Hosted Zones", data, output, "AWS.Route53.HostedZones")
 
-    except Exception as e:
-        return raise_error(e)
+    except Exception as error:
+        return raise_error(error)
 
 
-def list_resource_record_sets(args):
+def list_resource_record_sets(args: Dict[Any, Any], aws_session: Any) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
-
-        kwargs = {'HostedZoneId': args.get('hostedZoneId')}
-        if args.get('startRecordName') is not None:
-            kwargs.update({'StartRecordName': args.get('startRecordName')})
-        if args.get('startRecordType') is not None:
-            kwargs.update({'StartRecordType': args.get('startRecordType')})
-        if args.get('startRecordIdentifier') is not None:
-            kwargs.update({'StartRecordIdentifier': args.get('startRecordIdentifier')})
+        kwargs = {"HostedZoneId": args.get("hostedZoneId")}
+        if args.get("startRecordName"):
+            kwargs.update({"StartRecordName": args.get("startRecordName")})
+        if args.get("startRecordType"):
+            kwargs.update({"StartRecordType": args.get("startRecordType")})
+        if args.get("startRecordIdentifier"):
+            kwargs.update({"StartRecordIdentifier": args.get("startRecordIdentifier")})
 
         data = []
-        response = client.list_resource_record_sets(**kwargs)
-        records = response['ResourceRecordSets']
+        response = aws_session.list_resource_record_sets(**kwargs)
+        records = response["ResourceRecordSets"]
         for record in records:
-            data.append({
-                'Name': record['Name'],
-                'Type': record['Type'],
-                'TTL': record['TTL'],
-                'ResourceRecords': record['ResourceRecords'][0]['Value']
-            })
-        output = json.dumps(response['ResourceRecordSets'], cls=DatetimeEncoder)
-        raw = json.loads(output)
-        ec = {'AWS.Route53.RecordSets': raw}
-        return create_entry('AWS Route53 Record Sets', data, ec)
+            resource_records = record.get("ResourceRecords") or []
+            data.append(
+                {
+                    "Name": record.get("Name"),
+                    "Type": record.get("Type"),
+                    "TTL": record.get("TTL"),
+                    "ResourceRecords": resource_records[0]["Value"] if resource_records else None,
+                }
+            )
+        output = json.loads(json.dumps(response["ResourceRecordSets"], cls=DatetimeEncoder))
+        return create_entry("AWS Route53 Record Sets", data, output, "AWS.Route53.RecordSets")
 
     except Exception as error:
-        return error
+        return raise_error(error)
 
 
-def waiter_resource_record_sets_changed(args):
+def waiter_resource_record_sets_changed(args: Dict[Any, Any], aws_session: Any) -> CommandResults:
     try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
-        kwargs = {'Id': args.get('id')}
-        if args.get('waiterDelay') is not None:
-            kwargs.update({'WaiterConfig': {'Delay': int(args.get('waiterDelay'))}})
-        if args.get('waiterMaxAttempts') is not None:
-            kwargs.update({'WaiterConfig': {'MaxAttempts': int(args.get('waiterMaxAttempts'))}})
+        kwargs = {"Id": args.get("id")}
+        if args.get("waiterDelay") is not None:
+            kwargs.update({"WaiterConfig": {"Delay": arg_to_number(args.get("waiterDelay"), "waiterDelay", True)}})
+        if args.get("waiterMaxAttempts"):
+            kwargs.update(
+                {"WaiterConfig": {"MaxAttempts": arg_to_number(args.get("waiterMaxAttempts"), "waiterMaxAttempts", True)}}
+            )
 
-        waiter = client.get_waiter('resource_record_sets_changed')
+        waiter = aws_session.get_waiter("resource_record_sets_changed")
         waiter.wait(**kwargs)
-        return "success"
+        return CommandResults(entry_type=EntryType.NOTE, content_format=EntryFormat.JSON, readable_output="success")
+
+    except Exception as error:
+        return raise_error(error)
+
+
+def test_dns_answer(args: Dict[Any, Any], aws_session: Any) -> CommandResults:
+    try:
+        kwargs = {
+            "HostedZoneId": args.get("hostedZoneId"),
+            "RecordName": args.get("recordName"),
+            "RecordType": args.get("recordType"),
+        }
+        if args.get("resolverIP"):
+            kwargs.update({"ResolverIP": args.get("resolverIP")})
+
+        response = aws_session.test_dns_answer(**kwargs)
+        data = {
+            "Nameserver": response["Nameserver"],
+            "RecordName": response["RecordName"],
+            "RecordType": response["RecordType"],
+            "ResponseCode": response["ResponseCode"],
+            "Protocol": response["Protocol"],
+        }
+
+        return create_entry("AWS Route53 Test DNS Answer", data, response, "AWS.Route53.TestDNSAnswer")
+
+    except Exception as error:
+        return raise_error(error)
+
+
+def test_module(aws_session: Any) -> CommandResults:
+    try:
+        response = aws_session.list_hosted_zones()
+        if response["ResponseMetadata"]["HTTPStatusCode"] == HTTPStatus.OK:
+            return_results("ok")
+
+        return CommandResults(
+            content_format=EntryFormat.TEXT,
+            entry_type=EntryType.ERROR,
+            readable_output=f"received status code {response['ResponseMetadata']['HTTPStatusCode']}",
+        )
+
+    except Exception as error:
+        return raise_error(error)
+
+
+def main():  # pragma: no cover
+    params = demisto.params()
+    command = demisto.command()
+    aws_role_arn = params.get("roleArn")
+    aws_role_session_name = params.get("roleSessionName")
+    aws_role_session_duration = params.get("sessionDuration")
+    aws_role_policy = None
+    aws_access_key_id = params.get("credentials", {}).get("identifier") or params.get("access_key")
+    aws_secret_access_key = params.get("credentials", {}).get("password") or params.get("secret_key")
+    verify_certificate = not params.get("insecure", True)
+    timeout = params.get("timeout")
+    retries = params.get("retries", DEFAULT_RETRIES)
+
+    try:
+        args = demisto.args()
+        validate_params(
+            True,
+            aws_role_arn,
+            aws_role_session_name,
+            aws_access_key_id,  # noqa
+            aws_secret_access_key,
+        )
+
+        aws_client = AWSClient(
+            None,
+            aws_role_arn,
+            aws_role_session_name,  # noqa
+            aws_role_session_duration,
+            aws_role_policy,
+            aws_access_key_id,
+            aws_secret_access_key,
+            verify_certificate,
+            timeout,
+            retries,
+        )
+        aws_session = aws_client.aws_session(
+            service=SERVICE,
+            role_arn=aws_role_arn,
+            role_session_name=aws_role_session_name,
+            role_session_duration=aws_role_session_duration,
+        )
+
+        demisto.info(f"Command being called is {demisto.command()}")
+        if command == "test-module":
+            return_results(test_module(aws_session))
+
+        elif command == "aws-route53-create-record":
+            return_results(create_record(args, aws_session))
+
+        elif command == "aws-route53-upsert-record":
+            return_results(upsert_record(args, aws_session))
+
+        elif command == "aws-route53-delete-record":
+            return_results(delete_record(args, aws_session))
+
+        elif command == "aws-route53-list-hosted-zones":
+            return_results(list_hosted_zones(aws_session))
+
+        elif command == "aws-route53-list-resource-record-sets":
+            return_results(list_resource_record_sets(args, aws_session))
+
+        elif command == "aws-route53-waiter-resource-record-sets-changed":
+            return_results(waiter_resource_record_sets_changed(args, aws_session))
+
+        elif command == "aws-route53-test-dns-answer":
+            return_results(test_dns_answer(args, aws_session))
+        else:
+            raise NotImplementedError(f"{command} command is not implemented.")
 
     except Exception as e:
-        return raise_error(e)
+        return_error(f"Failed to execute {command} command.\nError:\n{e!s}")
 
 
-def test_dns_answer(args):
-    try:
-        client = aws_session(
-            roleArn=args.get('roleArn'),
-            roleSessionName=args.get('roleSessionName'),
-            roleSessionDuration=args.get('roleSessionDuration'),
-        )
-        kwargs = {
-            'HostedZoneId': args.get('hostedZoneId'),
-            'RecordName': args.get('recordName'),
-            'RecordType': args.get('recordType'),
-        }
-        if args.get('resolverIP') is not None:
-            kwargs.update({'ResolverIP': args.get('resolverIP')})
-
-        response = client.test_dns_answer(**kwargs)
-        data = ({
-            'Nameserver': response['Nameserver'],
-            'RecordName': response['RecordName'],
-            'RecordType': response['RecordType'],
-            'ResponseCode': response['ResponseCode'],
-            'Protocol': response['Protocol']
-        })
-
-        ec = {'AWS.Route53.TestDNSAnswer': response}
-        return create_entry('AWS Route53 Test DNS Answer', data, ec)
-
-    except Exception as error:
-        return error
-
-
-def test_function():
-    try:
-        client = aws_session()
-        response = client.list_hosted_zones()
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-            return 'ok'
-
-    except Exception as error:
-        return error
-
-
-if demisto.command() == 'test-module':
-    # This is the call made when pressing the integration test button.
-    result = test_function()
-
-if demisto.command() == 'aws-route53-create-record':
-    result = create_record(demisto.args())
-
-if demisto.command() == 'aws-route53-upsert-record':
-    result = upsert_record(demisto.args())
-
-if demisto.command() == 'aws-route53-delete-record':
-    result = delete_record(demisto.args())
-
-if demisto.command() == 'aws-route53-list-hosted-zones':
-    result = list_hosted_zones(demisto.args())
-
-if demisto.command() == 'aws-route53-list-resource-record-sets':
-    result = list_resource_record_sets(demisto.args())
-
-if demisto.command() == 'aws-route53-waiter-resource-record-sets-changed':
-    result = waiter_resource_record_sets_changed(demisto.args())
-
-if demisto.command() == 'aws-route53-test-dns-answer':
-    result = test_dns_answer(demisto.args())
-
-demisto.results(result)
+if __name__ in ("__builtin__", "builtins", "__main__"):
+    main()

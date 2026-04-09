@@ -14,11 +14,12 @@ from sixgill.sixgill_constants import FeedStream
 from sixgill.sixgill_utils import is_indicator
 
 # Disable insecure warnings
-requests.packages.urllib3.disable_warnings()
+import urllib3
+urllib3.disable_warnings()
 
 """ CONSTANTS """
 INTEGRATION_NAME = "Sixgil_DVE_Feed"
-CHANNEL_CODE = "7698e8287dfde53dcd13082be750a85a"
+CHANNEL_CODE = "7457a04d972fceb8e0cc2192ba4abc66" if is_xsiam() else "7698e8287dfde53dcd13082be750a85a"
 MAX_INDICATORS = 1000
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 SUSPICIOUS_FEED_IDS = ["darkfeed_003"]

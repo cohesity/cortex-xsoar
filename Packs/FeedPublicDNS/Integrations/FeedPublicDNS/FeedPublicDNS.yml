@@ -1,4 +1,5 @@
 category: Data Enrichment & Threat Intelligence
+provider: Open Source
 commonfields:
   id: Public DNS Feed
   version: -1
@@ -8,13 +9,14 @@ configuration:
   name: url
   required: true
   type: 1
+  section: Connect
 - defaultvalue: 'true'
   display: Fetch indicators
   name: feed
-  required: false
   type: 8
-- additionalinfo: Indicators from this integration instance will be marked with this
-    reputation
+  required: false
+  section: Collect
+- additionalinfo: Indicators from this integration instance will be marked with this reputation
   defaultvalue: Good
   display: Indicator Reputation
   name: feedReputation
@@ -23,8 +25,9 @@ configuration:
   - Good
   - Suspicious
   - Bad
-  required: false
   type: 18
+  required: false
+  section: Collect
 - additionalinfo: Reliability of the source providing the intelligence data
   defaultvalue: A - Completely reliable
   display: Source Reliability
@@ -38,6 +41,7 @@ configuration:
   - F - Reliability cannot be judged
   required: true
   type: 15
+  section: Collect
 - defaultvalue: indicatorType
   name: feedExpirationPolicy
   display: ""
@@ -46,32 +50,39 @@ configuration:
   - interval
   - indicatorType
   - suddenDeath
-  required: false
   type: 17
+  required: false
+  section: Collect
+  advanced: true
 - defaultvalue: '240'
   display: Feed Fetch Interval
   name: feedFetchInterval
-  required: false
   type: 19
+  required: false
+  section: Collect
+  advanced: true
 - defaultvalue: '20160'
   display: ""
   name: feedExpirationInterval
-  required: false
   type: 1
+  required: false
+  section: Collect
+  advanced: true
 - additionalinfo: Supports CSV values.
   display: Tags
-  hidden: false
   name: feedTags
-  required: false
   type: 0
-- additionalinfo: When selected, the exclusion list is ignored for indicators from
-    this feed. This means that if an indicator from this feed is on the exclusion
-    list, the indicator might still be added to the system.
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: When selected, the exclusion list is ignored for indicators from this feed. This means that if an indicator from this feed is on the exclusion list, the indicator might still be added to the system.
   display: Bypass exclusion list
   name: feedBypassExclusionList
-  required: false
   type: 8
-- additionalinfo: The Traffic Light Protocol (TLP) designation to apply to indicators fetched from the feed
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: The Traffic Light Protocol (TLP) designation to apply to indicators fetched from the feed.
   display: Traffic Light Protocol Color
   name: tlp_color
   options:
@@ -79,38 +90,43 @@ configuration:
   - AMBER
   - GREEN
   - WHITE
-  required: false
   type: 15
+  required: false
+  section: Collect
+- display: Enrichment Excluded
+  name: enrichmentExcluded
+  type: 8
+  required: false
+  additionalinfo: Select this option to exclude the fetched indicators from the enrichment process.
+  defaultvalue: 'false'
+  hidden:
+  - xsoar_on_prem
+  section: Collect
 - display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  required: false
+  section: Connect
+  advanced: true
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  required: false
+  section: Connect
+  advanced: true
 description: A feed of known benign IPs of public DNS servers.
 display: Public DNS Feed
 name: Public DNS Feed
 script:
   commands:
   - arguments:
-    - default: false
-      defaultValue: '10'
+    - defaultValue: '10'
       description: The maximum number of results to return. The default value is 10.
-      isArray: false
       name: limit
-      required: false
-      secret: false
-    deprecated: false
     description: Gets indicators from the feed.
-    execution: false
     name: public-dns-get-indicators
-  dockerimage: demisto/netutils:1.0.0.25699
+  dockerimage: demisto/netutils:1.0.0.3562043
   feed: true
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
   runonce: false
   script: '-'
   subtype: python3
@@ -118,3 +134,6 @@ script:
 tests:
 - Public_DNS_Feed_Test
 fromversion: 5.5.0
+sectionorder:
+- Connect
+- Collect

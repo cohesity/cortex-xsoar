@@ -38,10 +38,12 @@ section_start() {
     start_time=$(date +%s)
     start="$(echo "$start" | sed -e "s/the_time/$start_time/" -e "s/section_id/$section_id/" -e "s/section_header/$section_header/")"
     echo -e "$start"
+    date +"[%Y-%m-%dT%H:%M:%S.%3N] section start"
 }
 
 section_end() {
     local section_id end
+    date +"[%Y-%m-%dT%H:%M:%S.%3N] section end"
     end="$SECTION_END"
     if [[ "$#" -eq 1 ]]; then
         section_id="$(echo "$1" | tr -c '[:alnum:]\n\r' '_')"
@@ -57,3 +59,20 @@ section_end() {
     end="$(echo "$end" | sed -e "s/the_time/$end_time/" -e "s/section_id/$section_id/")"
     echo -e "$end"
 }
+
+job-done() {
+    mkdir -p "${PIPELINE_JOBS_FOLDER}"
+    echo "creating file ${PIPELINE_JOBS_FOLDER}/${CI_JOB_NAME}.txt"
+    echo "done" > "${PIPELINE_JOBS_FOLDER}/${CI_JOB_NAME}.txt"
+    echo "finished writing to file ${PIPELINE_JOBS_FOLDER}/${CI_JOB_NAME}.txt"
+}
+
+sleep-with-progress() {
+  local sleep_time=${1:-10}
+  local sleep_interval=${2:-1}
+  local sleep_message=${3:-"Sleeping... "}
+  local columns=${4:-$(tput cols)}
+  local sleep_step=$((sleep_time / sleep_interval))
+  for ((i=0; i< sleep_step;i++)); do echo "${sleep_interval}";sleep "${sleep_interval}"; done | tqdm --total ${sleep_time} --unit seconds --leave --update --colour green -ncols ${columns} --desc "${sleep_message}" 1> /dev/null
+}
+

@@ -4,6 +4,7 @@ commonfields:
 name: FortiSIEM
 display: FortiSIEM
 category: Analytics & SIEM
+provider: Fortinet
 description: Search and update events of FortiSIEM and manage resource lists.
 configuration:
 - display: Fetch incidents
@@ -26,18 +27,16 @@ configuration:
   required: true
 - display: Trust any certificate (not secure)
   name: unsecure
-  defaultvalue: ""
   type: 8
   required: false
 - display: Use system proxy settings
   name: proxy
-  defaultvalue: ""
   type: 8
   required: false
 script:
   script: '-'
   type: python
-  subtype: python2
+  subtype: python3
   commands:
   - name: fortisiem-get-events-by-incident
     arguments:
@@ -163,7 +162,7 @@ script:
     - contextPath: FortiSIEM.Events.NATIP
       description: NAT source IP.
       type: string
-    description: Get events by incidents
+    description: Get events by incidents.
   - name: fortisiem-clear-incident
     arguments:
     - name: incident_id
@@ -281,7 +280,7 @@ script:
     - contextPath: FortiSIEM.Events.SourceCountry
       description: Event source country.
       type: Unknown
-    description: Returns event list filtered by query
+    description: Returns event list filtered by query.
   - name: fortisiem-get-lists
     arguments: []
     description: Get all FortiSIEM resource lists hierarchy.
@@ -292,7 +291,7 @@ script:
       description: ID of the resource group. Run the "fortisiem-get-lists" command to get the ID. command.
     - name: object-info
       required: true
-      description: 'CSV list of key-value pairs of attributes, for example: name=SomeName,lowIp=192.168.1.1,highIp=192.168.1.2'
+      description: 'CSV list of key-value pairs of attributes (for example: name=SomeName,lowIp=192.168.1.1,highIp=192.168.1.2).'
     - name: resource_type
       required: true
       auto: PREDEFINED
@@ -313,7 +312,7 @@ script:
       - Anonymity Network
       - User Agents
       - Remediations
-      description: Resource Type
+      description: Resource Type.
     outputs:
     - contextPath: FortiSIEM.Resource
       description: 'Resource object in fortiSIEM lists. '
@@ -344,7 +343,7 @@ script:
       - Anonymity Network
       - User Agents
       - Remediations
-      description: Resource Type
+      description: Resource Type.
     description: Removes elements from a resource list.
   - name: fortisiem-get-resource-list
     arguments:
@@ -375,7 +374,7 @@ script:
     description: Lists all elements in a resource list.
   isfetch: true
   runonce: false
-  dockerimage: demisto/python:2.7.18.24398
+  dockerimage: demisto/python3:3.12.8.3296088
 tests:
 - No Test
 fromversion: 5.0.0

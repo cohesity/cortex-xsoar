@@ -23,9 +23,9 @@ This playbook does not use any scripts.
 
 | **Name** | **Description** | **Default Value** | **Required** |
 | --- | --- | --- | --- |
-| File | File hash \(MD5, SHA\-1, SHA\-256\) from Darkfeed | File.None | Optional |
+| File | File hash \(MD5, SHA\-1, SHA\-256\) from Darkfeed | File | Optional |
 | Indicator Query | Indicators matching the indicator query will be used as playbook input |  | Optional |
-| URL | URL from Darkfeed\_010 \- Malware available for download from the deep and dark web | URL.None | Optional |
+| URL | URL from Darkfeed\_010 \- Malware available for download from the deep and dark web | URL | Optional |
 | Manual download | Set "true" if analyst can manually download malware from deep and dark web filesharing site. | true | Optional |
 | VTdownload | Set "true" if you would like to automatically download file from Virustotal API. | true | Optional |
 | AutomatedIndicatorBlocking | Set "true" if you would like to automatically block discovered malicious indicators. | true | Optional |
@@ -36,4 +36,4 @@ There are no outputs for this playbook.
 
 ## Playbook Image
 ---
-![Darkfeed IOC detonation and proactive blocking](https://raw.githubusercontent.com/demisto/content/3aa893886a4453c62cf25c3e338820e621e1a10b/Packs/Sixgill-Darkfeed/doc_files/Darkfeed_IOC_detonation_and_proactive_blocking.png)
+![Darkfeed IOC detonation and proactive blocking](../doc_files/Darkfeed_IOC_detonation_and_proactive_blocking.png)

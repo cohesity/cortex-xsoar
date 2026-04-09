@@ -1,20 +1,25 @@
 {
-    "name": "Opsgenie v2",
-    "description": "Create and read alerts, schedules and on-call information from OpsGenie.",
+    "name": "Opsgenie v2 (Deprecated)",
+    "description": "Deprecated. Use OpsGenie instead.",
     "support": "community",
-    "currentVersion": "1.0.4",
+    "hidden": true,
+    "currentVersion": "1.0.7",
     "author": "Adam Baumeister",
     "url": "",
     "email": "",
     "created": "2020-12-20T17:38:25Z",
     "categories": [
-        "Messaging"
+        "Messaging and Conferencing"
     ],
     "tags": [],
     "useCases": [],
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix"
     ]
 }

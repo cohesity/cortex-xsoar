@@ -1,20 +1,32 @@
 {
-    "name": "Proofpoint Threat Response (Beta)",
+    "name": "Proofpoint Threat Response",
     "description": "Use the Proofpoint Threat Response integration to orchestrate and automate incident response.",
     "support": "xsoar",
-    "currentVersion": "1.0.11",
+    "currentVersion": "2.0.32",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
     "created": "2020-04-14T00:00:00Z",
     "categories": [
-        "Email Gateway"
+        "Network Security"
     ],
-    "tags": [],
+    "tags": [
+        "Security",
+        "Network"
+    ],
     "useCases": [],
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "defaultDataSource": "ProofpointThreatResponseEventCollector",
+    "supportedModules": [
+        "agentix",
+        "xsiam",
+        "edr",
+        "cloud",
+        "cloud_runtime_security"
     ]
 }

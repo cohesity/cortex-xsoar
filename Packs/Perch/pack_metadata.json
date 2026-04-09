@@ -2,19 +2,24 @@
     "name": "Perch",
     "description": "Perch is a co-managed threat detection and response platform.",
     "support": "xsoar",
-    "currentVersion": "1.0.8",
+    "currentVersion": "1.0.23",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
     "created": "2020-04-14T00:00:00Z",
     "categories": [
-        "Network Security"
+        "Analytics & SIEM"
     ],
     "tags": [],
     "useCases": [],
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

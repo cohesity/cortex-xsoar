@@ -2,23 +2,33 @@
     "name": "Acalvio ShadowPlex",
     "description": "Acalvio ShadowPlex Autonomous Deception Solution",
     "support": "partner",
-    "currentVersion": "1.0.5",
+    "currentVersion": "1.0.19",
     "author": "Acalvio Technologies",
     "url": "https://www.acalvio.com",
     "email": "support@acalvio.com",
     "created": "2020-12-22T10:37:17Z",
     "categories": [
-        "Deception"
+        "Deception & Breach Simulation"
     ],
-    "tags": [],
+    "tags": [
+        "Incident Handling",
+        "Security",
+        "Forensics",
+        "Breach Simulation"
+    ],
     "useCases": [],
     "keywords": [
-        "deception",
-        "apt"
+        "Acalvio",
+        "ShadowPlex"
     ],
     "githubUser": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

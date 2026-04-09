@@ -1,2 +1,6 @@
-[file:integration-IsItPhishing.yml]
-ignore=IN144
+[file:IsItPhishing.yml]
+ignore=IN144,IN107
+
+[file:IsItPhishing_image.png]
+ignore=IM111
+

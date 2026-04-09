@@ -1,4 +1,8 @@
 category: Data Enrichment & Threat Intelligence
+provider: Broadcom
+sectionorder:
+- Connect
+- Collect
 commonfields:
   id: Lastline v2
   version: -1
@@ -8,65 +12,95 @@ configuration:
   name: url
   required: true
   type: 0
+  section: Connect
 - display: API Key for accessing Lastline APIs
-  name: api_key
+  name: creds_key_and_token
+  type: 9
+  section: Connect
+  displaypassword: API Token for accessing Lastline APIs
   required: false
-  type: 0
-  additionalinfo: Note that when credentials are set, the integration uses account-based
-    authentication.
-- display: API Token for accessing Lastline APIs
-  name: api_token
-  required: false
-  type: 4
-  additionalinfo: Note that when credentials are set, the integration use account-based
-    authentication.
 - display: Email address
   name: credentials
-  required: false
   type: 9
-  additionalinfo: Note that when credentials are set, the integration uses account-based
-    authentication.
+  section: Connect
+  additionalinfo: Note that when credentials are set, the integration uses account-based authentication.
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  section: Connect
+  required: false
 - defaultvalue: 'false'
   display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  section: Connect
+  required: false
 - defaultvalue: '70'
   display: Threshold
   name: threshold
-  required: false
   type: 0
-description: Use the Lastline v2 integration to provide threat analysts and incident
-  response teams with the advanced malware isolation and inspection environment needed
-  to safely execute advanced malware samples, and understand their behavior.
+  section: Connect
+  required: false
+- display: API Key for accessing Lastline APIs
+  name: api_key
+  type: 0
+  section: Connect
+  hidden: true
+  required: false
+- display: API Token for accessing Lastline APIs
+  name: api_token
+  type: 4
+  section: Connect
+  hidden: true
+  required: false
+- additionalinfo: Reliability of the source providing the intelligence data.
+  defaultvalue: B - Usually reliable
+  display: Source Reliability
+  name: integrationReliability
+  options:
+  - A+ - 3rd party enrichment
+  - A - Completely reliable
+  - B - Usually reliable
+  - C - Fairly reliable
+  - D - Not usually reliable
+  - E - Unreliable
+  - F - Reliability cannot be judged
+  type: 15
+  section: Collect
+  required: false
+- defaultvalue: indicatorType
+  name: feedExpirationPolicy
+  display: ''
+  options:
+  - never
+  - interval
+  - indicatorType
+  - suddenDeath
+  type: 17
+  section: Collect
+  required: false
+- defaultvalue: '20160'
+  name: feedExpirationInterval
+  display: ''
+  type: 1
+  section: Collect
+  required: false
+description: Use the Lastline v2 integration to provide threat analysts and incident response teams with the advanced malware isolation and inspection environment needed to safely execute advanced malware samples, and understand their behavior.
 display: Lastline v2
 name: Lastline v2
 script:
   commands:
   - arguments:
     - default: true
-      description: A comma-separated list of file hashes to check. Supports MD5, SHA1,
-        and SHA256 hashes.
+      description: A comma-separated list of file hashes to check. Supports MD5, SHA1, and SHA256 hashes.
       isArray: true
       name: file
       required: true
-      secret: false
-    - default: false
-      defaultValue: '70'
-      description: The score threshold that determines if the file is malicious. The
-        default value is "70".
-      isArray: false
+    - defaultValue: '70'
+      description: The score threshold that determines if the file is malicious. The default value is "70".
       name: threshold
-      required: false
-      secret: false
-    deprecated: false
-    description: Checks the file reputation of the specified file hashes. Supports
-      MD5, SHA1, and SHA256 hashes.
-    execution: false
+    description: Checks the file reputation of the specified file hashes. Supports MD5, SHA1, and SHA256 hashes.
     name: file
     outputs:
     - contextPath: File.MD5
@@ -127,9 +161,7 @@ script:
       description: A list of network connections executed by the analysis subject.
       type: string
     - contextPath: Lastline.Submission.DownloadedFiles
-      description: A list of files that were downloaded using the Microsoft Windows
-        file-download API functions. Each element is a tuple of file-origin URL and
-        a File element.
+      description: A list of files that were downloaded using the Microsoft Windows file-download API functions. Each element is a tuple of file-origin URL and a File element.
       type: string
     - contextPath: Lastline.Submission.Process
       description: Information on the Windows process.
@@ -156,23 +188,13 @@ script:
       description: The process ID.
       type: string
   - arguments:
-    - default: false
-      description: ' The URL to analyze. For example: https://www.demisto.com. '
-      isArray: false
+    - description: ' The URL to analyze. For example: https://www.demisto.com. '
       name: url
       required: true
-      secret: false
-    - default: false
-      defaultValue: '70'
-      description: The score threshold that determines if the file is malicious. The
-        default value is "70".
-      isArray: false
+    - defaultValue: '70'
+      description: The score threshold that determines if the file is malicious. The default value is "70".
       name: threshold
-      required: false
-      secret: false
-    deprecated: false
     description: Submits a URL for analysis.
-    execution: false
     name: lastline-upload-url
     outputs:
     - contextPath: URL.Data
@@ -224,9 +246,7 @@ script:
       description: A list of network connections executed by the analysis subject.
       type: string
     - contextPath: Lastline.Submission.DownloadedFiles
-      description: A list of files that were downloaded using the Microsoft Windows
-        file-download API functions. Each element is a tuple of file-origin URL and
-        a File element.
+      description: A list of files that were downloaded using the Microsoft Windows file-download API functions. Each element is a tuple of file-origin URL and a File element.
       type: string
     - contextPath: Lastline.Submission.Process
       description: Information on the Windows process.
@@ -250,23 +270,13 @@ script:
       description: The process ID.
       type: string
   - arguments:
-    - default: false
-      description: The entry ID of the file to upload.
-      isArray: false
+    - description: The entry ID of the file to upload.
       name: EntryID
       required: true
-      secret: false
-    - default: false
-      defaultValue: '70'
-      description: The score threshold that determines if the file is malicious. The
-        default value is "70".
-      isArray: false
+    - defaultValue: '70'
+      description: The score threshold that determines if the file is malicious. The default value is "70".
       name: threshold
-      required: false
-      secret: false
-    deprecated: false
     description: Submits a file for analysis.
-    execution: false
     name: lastline-upload-file
     outputs:
     - contextPath: File.MD5
@@ -327,9 +337,7 @@ script:
       description: A list of network connections executed by the analysis subject.
       type: string
     - contextPath: Lastline.Submission.DownloadedFiles
-      description: A list of files that were downloaded using the Microsoft Windows
-        file-download API functions. Each element is a tuple of file-origin URL and
-        a File element.
+      description: A list of files that were downloaded using the Microsoft Windows file-download API functions. Each element is a tuple of file-origin URL and a File element.
       type: string
     - contextPath: Lastline.Submission.Process
       description: Information on the Windows process.
@@ -356,22 +364,12 @@ script:
       description: The process ID.
       type: string
   - arguments:
-    - default: false
-      description: The task UUID of the submitted Lastline analysis.
-      isArray: false
+    - description: The task UUID of the submitted Lastline analysis.
       name: uuid
       required: true
-      secret: false
-    - default: false
-      description: The score threshold that determines if the file is malicious. The
-        default value is "70".
-      isArray: false
+    - description: The score threshold that determines if the file is malicious. The default value is "70".
       name: threshold
-      required: false
-      secret: false
-    deprecated: false
     description: Returns an analysis report.
-    execution: false
     name: lastline-get-report
     outputs:
     - contextPath: URL.Data
@@ -444,9 +442,7 @@ script:
       description: A list of network connections executed by the analysis subject.
       type: string
     - contextPath: Lastline.Submission.DownloadedFiles
-      description: A list of files that were downloaded using the Microsoft Windows
-        file-download API functions. Each element is a tuple of file-origin URL and
-        a File element.
+      description: A list of files that were downloaded using the Microsoft Windows file-download API functions. Each element is a tuple of file-origin URL and a File element.
       type: string
     - contextPath: Lastline.Submission.Process
       description: Information on the Windows process.
@@ -473,34 +469,19 @@ script:
       description: The process ID.
       type: string
   - arguments:
-    - default: false
-      description: Return tasks before this date (in UTC format %Y-%m-%dT%H:%M:%S).
-        For example, 2018-07-08T12:00:00.
-      isArray: false
+    - description: Return tasks before this date (in UTC format %Y-%m-%dT%H:%M:%S). For example, 2018-07-08T12:00:00.
       name: before
-      required: false
-      secret: false
-    - default: false
-      description: Return tasks after this date (in UTC format %Y-%m-%dT%H:%M:%S).
-        For example, 2018-07-10T12:00:00.
-      isArray: false
+    - description: Return tasks after this date (in UTC format %Y-%m-%dT%H:%M:%S). For example, 2018-07-10T12:00:00.
       name: after
       required: true
-      secret: false
-    deprecated: false
     description: Returns a list of tasks.
-    execution: false
     name: lastline-get-task-list
   - arguments:
-    - default: false
-      description: The task UUID of the submitted Lastline analysis.
+    - description: The task UUID of the submitted Lastline analysis.
       isArray: true
       name: uuid
       required: true
-      secret: false
-    deprecated: false
     description: Checks the status of a submission.
-    execution: false
     name: lastline-check-status
     outputs:
     - contextPath: URL.Data
@@ -573,9 +554,7 @@ script:
       description: A list of network connections executed by the analysis subject.
       type: string
     - contextPath: Lastline.Submission.DownloadedFiles
-      description: A list of files that were downloaded using the Microsoft Windows
-        file-download API functions. Each element is a tuple of file-origin URL and
-        a File element.
+      description: A list of files that were downloaded using the Microsoft Windows file-download API functions. Each element is a tuple of file-origin URL and a File element.
       type: string
     - contextPath: Lastline.Submission.Process
       description: Information on athe Windows process.
@@ -601,10 +580,7 @@ script:
     - contextPath: Lastline.Submission.Process.process_id
       description: The process ID.
       type: string
-  dockerimage: demisto/python3:3.9.8.24399
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
+  dockerimage: demisto/python3:3.12.8.3720084
   runonce: false
   script: '-'
   type: python

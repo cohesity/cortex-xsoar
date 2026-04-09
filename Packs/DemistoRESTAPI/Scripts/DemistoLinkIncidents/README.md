@@ -1,6 +1,7 @@
 Links two or more incidents.
 
 ## Script Data
+
 ---
 
 | **Name** | **Description** |
@@ -8,13 +9,15 @@ Links two or more incidents.
 | Script Type | javascript |
 | Tags | DemistoAPI |
 
-
 ## Dependencies
+
 ---
 This script uses the following commands and scripts.
-* demisto-api-post
+
+* core-api-post
 
 ## Inputs
+
 ---
 
 | **Argument Name** | **Description** |
@@ -24,5 +27,6 @@ This script uses the following commands and scripts.
 | unlink | Whether to unlink incidents. The default is "no". |
 
 ## Outputs
+
 ---
 There are no outputs for this script.

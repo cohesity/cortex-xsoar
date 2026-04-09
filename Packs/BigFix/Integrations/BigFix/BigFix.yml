@@ -1,4 +1,5 @@
 category: Vulnerability Management
+provider: HCL Technologies
 commonfields:
   id: BigFix
   version: -1
@@ -13,58 +14,50 @@ configuration:
   type: 9
 - display: Trust any certificate (not secure)
   name: unsecure
-  required: false
   type: 8
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
-description: IBM BigFix Patch provides an automated, simplified patching process that is administered from a single console.
+  required: false
+description: HCL BigFix Patch provides an automated, simplified patching process that is administered from a single console.
 display: BigFix
 name: BigFix
 script:
   commands:
-  - deprecated: false
-    description: Retrieves all the sites
-    execution: false
+  - description: Retrieves all the sites.
     name: bigfix-get-sites
     outputs:
     - contextPath: Bigfix.Site
-      description: Site
+      description: Site.
       type: unknown
     - contextPath: Bigfix.Site.Name
-      description: Name of the site
+      description: Name of the site.
       type: string
     - contextPath: Bigfix.Site.Description
-      description: Description of the site
+      description: Description of the site.
       type: string
     - contextPath: Bigfix.Site.Resource
       description: Link to the endpoint resource.
       type: string
     - contextPath: Bigfix.Site.Type
-      description: Type of the site (master,custom,external,operator)
+      description: Type of the site (master,custom,external,operator).
       type: string
     - contextPath: Bigfix.Site.Domain
-      description: Site domain
+      description: Site domain.
       type: string
     - contextPath: Bigfix.Site.GatherURL
-      description: Gather URL
+      description: Gather URL.
       type: string
     - contextPath: Bigfix.Site.GlobalReadPermission
       description: Global Read Permission available or not.
       type: string
   - arguments:
-    - default: false
-      description: Name of the site. If the site is external or operator then site must be provided
-      isArray: false
+    - description: Name of the site. If the site is external or operator then site must be provided.
       name: site_name
-      required: false
-      secret: false
     - auto: PREDEFINED
-      default: false
       defaultValue: master
-      description: 'Type of the site. One of the following options: external,operator,master,custom'
-      isArray: false
+      description: 'Type of the site. One of the following options: external,operator,master,custom.'
       name: site_type
       predefined:
       - external
@@ -72,42 +65,37 @@ script:
       - master
       - custom
       required: true
-      secret: false
-    deprecated: false
-    description: Retrieve single site by name and type
-    execution: false
+    description: Retrieve single site by name and type.
     name: bigfix-get-site
     outputs:
     - contextPath: Bigfix.Site
-      description: Site
+      description: Site.
       type: unknown
     - contextPath: Bigfix.Site.Name
-      description: Name of the site
+      description: Name of the site.
       type: string
     - contextPath: Bigfix.Site.Description
-      description: Description of the site
+      description: Description of the site.
       type: string
     - contextPath: Bigfix.Site.Resource
       description: Link to the endpoint resource.
       type: string
     - contextPath: Bigfix.Site.Type
-      description: Type of the site (master,custom,external,operator)
+      description: Type of the site (master,custom,external,operator).
       type: string
     - contextPath: Bigfix.Site.Domain
-      description: Site domain
+      description: Site domain.
       type: string
     - contextPath: Bigfix.Site.GatherURL
-      description: Gather URL
+      description: Gather URL.
       type: string
     - contextPath: Bigfix.Site.GlobalReadPermission
       description: Global Read Permission available or not.
       type: string
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: master
-      description: 'Type of the site. One of the following options: external,operator,master,custom'
-      isArray: false
+      description: 'Type of the site. One of the following options: external,operator,master,custom.'
       name: site_type
       predefined:
       - external
@@ -115,20 +103,13 @@ script:
       - master
       - custom
       required: true
-      secret: false
-    - default: false
-      description: Name of the site. If the site is external or operator then site must be provided
-      isArray: false
+    - description: Name of the site. If the site is external or operator then site must be provided.
       name: site_name
-      required: false
-      secret: false
-    deprecated: false
-    description: Retrieve all the patches (fixlets) of site
-    execution: false
+    description: Retrieve all the patches (fixlets) of site.
     name: bigfix-get-patches
     outputs:
     - contextPath: Bigfix.Patch.ID
-      description: Patch (fixlet) ID
+      description: Patch (fixlet) ID.
       type: string
     - contextPath: Bigfix.Patch.LastModified
       description: Last modified Timestamp.
@@ -137,7 +118,7 @@ script:
       description: Name of the Patch requested.
       type: string
     - contextPath: Bigfix.Patch.Resource
-      description: The link for the patch
+      description: The link for the patch.
       type: string
     - contextPath: Bigfix.Patch.Description
       description: Description of the Patch requested.
@@ -171,32 +152,26 @@ script:
       type: string
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: 'true'
       description: Whether to get endpoint full details of each endpoint or just basic details, such as ID and last reported time. We recommend setting this to false if there are many endpoints to retrieve.
-      isArray: false
       name: get_endpoint_details
       predefined:
       - 'true'
       - 'false'
-      required: false
-      secret: false
-    deprecated: false
-    description: Retrieve all the endpoints (computers)
-    execution: false
+    description: Retrieve all the endpoints (computers).
     name: bigfix-get-endpoints
     outputs:
     - contextPath: Bigfix.Endpoint
-      description: Endpoint (computer)
+      description: Endpoint (computer).
       type: Unknown
     - contextPath: Bigfix.Endpoint.ID
-      description: The if of the endpoint (computer ID)
+      description: The if of the endpoint (computer ID).
       type: string
     - contextPath: Bigfix.Endpoint.Resource
-      description: URL to the endpoint details
+      description: URL to the endpoint details.
       type: string
     - contextPath: Bigfix.Endpoint.LastReportTime
-      description: Last report time of the endpoint
+      description: Last report time of the endpoint.
       type: date
     - contextPath: Bigfix.Endpoint.ActiveDirectoryPath
       description: Active directory path of the endpoint device.
@@ -277,28 +252,23 @@ script:
       description: User name.
       type: string
   - arguments:
-    - default: false
-      description: Computer ID
-      isArray: false
+    - description: Computer ID.
       name: computer_id
       required: true
-      secret: false
-    deprecated: false
-    description: Retrieve endpoint (computer) details
-    execution: false
+    description: Retrieve endpoint (computer) details.
     name: bigfix-get-endpoint
     outputs:
     - contextPath: Bigfix.Endpoint
-      description: Endpoint (computer)
+      description: Endpoint (computer).
       type: Unknown
     - contextPath: Bigfix.Endpoint.ID
-      description: The if of the endpoint (computer ID)
+      description: The if of the endpoint (computer ID).
       type: string
     - contextPath: Bigfix.Endpoint.Resource
-      description: URL to the endpoint details
+      description: URL to the endpoint details.
       type: string
     - contextPath: Bigfix.Endpoint.LastReportTime
-      description: Last report time of the endpoint
+      description: Last report time of the endpoint.
       type: date
     - contextPath: Bigfix.Endpoint.ActiveDirectoryPath
       description: Active directory path of the endpoint device.
@@ -379,64 +349,46 @@ script:
       description: User name.
       type: string
   - arguments:
-    - default: false
-      description: Name of the site. If the site is external or operator then site must be provided
-      isArray: false
+    - description: Name of the site. If the site is external or operator then site must be provided.
       name: site_name
       required: true
-      secret: false
-    - default: false
-      description: Provide ids of computers to deploy the patch. Pass 'all' to deploy to all the computers
+    - description: Provide ids of computers to deploy the patch. Pass 'all' to deploy to all the computers.
       isArray: true
       name: computer_ids
       required: true
-      secret: false
-    - default: false
-      description: The Fixlet ID. To use the action script from the original Fixlet or Task Message.
-      isArray: false
+    - description: The Fixlet ID. To use the action script from the original Fixlet or Task Message.
       name: fixlet_id
       required: true
-      secret: false
-    - default: false
-      description: The action ID. The specified action will run on target computers.
-      isArray: false
+    - description: The action ID. The specified action will run on target computers.
       name: action_id
       required: true
-      secret: false
-    deprecated: false
     description: Create an action on BigFix that will run the given action from the given fixlet on target computers.  The computerID parameter takes a comma-separated list of BigFix computer IDs. If no computers are given, the action will be run on the default computers configured on BigFix. If the action should run on all computers set the computerID parameter to all.
-    execution: false
     name: bigfix-deploy-patch
     outputs:
     - contextPath: Bigfix.Action.ID
-      description: Action ID
+      description: Action ID.
       type: number
     - contextPath: Bigfix.Action.Name
-      description: Action Name
+      description: Action Name.
       type: string
     - contextPath: Bigfix.Action.SiteName
-      description: Site name
+      description: Site name.
       type: string
     - contextPath: Bigfix.Action.ComputerIDs
-      description: Computers IDs to which the patch was applied to
+      description: Computers IDs to which the patch was applied to.
       type: Unknown
     - contextPath: Bigfix.Action.AllComputers
-      description: true if patch was applied to all the computers
+      description: true if patch was applied to all the computers.
       type: boolean
     - contextPath: Bigfix.Action.Resource
-      description: Link to action in bigfix
+      description: Link to action in bigfix.
       type: string
   - arguments:
-    - default: false
-      description: Fixlet id
-      isArray: false
+    - description: Fixlet id.
       name: id
       required: true
-      secret: false
     - auto: PREDEFINED
-      default: false
-      description: 'Type of the site. One of the following options: external,operator,master,custom'
-      isArray: false
+      description: 'Type of the site. One of the following options: external,operator,master,custom.'
       name: site_type
       predefined:
       - external
@@ -444,29 +396,22 @@ script:
       - master
       - custom
       required: true
-      secret: false
-    - default: false
-      description: Name of the site. If the site is external or operator then site must be provided
-      isArray: false
+    - description: Name of the site. If the site is external or operator then site must be provided.
       name: site_name
-      required: false
-      secret: false
-    deprecated: false
-    description: Retrieve patch (fixlet) by id
-    execution: false
+    description: Retrieve patch (fixlet) by id.
     name: bigfix-get-patch
     outputs:
     - contextPath: Bigfix.Patch.ID
-      description: Patch(fixlet) id
+      description: Patch(fixlet) id.
       type: Unknown
     - contextPath: Bigfix.Patch.Name
-      description: Patch name
+      description: Patch name.
       type: Unknown
     - contextPath: Bigfix.Patch.Resource
-      description: Link (URL) to the patch
+      description: Link (URL) to the patch.
       type: Unknown
     - contextPath: Bigfix.Patch.Description
-      description: Description
+      description: Description.
       type: Unknown
     - contextPath: Bigfix.Patch.Relevance
       description: Relevance of the Patch requested.
@@ -496,67 +441,45 @@ script:
       description: Action Script of the Patch requested.
       type: string
   - arguments:
-    - default: false
-      description: Action ID
-      isArray: false
+    - description: Action ID.
       name: action_id
       required: true
-      secret: false
-    deprecated: false
-    description: 'Stops and deletes the specified action. Note: You cannot delete actions that are members of a Multiple Action Group. This note applies to IBM BigFix V9.2 and later.'
-    execution: false
+    description: 'Stops and deletes the specified action. Note: You cannot delete actions that are members of a Multiple Action Group. This note applies to HCL BigFix V9.2 and later.'
     name: bigfix-action-delete
   - arguments:
-    - default: false
-      description: Action ID
-      isArray: false
+    - description: Action ID.
       name: action_id
       required: true
-      secret: false
-    deprecated: false
     description: Gets the status of an action against it's targets.
-    execution: false
     name: bigfix-action-status
     outputs:
     - contextPath: Bigfix.Action.ID
-      description: Action ID
+      description: Action ID.
       type: string
     - contextPath: Bigfix.Action.Status
-      description: Action Status (e.g Open, Stopped)
+      description: Action Status (e.g Open, Stopped).
       type: string
   - arguments:
-    - default: false
-      description: Action ID
-      isArray: false
+    - description: Action ID.
       name: action_id
       required: true
-      secret: false
-    deprecated: false
     description: Stops the specified action.
-    execution: false
     name: bigfix-action-stop
   - arguments:
-    - default: false
-      description: 'Relevance query (example:  names of bes computers)'
-      isArray: false
+    - description: 'Relevance query (example:  names of bes computers).'
       name: relevance
       required: true
-      secret: false
-    deprecated: false
     description: Evaluate a relevance expression and get the result. This runs request is processed through the server to WebReports.
-    execution: false
     name: bigfix-query
     outputs:
     - contextPath: Bigfix.QueryResults
-      description: The results of the query
+      description: The results of the query.
       type: unknown
-  feed: false
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
   runonce: false
   script: '-'
-  subtype: python2
+  subtype: python3
   type: python
-  dockerimage: demisto/python:2.7.18.24398
+  dockerimage: demisto/python3:3.12.8.3296088
 fromversion: 5.0.0
+tests:
+- No tests (auto formatted)

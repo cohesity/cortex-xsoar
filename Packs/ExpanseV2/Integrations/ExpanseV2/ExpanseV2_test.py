@@ -3,7 +3,6 @@
 """
 
 import json
-import io
 import copy
 import demistomock as demisto
 import pytest
@@ -18,7 +17,7 @@ def handle_calling_context(mocker):
 
 
 def util_load_json(path):
-    with io.open(path, mode="r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.loads(f.read())
 
 
@@ -1711,7 +1710,7 @@ def test_expanse_get_certificate_by_query(requests_mock):
     assert result[-1].outputs_key_field == "id"
     assert result[-1].outputs == mock_certs["data"][: int(MOCK_LIMIT)]
 
-    certs_sha256 = set([base64.urlsafe_b64decode(c['certificate']['pemSha256']).hex() for c in mock_certs['data']])
+    certs_sha256 = {base64.urlsafe_b64decode(c['certificate']['pemSha256']).hex() for c in mock_certs['data']}
     for indicator in result[:-1]:
         assert isinstance(indicator.indicator, Common.Certificate)
         assert indicator.indicator.sha256 == indicator.indicator.dbot_score.indicator
@@ -1747,7 +1746,7 @@ def test_certificate_command(requests_mock, mocker):
         f"https://example.com/api/v2/assets/certificates/{MOCK_CERT_HASH}", json=mock_certificate_data
     )
 
-    mocker.patch('ExpanseV2.demisto.searchIndicators', return_value={'iocs': mock_ioc_data})
+    mocker.patch('ExpanseV2.demisto.searchIndicators', return_value={'iocs': mock_ioc_data, "total": len(mock_ioc_data)})
 
     result = certificate_command(client, {'certificate': mock_ioc_data[0]['CustomFields']['sha256']})
     first = result[0].to_context()
@@ -2033,3 +2032,129 @@ def test_domains_by_certificate(requests_mock):
     assert results.outputs_key_field == "SearchTerm"
     assert results.outputs['SearchTerm'] == domain_to_test
     assert results.outputs['TotalDomainCount'] == 1
+
+
+def test_format_domain_data_empty_domainStatuses():
+    """
+    Given:
+        - A domain with empty 'domainStatuses'.
+    When
+        - Calling format_domain_data method.
+    Then
+        - Ensure no errors are raised.
+    """
+    from ExpanseV2 import format_domain_data
+
+    mock_domain_data = util_load_json("test_data/domain.json")
+    mock_domain_data.get('whois')[0].get('domainStatuses').clear()
+
+    results = format_domain_data([mock_domain_data])
+    assert results
+
+
+@pytest.mark.parametrize(
+    "args, expected_url, expected_data",
+    [
+        (
+            {
+                "asset_type": "ip-range",
+                "operation_type": "UNASSIGN",
+                "asset_id": "c871feab-7d38-4cc5-9d36-5dad76f6b389",
+                "tag_ids": ["tag1", "tag2"]
+            },
+            "https://example.com/api/v2/ip-range/tag-assignments/bulk",
+            {
+                "operations": [{
+                    'operationType': "UNASSIGN",
+                    'tagIds': ["tag1", "tag2"],
+                    'assetId': "c871feab-7d38-4cc5-9d36-5dad76f6b389"
+                }]
+            }
+        ),
+        (
+            {
+                "asset_type": "other-asset",  # one of : Certificate, Domain, CloudResource, Network, Device, ResponsiveIP
+                "operation_type": "UNASSIGN",
+                "asset_id": "c871feab-7d38-4cc5-9d36-5dad76f6b389",
+                "tag_ids": ["tag3", "tag4"]
+            },
+            "https://example.com/api/v3/assets/assets/annotations",
+            {
+                "operations": [{
+                    "operationType": "UNASSIGN",
+                    "annotationType": "TAG",
+                    "annotationIds": ["tag3", "tag4"],
+                    "assetId": "c871feab-7d38-4cc5-9d36-5dad76f6b389"
+                }]
+            }
+        )
+    ]
+)
+def test_manage_asset_tags(requests_mock, args, expected_url, expected_data):
+    """
+    Given:
+        - Different asset types
+    When
+        - Calling the `manage_asset_tags` method with the given `args`.
+    Then
+        - Assert that the HTTP request was made with the correct parameters
+    """
+    from ExpanseV2 import Client
+    client = Client(api_key="key", base_url="https://example.com/api", verify=True, proxy=False)
+    requests_mock.post(expected_url, json=expected_data)
+
+    client.manage_asset_tags(**args)
+
+
+@pytest.mark.parametrize(
+    "args, expected_url, expected_data",
+    [
+        (
+            {
+                "asset_type": "ip-range",
+                "operation_type": "UNASSIGN",
+                "asset_id": "f491b7ef-a7b9-4644-af90-36dc0a6b2000",
+                "poc_ids": ["f491b7ef-a7b9-4644-af90-36dc0a6b2000"]
+            },
+            "https://example.com/api/v2/ip-range/contact-assignments/bulk",
+            {
+                "operations": [{
+                    'operationType': "UNASSIGN",
+                    'contactIds': ["f491b7ef-a7b9-4644-af90-36dc0a6b2000"],
+                    'assetId': "f491b7ef-a7b9-4644-af90-36dc0a6b2000"
+                }]
+            }
+        ),
+        (
+            {
+                "asset_type": "other-asset",  # one of : Certificate, Domain, CloudResource, Network, Device, ResponsiveIP
+                "operation_type": "UNASSIGN",
+                "asset_id": "f491b7ef-a7b9-4644-af90-36dc0a6b2000",
+                "poc_ids": ["f491b7ef-a7b9-4644-af90-36dc0a6b2000"]
+            },
+            "https://example.com/api/v3/assets/assets/annotations",
+            {
+                "operations": [{
+                    "operationType": "UNASSIGN",
+                    "annotationType": "CONTACT",
+                    "annotationIds": ["f491b7ef-a7b9-4644-af90-36dc0a6b2000"],
+                    "assetId": "f491b7ef-a7b9-4644-af90-36dc0a6b2000"
+                }]
+            }
+        )
+    ]
+)
+def test_manage_asset_pocs(requests_mock, args, expected_url, expected_data):
+    """
+    Given:
+        - Different asset types
+    When
+        - Calling the `manage_asset_pocs` method with the given `args`.
+    Then
+        - Assert that the HTTP request was made with the correct parameters
+    """
+    from ExpanseV2 import Client
+    client = Client(api_key="key", base_url="https://example.com/api", verify=True, proxy=False)
+    requests_mock.post(expected_url, json=expected_data)
+
+    client.manage_asset_pocs(**args)

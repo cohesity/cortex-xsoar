@@ -1,2 +1,10 @@
-[file:SumoLogicCloudSIEM.yml]
-ignore=IN145
+[file:SumoLogicCloudSIEM_image.png]
+ignore=IM111
+
+[known_words]
+sumourl
+lookback
+
+# GR103 is temporary, see CIAC-11656
+[file:layoutscontainer-Sumo_Logic_Insight.json]
+ignore=GR103

@@ -7,18 +7,16 @@
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
-    "categories": [],
-    "tags": [
-        "Elasticsearch"
+    "categories": [
+        "Utilities"
     ],
-    "useCases": [
-        "Health Check"
-    ],
+    "tags": [],
+    "useCases": [],
     "keywords": [
         "Elasticsearch",
         "OpenSearch"
     ],
     "marketplaces": [
-        "xsoar"
+        "xsoar_on_prem"
     ]
 }

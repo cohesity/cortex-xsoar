@@ -1,15 +1,14 @@
-`Note`: For the Phishing use case, see the [Phishing Investigation - Generic v3 playbook](https://xsoar.pan.dev/docs/reference/playbooks/phishing---generic-v3).
-
 
 Email security gateways produce a high volume of phishing alerts. To protect an organization from malicious emails, analysts investigating phishing alerts need to adjust their response procedures by email type, severity, or content to identify campaigns and inspect IoCs.
-This content pack enables analysts to retrieve, process, and analyze email files to manage phishing alert incidents. 
+
+This content pack enables analysts to retrieve, process, and analyze email files to manage phishing alert incidents.
 The out-of-the-box items are robust enough to get you started, but are easily customizable to fit your specific requirements.
 
-
 ##### What Does This Pack Do?
+
 - Retrieves emails from user inboxes or email security gateways.
 - Creates a Phishing Alerts incident in Cortex XSOAR associated with the alert.
-- Extracts and enriches all indicators from email attachments. 
+- Extracts and enriches all indicators from email attachments.
 - Analyzes files and provides reputation using your sandbox and threat intelligence integrations.
 - Generates a screenshot of the email and embedded links, and calculates reputation for all indicators involved.
 - Runs checks for URL SSL certificates, email address breach involvement, domain squatting and email authenticity using SPF, DKIM and DMARC checks.
@@ -20,5 +19,6 @@ The out-of-the-box items are robust enough to get you started, but are easily cu
 
 This content pack also includes out-of-the-box phishing incident views, a full layout, and automation scripts. All of these are easily customizable to suit the needs of your organization.
 
+##### Additional Information
 
-![Phishing_Investigation_Generic_v2](https://raw.githubusercontent.com/demisto/content/5153dd815b5288877b560e3fdcc3d9ab28cda57e/Packs/PhishingAlerts/doc_files/Phishing_Alerts_Investigation.png)
+_The Phishing content pack is the main content pack for all phishing purposes and is required for this content pack to respond to phishing alerts. See our documentation for information about the [Phishing](https://xsoar.pan.dev/docs/reference/packs/Phishing-Alerts) content pack._

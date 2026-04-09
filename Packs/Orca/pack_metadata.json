@@ -1,14 +1,14 @@
 {
     "name": "Orca",
-    "description": " Integrate with Orca security for bidirectional incident management and fetching of asset information. \n",
+    "description": "Integrate with Orca security for bidirectional incident management and fetching of asset information. \n",
     "support": "partner",
-    "currentVersion": "1.0.9",
+    "currentVersion": "3.0.4",
     "author": "Orca Security",
     "url": "https://orca.security/",
     "email": "support@orca.security",
     "created": "2020-12-20T17:38:25Z",
     "categories": [
-        "Vulnerability Management"
+        "Cloud Security"
     ],
     "tags": [],
     "useCases": [],
@@ -16,6 +16,13 @@
     "githubUser": "edenorca",
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "defaultDataSource": "Orca Event Collector",
+    "supportedModules": [
+        "agentix",
+        "xsiam",
+        "cloud_posture"
     ]
 }

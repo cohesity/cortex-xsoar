@@ -1,11 +1,18 @@
 import json
-from unittest.mock import patch, Mock
+import os
+from unittest.mock import Mock, patch
 
 import pytest
+from GoogleCloudSCC import (
+    ERROR_MESSAGES,
+    BaseGoogleClient,
+    GoogleCloudAssetClient,
+    GoogleNameParser,
+    GooglePubSubClient,
+    GoogleSccClient,
+)
 
-from GoogleCloudSCC import ERROR_MESSAGES, GoogleSccClient, BaseGoogleClient, GooglePubSubClient, GoogleCloudAssetClient
-
-with open("TestData/service_account_json.txt") as f:
+with open("test_data/service_account_json.txt") as f:
     TEST_JSON = f.read()
 
 
@@ -69,21 +76,21 @@ def test_safe_load_non_strict_json():
 
 def test_safe_load_non_strict_json_parse_error():
     """
-     Scenario: Failed to load json when invalid json string is given.
+    Scenario: Failed to load json when invalid json string is given.
 
-     Given:
-     - Empty json string.
+    Given:
+    - Empty json string.
 
-     When:
-     - Preparing dictionary from string.
+    When:
+    - Preparing dictionary from string.
 
-     Then:
-     - Ensure Exception is raised with proper error message.
-     """
+    Then:
+    - Ensure Exception is raised with proper error message.
+    """
     from GoogleCloudSCC import safe_load_non_strict_json
 
-    with pytest.raises(ValueError, match=ERROR_MESSAGES['JSON_PARSE_ERROR'].format('Service Account JSON')):
-        safe_load_non_strict_json('Invalid json')
+    with pytest.raises(ValueError, match=ERROR_MESSAGES["JSON_PARSE_ERROR"].format("Service Account JSON")):
+        safe_load_non_strict_json("Invalid json")
 
 
 def test_safe_load_non_strict_json_empty():
@@ -100,7 +107,8 @@ def test_safe_load_non_strict_json_empty():
     - Ensure {}(blank) dictionary should be returned.
     """
     from GoogleCloudSCC import safe_load_non_strict_json
-    assert safe_load_non_strict_json('') == {}
+
+    assert safe_load_non_strict_json("") == {}
 
 
 def test_get_source_path(mocker):
@@ -117,11 +125,12 @@ def test_get_source_path(mocker):
     - Ensure a fully-qualified source string should be returned.
     """
     from GoogleCloudSCC import GoogleNameParser, demisto
+
     mocker.patch.object(demisto, "params", return_value={"organization_id": "organization_id"})
     assert GoogleNameParser.get_source_path("source_id") == "organizations/organization_id/sources/source_id"
 
 
-@patch('GoogleCloudSCC.init_google_scc_client')
+@patch("GoogleCloudSCC.init_google_scc_client")
 def test_validate_service_account_and_organization_name(mock1, client):
     """
     Scenario:Validate organization by making "Organization settings" API call.
@@ -161,18 +170,14 @@ def test_prepare_markdown_fields_for_fetch_incidents():
     - Proper table format of given parameters.
     """
     from GoogleCloudSCC import prepare_markdown_fields_for_fetch_incidents, tableToMarkdown
-    data = {
-        "finding": {
-            "securityMarks": {"marks": {"A": 1, "B": 2}},
-            "sourceProperties": {"MfaDetails": {"C": 3, "D": 4}}
-        }
-    }
+
+    data = {"finding": {"securityMarks": {"marks": {"A": 1, "B": 2}}, "sourceProperties": {"MfaDetails": {"C": 3, "D": 4}}}}
 
     actual_output = prepare_markdown_fields_for_fetch_incidents(data)
 
     expected_output = {
-        "MfaDetails": tableToMarkdown('', {"C": 3, "D": 4}),
-        "securityMarks": tableToMarkdown('', {"A": 1, "B": 2})
+        "MfaDetails": tableToMarkdown("", {"C": 3, "D": 4}),
+        "securityMarks": tableToMarkdown("", {"A": 1, "B": 2}),
     }
     assert actual_output == expected_output
 
@@ -191,13 +196,15 @@ def test_create_filter_list_findings():
     - A filter query with all parameters in proper format.
     """
     from GoogleCloudSCC import create_filter_list_findings
+
     output = create_filter_list_findings("A, B ,C", "ABC = X", ["HIGH", "LOW"], ["ACTIVE"])
-    assert output == 'ABC = X AND (Severity="HIGH" OR Severity="LOW") AND (State="ACTIVE") AND ' \
-                     '(Category="A" OR Category="B" OR Category="C")'
+    assert (
+        output == 'ABC = X AND (Severity="HIGH" OR Severity="LOW") AND (State="ACTIVE") AND '
+        '(Category="A" OR Category="B" OR Category="C")'
+    )
 
     output = create_filter_list_findings("A, B ,C", "", ["HIGH", "LOW"], ["ACTIVE"])
-    assert output == '(Severity="HIGH" OR Severity="LOW") AND (State="ACTIVE") AND ' \
-                     '(Category="A" OR Category="B" OR Category="C")'
+    assert output == '(Severity="HIGH" OR Severity="LOW") AND (State="ACTIVE") AND (Category="A" OR Category="B" OR Category="C")'
 
 
 def test_fetch_incidents(pubsub_client):
@@ -214,7 +221,8 @@ def test_fetch_incidents(pubsub_client):
     - An incident made according to parameters and last_run is returned.
     """
     from GoogleCloudSCC import fetch_incidents
-    with open('TestData/fetch_incidents_data.json') as file:
+
+    with open("test_data/fetch_incidents_data.json") as file:
         mock_data = json.load(file)
 
     pubsub_client.pull_messages = Mock(return_value=mock_data)
@@ -242,18 +250,21 @@ def test_execute_request(base_client):
     """
     from GoogleCloudSCC import HttpError, httplib2
     from httplib2 import Response, socks
+
     mock_request = Mock()
-    mock_request.execute = Mock(side_effect=[
-        HttpError(Response({"status": 404}), b'{}'),
-        HttpError(Response({"status": 501}), b'{}'),
-        socks.HTTPError("Proxy Error"),
-        httplib2.ServerNotFoundError("Not Found.")
-    ])
+    mock_request.execute = Mock(
+        side_effect=[
+            HttpError(Response({"status": 404}), b"{}"),
+            HttpError(Response({"status": 501}), b"{}"),
+            socks.HTTPError("Proxy Error"),
+            httplib2.ServerNotFoundError("Not Found."),
+        ]
+    )
     errors = [
         ERROR_MESSAGES["NOT_FOUND_ERROR"].format("Ok"),
         ERROR_MESSAGES["UNKNOWN_ERROR"].format(501, "Ok"),
         ERROR_MESSAGES["PROXY_ERROR"],
-        ERROR_MESSAGES["TIMEOUT_ERROR"].format("Not Found.")
+        ERROR_MESSAGES["TIMEOUT_ERROR"].format("Not Found."),
     ]
 
     for error in errors:
@@ -261,17 +272,31 @@ def test_execute_request(base_client):
             base_client.execute_request(mock_request)
 
 
+def test_google_name_parser():
+    """
+    Scenario: Validates static method of GoogleNameParser
+
+    Given:
+    - argument given
+
+    Then:
+    - Ensure static method should return proper outputs.
+    """
+    from GoogleCloudSCC import GoogleNameParser
+
+    assert GoogleNameParser.get_finding_path("-", "123") == "organizations//sources/-/findings/123"
+    assert GoogleNameParser.get_project_path("123") == "projects/123"
+    assert GoogleNameParser.get_subscription_path("123", "456") == "projects/123/subscriptions/456"
+
+
 def test_main(mocker, client):
     """
-        Scenario : Parse and validate integration params and commands.
+    Scenario : Parse and validate integration params and commands.
     """
-    from GoogleCloudSCC import demisto
     import GoogleCloudSCC
+    from GoogleCloudSCC import demisto
 
-    params = {
-        "service_account_json": TEST_JSON,
-        "organization_id": "organization_id"
-    }
+    params = {"service_account_json": TEST_JSON, "organization_id": "organization_id"}
     mocker.patch.object(demisto, "params", return_value=params)
 
     mocker.patch.object(demisto, "command", return_value="test-module")
@@ -291,18 +316,19 @@ def test_main(mocker, client):
         GoogleCloudSCC.main()
 
 
-@patch('GoogleCloudSCC.init_google_scc_client')
+@patch("GoogleCloudSCC.init_google_scc_client")
 def test_test_module(mock1, client, mocker):
     """
-        Scenario : Test authentication using service json.
+    Scenario : Test authentication using service json.
     """
-    from GoogleCloudSCC import test_module, demisto
+    from GoogleCloudSCC import demisto, test_module
+
     mocker.patch.object(demisto, "results")
     mock1.return_value = client
     client.get_findings = Mock(return_value={})
     test_module({"organization_id": "organization_id", "service_account_json": '{"test": "test"}'})
     assert demisto.results.called
-    demisto.results.assert_called_with('ok')
+    demisto.results.assert_called_with("ok")
 
 
 def test_validate_get_int_success():
@@ -340,7 +366,7 @@ def test_validate_get_int_max_incident_error(string_input):
     Then:
     - Ensure if page_size is not in range it returns error.
     """
-    from GoogleCloudSCC import validate_get_int, MAX_PAGE_SIZE
+    from GoogleCloudSCC import MAX_PAGE_SIZE, validate_get_int
 
     with pytest.raises(ValueError, match=ERROR_MESSAGES["MAX_INCIDENT_ERROR"]):
         validate_get_int(string_input, ERROR_MESSAGES["MAX_INCIDENT_ERROR"], MAX_PAGE_SIZE)
@@ -357,9 +383,10 @@ def test_prepare_hr_and_ec_for_list_findings():
     - Ensure finding HR and EC.
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_list_findings
-    with open('./TestData/list_finding_response.json') as f:
+
+    with open("./test_data/list_finding_response.json") as f:
         finding_response = json.load(f)
-    with open('./TestData/list_finding_ec.json') as f:
+    with open("./test_data/list_finding_ec.json") as f:
         finding_ec = json.load(f)
 
     _, context = prepare_hr_and_ec_for_list_findings(finding_response)
@@ -380,6 +407,7 @@ def test_prepare_hr_and_ec_for_list_findings_no_record():
     - Ensure finding HR and EC.
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_list_findings
+
     finding_response = {"listFindingsResults": []}
     hr, context = prepare_hr_and_ec_for_list_findings(finding_response)
     assert context == {}
@@ -397,20 +425,22 @@ def test_findings_list_command(client):
     - Ensure command should return proper outputs.
     """
     from GoogleCloudSCC import finding_list_command
-    with open('TestData/list_finding_response.json') as file:
+
+    with open("test_data/list_finding_response.json") as file:
         mock_data = json.load(file)
-    with open('./TestData/list_finding_ec.json') as f:
+    with open("./test_data/list_finding_ec.json") as f:
         finding_ec = json.load(f)
+    with open("test_data/list_finding_hr.md") as f:
+        hr_output = f.read()
+    GoogleNameParser.get_organization_id = Mock(return_value="123")
     client.get_findings = Mock(return_value=mock_data)
 
-    arguments = {
-        "category": "A, B",
-        "status": "ACTIVE"
-    }
+    arguments = {"category": "A, B", "status": "ACTIVE"}
     command_output = finding_list_command(client, arguments)
 
     assert command_output.outputs == finding_ec
     assert command_output.raw_response == mock_data
+    assert command_output.readable_output == hr_output
 
 
 def test_create_filter_list_assets():
@@ -427,17 +457,22 @@ def test_create_filter_list_assets():
     - A filter query with all parameters in proper format.
     """
     from GoogleCloudSCC import create_filter_list_assets
+
     output = create_filter_list_assets("X, Y ,Z", "A, B, C", "ABC = XYZ", "true")
 
-    assert output == 'ABC = XYZ AND (resourceProperties.name="A" OR resourceProperties.name="B" OR' \
-                     ' resourceProperties.name="C") AND (securityCenterProperties.resourceType="X" OR ' \
-                     'securityCenterProperties.resourceType="Y" OR securityCenterProperties.resourceType="Z") AND ' \
-                     '(resourceProperties.lifecycleState="ACTIVE")'
+    assert (
+        output == 'ABC = XYZ AND (resourceProperties.name="A" OR resourceProperties.name="B" OR'
+        ' resourceProperties.name="C") AND (securityCenterProperties.resourceType="X" OR '
+        'securityCenterProperties.resourceType="Y" OR securityCenterProperties.resourceType="Z") AND '
+        '(resourceProperties.lifecycleState="ACTIVE")'
+    )
 
     output = create_filter_list_assets("X, Y ,Z", "A, B, C", "ABC = XYZ", "")
-    assert output == 'ABC = XYZ AND (resourceProperties.name="A" OR resourceProperties.name="B" OR' \
-                     ' resourceProperties.name="C") AND (securityCenterProperties.resourceType="X" OR ' \
-                     'securityCenterProperties.resourceType="Y" OR securityCenterProperties.resourceType="Z")'
+    assert (
+        output == 'ABC = XYZ AND (resourceProperties.name="A" OR resourceProperties.name="B" OR'
+        ' resourceProperties.name="C") AND (securityCenterProperties.resourceType="X" OR '
+        'securityCenterProperties.resourceType="Y" OR securityCenterProperties.resourceType="Z")'
+    )
 
 
 def test_prepare_hr_and_ec_for_list_assets():
@@ -451,9 +486,10 @@ def test_prepare_hr_and_ec_for_list_assets():
     - Ensure finding HR and EC.
     """
     from GoogleCloudSCC import prepare_outputs_for_list_assets
-    with open('./TestData/list_asset_response.json') as f:
+
+    with open("./test_data/list_asset_response.json") as f:
         asset_response = json.load(f)
-    with open('./TestData/list_asset_ec.json') as f:
+    with open("./test_data/list_asset_ec.json") as f:
         asset_ec = json.load(f)
 
     context, _ = prepare_outputs_for_list_assets(asset_response)
@@ -474,6 +510,7 @@ def test_prepare_hr_and_ec_for_list_assets_no_record():
     - Ensure finding HR and EC.
     """
     from GoogleCloudSCC import prepare_outputs_for_list_assets
+
     response = {"listAssetsResults": []}
     context, hr = prepare_outputs_for_list_assets(response)
     assert context == {}
@@ -491,20 +528,22 @@ def test_asset_list_command(client):
     - Ensure command should return proper outputs.
     """
     from GoogleCloudSCC import asset_list_command
-    with open('TestData/list_asset_response.json') as file:
+
+    with open("test_data/list_asset_response.json") as file:
         mock_data = json.load(file)
-    with open('./TestData/list_asset_ec.json') as f:
+    with open("./test_data/list_asset_ec.json") as f:
         asset_ec = json.load(f)
+    with open("test_data/list_asset_hr.md") as f:
+        hr_output = f.read()
+    GoogleNameParser.get_organization_id = Mock(return_value="123")
     client.get_assets = Mock(return_value=mock_data)
 
-    arguments = {
-        "resourceType": "A",
-        "filter": "test"
-    }
+    arguments = {"resourceType": "A", "filter": "test"}
     command_output = asset_list_command(client, arguments)
 
     assert command_output.outputs == asset_ec
     assert command_output.raw_response == mock_data
+    assert command_output.readable_output == hr_output
 
 
 def test_split():
@@ -518,8 +557,9 @@ def test_split():
     - Ensure result should split by delimiter and not split by escaped delimeter
     """
     from GoogleCloudSCC import split_and_escape
-    assert split_and_escape(r"abc,ss,ssa,sc\,aa", ",") == ['abc', 'ss', 'ssa', 'sc,aa']
-    assert split_and_escape(r"ab;cd ;xy\;ad", ";") == ['ab', 'cd', 'xy;ad']
+
+    assert split_and_escape(r"abc,ss,ssa,sc\,aa", ",") == ["abc", "ss", "ssa", "sc,aa"]
+    assert split_and_escape(r"ab;cd ;xy\;ad", ";") == ["ab", "cd", "xy;ad"]
 
 
 def test_get_and_validate_args_finding_update():
@@ -563,16 +603,16 @@ def test_get_update_mask_for_update_finding():
     - Ensure updateMask field construct properly
     """
     from GoogleCloudSCC import get_update_mask_for_update_finding
-    body = {
-        "severity": "HIGH",
-        "state": "ACTIVE",
-        "eventTime": "REQUIRED",
-        "sourceProperties": {"A": "1"}
-    }
+
+    body = {"severity": "HIGH", "state": "ACTIVE", "eventTime": "REQUIRED", "sourceProperties": {"A": "1"}}
     update_mask = ["state", "severity"]
 
-    assert get_update_mask_for_update_finding(body, update_mask).split(",") == ["state", "severity", "eventTime",
-                                                                                "sourceProperties.A"]
+    assert get_update_mask_for_update_finding(body, update_mask).split(",") == [
+        "state",
+        "severity",
+        "eventTime",
+        "sourceProperties.A",
+    ]
 
 
 def test_prepare_hr_and_ec_for_update_finding():
@@ -586,7 +626,8 @@ def test_prepare_hr_and_ec_for_update_finding():
     - Ensure finding HR is correct
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_update_finding
-    with open('./TestData/update_finding_response.json') as f:
+
+    with open("./test_data/update_finding_response.json") as f:
         finding_response = json.load(f)
 
     hr, _ = prepare_hr_and_ec_for_update_finding(finding_response)
@@ -607,10 +648,11 @@ def test_prepare_hr_and_ec_for_cloud_assets_list():
     - Ensure HR and entry context is correct
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_cloud_asset_list
-    with open('./TestData/cloud_assets_list_response.json') as f:
+
+    with open("./test_data/cloud_assets_list_response.json") as f:
         cloud_assets_response = json.load(f)
 
-    with open('./TestData/cloud_assets_list_ec.json') as f:
+    with open("./test_data/cloud_assets_list_ec.json") as f:
         cloud_assets_ec = json.load(f)
 
     hr, ec = prepare_hr_and_ec_for_cloud_asset_list(cloud_assets_response)
@@ -638,6 +680,7 @@ def test_prepare_hr_and_ec_for_cloud_assets_list_no_record():
     - Ensure finding HR and EC.
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_cloud_asset_list
+
     response = {"assets": []}
     hr, context = prepare_hr_and_ec_for_cloud_asset_list(response)
     assert context == {}
@@ -655,28 +698,33 @@ def test_cloud_asset_list_command(cloud_asset_client):
     - Ensure command should return proper outputs.
     """
     from GoogleCloudSCC import cloud_asset_list_command
-    with open('TestData/cloud_assets_list_response.json') as file:
+
+    with open("test_data/cloud_assets_list_response.json") as file:
         mock_data = json.load(file)
-    with open('./TestData/cloud_assets_list_ec.json') as f:
+    with open("./test_data/cloud_assets_list_ec.json") as f:
         asset_ec = json.load(f)
+    with open("test_data/cloud_assets_list_hr.md") as f:
+        hr_output = f.read()
+    GoogleNameParser.get_organization_id = Mock(return_value="123")
     cloud_asset_client.get_assets = Mock(return_value=mock_data)
 
-    arguments = {
-        "parent": "project/123456789000"
-    }
+    arguments = {"parent": "project/123456789000"}
     command_output = cloud_asset_list_command(cloud_asset_client, arguments)
 
     assert command_output.outputs == asset_ec
     assert command_output.raw_response == mock_data
+    assert command_output.readable_output == hr_output
 
 
-@pytest.mark.parametrize("test_case, project_names, max_iterations, call_count",
-                         [("one-iteration-one-found", "projects/123456789", 2, 1),
-                          ("two-iteration-two-found", "projects/123456789,projects/234567890", 2, 2),
-                          ("two-iteration-one-only-found-no-token", "projects/123456789,projects/234567890", 2, 1),
-                          (
-                          "two-iteration-one-only-found-max-iteration-reached", "projects/123456789,projects/234567890",
-                          1, 1)])
+@pytest.mark.parametrize(
+    "test_case, project_names, max_iterations, call_count",
+    [
+        ("one-iteration-one-found", "projects/123456789", 2, 1),
+        ("two-iteration-two-found", "projects/123456789,projects/234567890", 2, 2),
+        ("two-iteration-one-only-found-no-token", "projects/123456789,projects/234567890", 2, 1),
+        ("two-iteration-one-only-found-max-iteration-reached", "projects/123456789,projects/234567890", 1, 1),
+    ],
+)
 def test_cloud_asset_owner_get_command(cloud_asset_client, test_case, project_names, max_iterations, call_count):
     """
     Scenario: Validates command result for cloud asset-owner-get command.
@@ -688,21 +736,22 @@ def test_cloud_asset_owner_get_command(cloud_asset_client, test_case, project_na
     - Ensure command should call the API expected times and return appropriate outputs.
     """
     from GoogleCloudSCC import cloud_asset_owner_get_command
-    with open('TestData/cloud_assets_owners_get_response.json') as file:
-        mock_data = json.load(file)['test-cases'][test_case]
 
-    cloud_asset_client.get_assets = Mock(side_effect=mock_data['responses'])
+    with open("test_data/cloud_assets_owners_get_response.json") as file:
+        mock_data = json.load(file)["test-cases"][test_case]
+    with open("test_data/cloud_assets_owners_get_hr.json") as file:
+        hr_output = json.load(file)["test-cases"][test_case]
+    GoogleNameParser.get_organization_id = Mock(return_value="123")
+    cloud_asset_client.get_assets = Mock(side_effect=mock_data["responses"])
 
-    arguments = {
-        "projectName": project_names,
-        "maxIteration": max_iterations
-    }
+    arguments = {"projectName": project_names, "maxIteration": max_iterations}
 
     command_output = cloud_asset_owner_get_command(cloud_asset_client, arguments)
 
-    assert command_output.outputs == mock_data['outputs']
+    assert command_output.outputs == mock_data["outputs"]
     assert cloud_asset_client.get_assets.call_count == call_count
-    assert command_output.raw_response == mock_data['outputs']
+    assert command_output.raw_response == mock_data["outputs"]
+    assert command_output.readable_output == hr_output
 
 
 def test_finding_update_command(client, mocker):
@@ -715,25 +764,27 @@ def test_finding_update_command(client, mocker):
     Then:
     - Ensure command should return proper outputs.
     """
-    from GoogleCloudSCC import finding_update_command, demisto
-    with open('TestData/update_finding_response.json') as file:
+    from GoogleCloudSCC import demisto, finding_update_command
+
+    with open("test_data/update_finding_response.json") as file:
         mock_data = json.load(file)
-    with open('./TestData/update_finding_ec.json') as f:
+    with open("./test_data/update_finding_ec.json") as f:
         finding_ec = json.load(f)
+    with open("./test_data/update_finding_hr.md") as f:
+        hr_output = f.read()
     client.update_finding = Mock(return_value=mock_data)
     params = {
         "organization_id": "123",
     }
     mocker.patch.object(demisto, "params", return_value=params)
 
-    arguments = {
-        "status": "ACTIVE"
-    }
+    arguments = {"status": "ACTIVE"}
     command_output = finding_update_command(client, arguments)
 
     assert command_output.outputs_key_field == "name"
     assert command_output.raw_response == mock_data
     assert command_output.to_context()["EntryContext"] == finding_ec
+    assert command_output.readable_output == hr_output
 
 
 def test_prepare_hr_and_ec_for_cloud_asset_owners_get():
@@ -747,14 +798,14 @@ def test_prepare_hr_and_ec_for_cloud_asset_owners_get():
     - Ensure HR and entry context is correct
     """
     from GoogleCloudSCC import prepare_hr_and_ec_for_cloud_asset_owners_get
-    with open('./TestData/cloud_assets_owners_get_assets.json') as f:
+
+    with open("./test_data/cloud_assets_owners_get_assets.json") as f:
         cloud_assets_response = json.load(f)
 
-    with open('./TestData/cloud_assets_owners_get_ec.json') as f:
+    with open("./test_data/cloud_assets_owners_get_ec.json") as f:
         cloud_assets_ec = json.load(f)
 
-    hr, ec = prepare_hr_and_ec_for_cloud_asset_owners_get(cloud_assets_response['assets'],
-                                                          cloud_assets_response['readTime'])
+    hr, ec = prepare_hr_and_ec_for_cloud_asset_owners_get(cloud_assets_response["assets"], cloud_assets_response["readTime"])
 
     assert cloud_assets_ec == ec
     assert "Project Name" in hr
@@ -783,7 +834,7 @@ def test_prepare_hr_and_ec_for_cloud_asset_owners_get_no_record():
     assert hr == ERROR_MESSAGES["NO_RECORDS_FOUND"].format("project")
 
 
-@patch('GoogleCloudSCC.init_google_pubsub_client')
+@patch("GoogleCloudSCC.init_google_pubsub_client")
 def test_validate_project_and_subscription_id(mock1, pubsub_client):
     """
     Scenario: Validates project ID and subscription ID
@@ -798,53 +849,39 @@ def test_validate_project_and_subscription_id(mock1, pubsub_client):
     - Ensure command should return proper outputs.
     """
     from GoogleCloudSCC import validate_project_and_subscription_id
+
     mock1.return_value = pubsub_client
-    params = {
-        "project_id": "project_id",
-        "subscription_id": "subscription_id"
-    }
+    params = {"project_id": "project_id", "subscription_id": "subscription_id"}
     pubsub_client.pull_messages = Mock(return_value={})
     validate_project_and_subscription_id(params)
     assert pubsub_client.pull_messages.call_count == 1
 
 
-@patch('GoogleCloudSCC.handle_proxy')
-def test_get_http_client_with_proxy(mock1, client):
+def test_get_http_client_with_proxy(mocker, client):
     """
     Scenario: Validate that proxy is set in http object
 
     Given:
-    - proxy is given
+    - proxy
+      insecure
+      path to custom certificate
 
     When:
-    - correct proxy provided
+    - correct proxy, insecure and certificate path arguments provided
 
     Then:
-    - Ensure command that proxy should set in Http object
+    - Ensure command that proxy, insecure and certificate path should set in Http object
     """
-    mock1.return_value = {"https": "admin:password@127.0.0.1:3128"}
-    http_obj = client.get_http_client_with_proxy(True)
+    mocker.patch("GoogleCloudSCC.handle_proxy", return_value={"https": "admin:password@127.0.0.1:3128"})
+    mocker.patch.dict(os.environ, {"REQUESTS_CA_BUNDLE": "path/to/cert"})
+    http_obj = client.get_http_client_with_proxy(True, True)
 
     assert http_obj.proxy_info.proxy_host == "127.0.0.1"
     assert http_obj.proxy_info.proxy_port == 3128
     assert http_obj.proxy_info.proxy_user == "admin"
     assert http_obj.proxy_info.proxy_pass == "password"
-
-
-def test_google_name_parser():
-    """
-    Scenario: Validates static method of GoogleNameParser
-
-    Given:
-    - argument given
-
-    Then:
-    - Ensure static method should return proper outputs.
-    """
-    from GoogleCloudSCC import GoogleNameParser
-    assert GoogleNameParser.get_finding_path("-", "123") == "organizations//sources/-/findings/123"
-    assert GoogleNameParser.get_project_path("123") == "projects/123"
-    assert GoogleNameParser.get_subscription_path("123", "456") == "projects/123/subscriptions/456"
+    assert http_obj.disable_ssl_certificate_validation
+    assert http_obj.ca_certs == "path/to/cert"
 
 
 def test_google_scc_class_wrapper_methods(client):
@@ -890,8 +927,7 @@ def test_google_cloud_assets_class_wrapper_methods(cloud_asset_client):
     - Ensure wrapper method should return proper outputs.
     """
     cloud_asset_client.execute_request = Mock(return_value={"A": 123})
-    assert cloud_asset_client.get_assets("parent", "asset_types", "content_type", "10", "page_token",
-                                         "read_time") == {"A": 123}
+    assert cloud_asset_client.get_assets("parent", "asset_types", "content_type", "10", "page_token", "read_time") == {"A": 123}
 
 
 def test_validate_state_and_severity_list():
@@ -908,6 +944,7 @@ def test_validate_state_and_severity_list():
     - Ensure proper error message should raised.
     """
     from GoogleCloudSCC import validate_state_and_severity_list
+
     with pytest.raises(ValueError, match=ERROR_MESSAGES["INVALID_STATE_ERROR"]):
         validate_state_and_severity_list(["INVALID"], [])
     with pytest.raises(ValueError, match=ERROR_MESSAGES["INVALID_SEVERITY_ERROR"]):
@@ -925,10 +962,8 @@ def test_flatten_keys_to_root_negative():
     - Ensure proper dict should returned.
     """
     from GoogleCloudSCC import flatten_keys_to_root
-    input_dict = {
-        "A": {"AA": 1},
-        "B": ["C"]
-    }
+
+    input_dict = {"A": {"AA": 1}, "B": ["C"]}
 
     flatten_keys_to_root(input_dict, ["C"], {})
     assert input_dict == {"A": {"AA": 1}, "B": ["C"], "C": None}
@@ -952,18 +987,13 @@ def test_find_asset_owners():
     input_asset = {
         "iamPolicy": {
             "bindings": [
-                {'members': ['serviceAccount:service-12345'],
-                 'role': 'roles/cloudfunctions.serviceAgent'},
-                {'members': ['cloudservices.gserviceaccount.com',
-                             'serviceAccount.gserviceaccount.com'],
-                 'role': 'roles/owner'},
-                {'members': ['serviceAccount:firebase-dummy-account'],
-                 'role': 'roles/firebase.managementServiceAgent'}
+                {"members": ["serviceAccount:service-12345"], "role": "roles/cloudfunctions.serviceAgent"},
+                {"members": ["cloudservices.gserviceaccount.com", "serviceAccount.gserviceaccount.com"], "role": "roles/owner"},
+                {"members": ["serviceAccount:firebase-dummy-account"], "role": "roles/firebase.managementServiceAgent"},
             ]
         }
     }
-    expected_owners = ['cloudservices.gserviceaccount.com',
-                       'serviceAccount.gserviceaccount.com']
+    expected_owners = ["cloudservices.gserviceaccount.com", "serviceAccount.gserviceaccount.com"]
     assert expected_owners == find_asset_owners(input_asset)
 
 
@@ -983,15 +1013,13 @@ def test_find_asset_owners_no_record():
     input_asset = {
         "iamPolicy": {
             "bindings": [
-                {'members': ['serviceAccount:service-12345'],
-                 'role': 'roles/cloudfunctions.serviceAgent'},
-                {'members': ['serviceAccount:firebase-dummy-account'],
-                 'role': 'roles/firebase.managementServiceAgent'}
+                {"members": ["serviceAccount:service-12345"], "role": "roles/cloudfunctions.serviceAgent"},
+                {"members": ["serviceAccount:firebase-dummy-account"], "role": "roles/firebase.managementServiceAgent"},
             ]
         }
     }
-    assert [] == find_asset_owners(input_asset)
-    assert [] == find_asset_owners({})
+    assert find_asset_owners(input_asset) == []
+    assert find_asset_owners({}) == []
 
 
 def test_validate_with_regex():
@@ -1018,3 +1046,53 @@ def test_validate_with_regex():
         validate_with_regex("validation error", r"^\d{1,4}$", "12345")
 
     assert str(e.value) == "validation error"
+
+
+def test_finding_state_update_command(client):
+    """
+    Scenario: Validates command result for update-finding command.
+
+    Given:
+    - command arguments given for update finding command
+
+    Then:
+    - Ensure command should return proper outputs.
+    """
+    from GoogleCloudSCC import finding_state_update_command
+
+    with open("test_data/update_finding_response.json") as file:
+        mock_data = json.load(file)
+    with open("./test_data/update_finding_ec.json") as f:
+        finding_ec = json.load(f)
+    with open("test_data/update_finding_hr.md") as f:
+        hr_output = f.read()
+    GoogleNameParser.get_organization_id = Mock(return_value="123")
+    client.update_state = Mock(return_value=mock_data)
+
+    arguments = {"state": "ACTIVE", "name": "name"}
+    command_output = finding_state_update_command(client, arguments)
+
+    assert command_output.outputs_key_field == "name"
+    assert command_output.raw_response == mock_data
+    assert command_output.to_context()["EntryContext"] == finding_ec
+    assert command_output.readable_output == hr_output
+
+
+def test_finding_state_update_command_invalid_args(client):
+    """
+    Scenario: Validates command result for update-finding command.
+
+    Given:
+    - command arguments given for update finding command
+
+    Then:
+    - Ensure command should return proper outputs.
+    """
+    from GoogleCloudSCC import finding_state_update_command
+
+    arguments = {"state": "dummy", "name": "name"}
+
+    with pytest.raises(ValueError) as err:
+        finding_state_update_command(client, arguments)
+
+    assert str(err.value) == ERROR_MESSAGES["INVALID_STATE_ERROR"]

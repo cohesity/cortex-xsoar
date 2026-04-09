@@ -1,13 +1,14 @@
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
 
-
-RESOLUTION = ["Performance Tuning of Cortex XSOAR Server: https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-0/"
-              "cortex-xsoar-admin/cortex-xsoar-overview/performance-tuning-of-cortex-xsoar-server"]
+RESOLUTION = [
+    "Performance Tuning of Cortex XSOAR Server: https://docs.paloaltonetworks.com/cortex/cortex-xsoar/6-0/"
+    "cortex-xsoar-admin/cortex-xsoar-overview/performance-tuning-of-cortex-xsoar-server"
+]
+XSOARV8_HTML_STYLE = "color:#FFBE98;text-align:center;font-size:150%;>"
 
 
 def analyzeData(res):
-
     lowFound = 0
     medFound = 0
     lowRes = False
@@ -16,7 +17,7 @@ def analyzeData(res):
 
     for item in res:
         if not lowRes:
-            if item['data'][0] >= 70:
+            if item["data"][0] >= 70:
                 lowFound += 1
                 if lowFound >= 30:
                     lowRes = True
@@ -24,44 +25,66 @@ def analyzeData(res):
                 lowFound = 0
 
         if not medRes:
-            if item['data'][0] >= 80:
+            if item["data"][0] >= 80:
                 medFound += 1
                 if medFound >= 10:
                     medRes = True
             else:
                 medFound = 0
 
-        if not highRes:
-            if item['data'][0] >= 90:
-                highRes = True
+        if not highRes and item["data"][0] >= 90:
+            highRes = True
     if lowRes or medRes or highRes:
         addActions = []
 
         if highRes:
-            addActions.append({'category': 'Memory analysis', 'severity': 'High',
-                               'description': "Memory has reached 90%", "resolution": f"{RESOLUTION[0]}"})
+            addActions.append(
+                {
+                    "category": "Memory analysis",
+                    "severity": "High",
+                    "description": "Memory has reached 90%",
+                    "resolution": f"{RESOLUTION[0]}",
+                }
+            )
 
         if medRes:
-            addActions.append({'category': 'Memory analysis', 'severity': 'Medium',
-                               'description': "Memory has reached 80% for 10 minutes", "resolution": f"{RESOLUTION[0]}"})
+            addActions.append(
+                {
+                    "category": "Memory analysis",
+                    "severity": "Medium",
+                    "description": "Memory has reached 80% for 10 minutes",
+                    "resolution": f"{RESOLUTION[0]}",
+                }
+            )
 
         if lowRes:
-            addActions.append({'category': 'Memory analysis', 'severity': 'Low',
-                               'description': "Memory has reached 70% for 30 minutes", "resolution": f"{RESOLUTION[0]}"})
+            addActions.append(
+                {
+                    "category": "Memory analysis",
+                    "severity": "Low",
+                    "description": "Memory has reached 70% for 30 minutes",
+                    "resolution": f"{RESOLUTION[0]}",
+                }
+            )
         return addActions
     else:
         return None
 
 
 # Main
+if is_demisto_version_ge("8.0.0"):
+    msg = "Not Available for XSOAR v8"
+    html = f"<h3 style={XSOARV8_HTML_STYLE}{msg!s}</h3>"
+    demisto.results({"ContentsFormat": formats["html"], "Type": entryTypes["note"], "Contents": html})
+    sys.exit()
 incident = demisto.incidents()[0]
-accountName = incident.get('account')
+accountName = incident.get("account")
 accountName = f"acc_{accountName}/" if accountName != "" else ""
 
 args = demisto.args()
-isWidget = argToBoolean(args.get('isWidget', True))
+isWidget = argToBoolean(args.get("isWidget", True))
 stats = demisto.executeCommand(
-    "demisto-api-post",
+    "core-api-post",
     {
         "uri": f"{accountName}/statistics/widgets/query",
         "body": {
@@ -72,26 +95,21 @@ stats = demisto.executeCommand(
                 "format": "HH:mm",
             },
             "query": "memory.usedPercent",
-            "dateRange": {
-                "period": {
-                    "byFrom": "hours",
-                    "fromValue": 24
-                }
-            },
-            "widgetType": "line"
-        }
-    })
+            "dateRange": {"period": {"byFrom": "hours", "fromValue": 24}},
+            "widgetType": "line",
+        },
+    },
+)
 
 res = stats[0]["Contents"]["response"]
 output = []
 counter = 0
 higher = 0
+
 if isWidget is True:
-    buildNumber = demisto.executeCommand("DemistoVersion", {})[0]['Contents']['DemistoVersion']['buildNumber']
-    # in local development instances, the build number will be "REPLACE_THIS_WITH_CI_BUILD_NUM"
-    buildNumber = f'{buildNumber}' if buildNumber != "REPLACE_THIS_WITH_CI_BUILD_NUM" else "618658"
-    if int(buildNumber) >= 618657:
-        # Line graph:
+    ctx = demisto.context()
+    dataFromCtx = ctx.get("widgets")
+    if not dataFromCtx:
         for entry in res:
             higher = max(entry["data"][0], higher)
             if counter % 2 == 0:
@@ -102,47 +120,24 @@ if isWidget is True:
         data = {
             "Type": 17,
             "ContentsFormat": "line",
-            "Contents": {
-                "stats": output,
-                "params": {
-                    "timeFrame": "minutes",
-                    "format": "HH:mm",
-                    "layout": "vertical"
-                }
-            }
+            "Contents": {"stats": output, "params": {"timeFrame": "minutes", "format": "HH:mm", "layout": "vertical"}},
         }
-
+        demisto.results(data)
     else:
-        # Bar graph:
-        now = datetime.utcnow()
-        then = now - timedelta(days=1)
-        for entry in res:
-            higher = max(entry["data"][0], higher)
-            if counter % 60 == 0:
-                then = then + timedelta(hours=1)
-                name = then.strftime("%H:%M")
-                output.append({"name": name, "data": [higher]})
-                higher = 0
-            counter += 1
-
         data = {
             "Type": 17,
-            "ContentsFormat": "bar",
+            "ContentsFormat": "line",
             "Contents": {
-                "stats": output,
-                "params": {
-                    "layout": "horizontal"
-                }
-            }
+                "stats": dataFromCtx["MemoryUsage"],
+                "params": {"timeFrame": "minutes", "format": "HH:mm", "layout": "vertical"},
+            },
         }
-
-    demisto.results(data)
+        demisto.results(data)
 else:
     addActions = analyzeData(res)
 
     results = CommandResults(
-        readable_output="analyzeCPUUsage Done",
-        outputs_prefix="HealthCheck.ActionableItems",
-        outputs=addActions)
+        readable_output="analyzeCPUUsage Done", outputs_prefix="HealthCheck.ActionableItems", outputs=addActions
+    )
 
     return_results(results)

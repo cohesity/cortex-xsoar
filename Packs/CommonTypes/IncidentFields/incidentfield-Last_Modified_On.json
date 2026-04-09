@@ -5,7 +5,11 @@
 		"GCP Compute Engine Misconfiguration",
 		"AWS CloudTrail Misconfiguration",
 		"AWS IAM Policy Misconfiguration",
-		"AWS EC2 Instance Misconfiguration"
+		"AWS EC2 Instance Misconfiguration",
+		"NetWitness Incident",
+		"Prisma Cloud - VM Alert Prioritization",
+        "IBM QRadar SOAR Incident",
+        "Exabeam Platform Case"
 	],
 	"breachScript": "",
 	"caseInsensitive": true,
@@ -31,7 +35,9 @@
 	"selectValues": null,
 	"sla": 0,
 	"system": false,
-	"systemAssociatedTypes": null,
+	"systemAssociatedTypes": [
+		"Prisma Cloud - VM Alert Prioritization"
+	],
 	"threshold": 72,
 	"type": "shortText",
 	"unmapped": false,

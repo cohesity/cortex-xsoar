@@ -5,9 +5,10 @@ from ZeroTrustAnalyticsPlatform import (
     Client,
     fetch_incidents,
     get_mapping_fields,
-    get_remote_data,
     get_modified_remote_data,
+    get_remote_data,
     update_remote_system,
+    user_to_display,
     ztap_get_alert_entries,
 )
 
@@ -16,7 +17,6 @@ from test_data.api_data import (
     escalation_path_data,
     event_data,
     comment_data,
-    log_data,
     organization_data,
     group_data,
     user_data,
@@ -25,7 +25,6 @@ from test_data.xsoar_data import (
     alert_response,
     alert_response_remote,
     comment_entries,
-    log_entries,
 )
 
 TEST_MIRROR_DIRECTION = "Both"
@@ -50,9 +49,7 @@ def test_fetch_incidents(mocker):
     client = get_test_client()
 
     mocker.patch.object(client, "get_alerts", return_value=alert_data())
-    mocker.patch.object(
-        client, "get_escalation_path", return_value=escalation_path_data()
-    )
+    mocker.patch.object(client, "get_escalation_path", return_value=escalation_path_data())
     mocker.patch.object(client, "get_events", return_value=event_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
@@ -136,9 +133,7 @@ def test_fetch_incidents_first_fetch(mocker):
     )
 
     mocker.patch.object(client, "get_alerts", return_value=alert_data())
-    mocker.patch.object(
-        client, "get_escalation_path", return_value=recent_escalation_path
-    )
+    mocker.patch.object(client, "get_escalation_path", return_value=recent_escalation_path)
     mocker.patch.object(client, "get_events", return_value=event_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
@@ -166,9 +161,7 @@ def test_fetch_incidents_existing_ids(mocker):
     client = get_test_client()
 
     mocker.patch.object(client, "get_alerts", return_value=alert_data())
-    mocker.patch.object(
-        client, "get_escalation_path", return_value=escalation_path_data()
-    )
+    mocker.patch.object(client, "get_escalation_path", return_value=escalation_path_data())
     mocker.patch.object(client, "get_events", return_value=event_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
@@ -204,7 +197,6 @@ def test_get_remote_data(mocker):
     mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
     mocker.patch.object(client, "get_events", return_value=event_data())
     mocker.patch.object(client, "get_comments", return_value=comment_data())
-    mocker.patch.object(client, "get_logs", return_value=log_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
     args = {
@@ -217,7 +209,7 @@ def test_get_remote_data(mocker):
     alert_json = json.dumps(response.mirrored_object)
     mock_response = json.dumps(alert_response_remote())
     entries_json = json.dumps(response.entries)
-    entry_response = json.dumps(comment_entries() + log_entries())
+    entry_response = json.dumps(comment_entries())
 
     assert alert_json == mock_response
     assert entries_json == entry_response
@@ -228,7 +220,6 @@ def test_get_remote_data_no_new_events(mocker):
 
     mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
     mocker.patch.object(client, "get_comments", return_value=[])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
     args = {
@@ -256,7 +247,6 @@ def test_get_remote_data_closed_incident(mocker):
     mocker.patch.object(client, "get_alert", return_value=closed_alert)
     mocker.patch.object(client, "get_events", return_value=[])
     mocker.patch.object(client, "get_comments", return_value=[])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
     client.close_incident = True
@@ -295,7 +285,6 @@ def test_get_remote_data_reopen_incident(mocker):
     }
     mocker.patch.object(client, "get_alert", return_value=reopened_alert)
     mocker.patch.object(client, "get_comments", return_value=[])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
     client.reopen_incident = True
@@ -336,7 +325,6 @@ def test_get_modified_remote_data(mocker):
 def test_update_remote_system(mocker):
     client = get_test_client()
     mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "upload_comment")
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
@@ -364,7 +352,6 @@ def test_update_remote_system(mocker):
 def test_update_remote_system_escalate(mocker):
     client = get_test_client()
     mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "reassign_alert_to_org")
     mocker.patch.object(client, "get_organizations", return_value=organization_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
@@ -390,10 +377,38 @@ def test_update_remote_system_escalate(mocker):
     assert response == "1"
 
 
+def test_update_remote_system_escalate_and_comment(mocker):
+    # escalate should take priority over comment
+    client = get_test_client()
+    mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
+    mocker.patch.object(client, "reassign_alert_to_org")
+    mocker.patch.object(client, "get_organizations", return_value=organization_data())
+    mocker.patch.object(client, "get_active_user", return_value=user_data())
+
+    client.close_incident = True
+    args = {
+        "remoteId": "1",
+        "status": 1,
+        "entries": [
+            {
+                "user": "test user",
+                "contents": "test contents",
+                "tags": [TEST_COMMENT_TAG, TEST_ESCALATE_TAG],
+            }
+        ],
+        "incidentChanged": False,
+    }
+    investigation = {}
+    response = update_remote_system(client, investigation, args)
+
+    client.reassign_alert_to_org.assert_called()
+
+    assert response == "1"
+
+
 def test_update_remote_system_closed(mocker):
     client = get_test_client()
     mocker.patch.object(client, "get_alert", return_value=alert_data()[0])
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "close_alert")
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
@@ -429,7 +444,6 @@ def test_update_remote_system_reopen(mocker):
         "status": "closed",
     }
     mocker.patch.object(client, "get_alert", return_value=closed_alert)
-    mocker.patch.object(client, "get_logs", return_value=[])
     mocker.patch.object(client, "reopen_alert")
     mocker.patch.object(client, "get_groups", return_value=group_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
@@ -454,7 +468,6 @@ def test_ztap_get_alert_entries(mocker):
 
     mocker.patch.object(client, "get_alert", return_value=alert_data())
     mocker.patch.object(client, "get_comments", return_value=comment_data())
-    mocker.patch.object(client, "get_logs", return_value=log_data())
     mocker.patch.object(client, "get_active_user", return_value=user_data())
 
     args = {
@@ -463,6 +476,20 @@ def test_ztap_get_alert_entries(mocker):
     response = ztap_get_alert_entries(client, args)
 
     entries_json = json.dumps(response)
-    entry_response = json.dumps(comment_entries() + log_entries())
+    entry_response = json.dumps(comment_entries())
 
     assert entries_json == entry_response
+
+
+def test_user_to_display():
+    user = {"name": "User Name", "email": "test@test"}
+    assert user_to_display(user) == "User Name (test@test)"
+
+    user_only_email = {"email": "test@test"}
+    assert user_to_display(user_only_email) == "test@test"
+
+    user_only_name = {"name": "User Name"}
+    assert user_to_display(user_only_name) == "User Name"
+
+    user_unknown = {}
+    assert user_to_display(user_unknown) == "Unknown"

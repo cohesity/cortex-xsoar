@@ -13,9 +13,9 @@ This playbook does not use any integrations.
 * Exists
 
 ### Commands
-* extrahop-get-peers
-* extrahop-device-search
-* extrahop-get-activity-map
+* extrahop-peers-get
+* extrahop-devices-search
+* extrahop-activity-map-get
 
 ## Playbook Inputs
 ---
@@ -38,4 +38,4 @@ This playbook does not use any integrations.
 
 ## Playbook Image
 ---
-![ExtraHop_Get_Peers_by_Host](https://raw.githubusercontent.com/demisto/content/1bdd5229392bd86f0cc58265a24df23ee3f7e662/docs/images/playbooks/ExtraHop_Get_Peers_by_Host.png)
+![ExtraHop_Get_Peers_by_Host](../doc_files/ExtraHop_-_Get_Peers_by_Host.png)

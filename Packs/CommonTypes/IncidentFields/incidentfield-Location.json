@@ -19,13 +19,18 @@
  "group": 0,
  "hidden": false,
  "associatedTypes": [
+  "SysAid Change",
+  "SysAid Incident",
+  "SysAid Problem",
+  "SysAid Request",
   "IAM - New Hire",
   "IAM - Terminate User",
   "IAM - Update User",
   "User Profile",
   "IAM - Sync User",
   "IAM - Rehire User",
-  "Azure Active Directory Identity and Access"
+  "Azure Active Directory Identity and Access",
+  "Exabeam Notable User"
  ],
  "associatedToAll": false,
  "unmapped": false,

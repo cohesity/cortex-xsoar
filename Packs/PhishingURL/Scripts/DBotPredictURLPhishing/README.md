@@ -1,15 +1,30 @@
 Predict phishing URLs using a pre-trained model.
 
+## Security Recommendations
+
+---
+
+This script uses the [Rasterize](https://xsoar.pan.dev/docs/reference/integrations/rasterize) integration. If this script is used to rasterize untrusted URLs, we strongly recommend following the security recommendations included at the [Rasterize Documentation](https://xsoar.pan.dev/docs/reference/integrations/rasterize).
+
 ## Script Data
+
 ---
 
 | **Name** | **Description** |
 | --- | --- |
 | Script Type | python3 |
-| Tags |  |
+| Tags | ml |
 | Cortex XSOAR Version | 6.0.0 |
 
+## Used In
+
+---
+This script is used in the following playbooks and scripts.
+
+Phishing - Machine Learning Analysis
+
 ## Inputs
+
 ---
 
 | **Argument Name** | **Description** |
@@ -20,9 +35,12 @@ Predict phishing URLs using a pre-trained model.
 | maxNumberOfURL | Maximum number of extracted URLs on which to run the model. |
 | forceModel | Whether to force the model to run if the URL belongs to the whitelist. If True, the model will run in every case. If False, the model will run only if the URL does not belong to the whitelist. |
 | resetModel | Whether to reset the model to the model existing in Docker. |
+| defaultRequestProtocol | The protocol to use when calling the URLs. This argument effects the calls sent by the model only and has no effect on the rasterize or whois commands. |
 | debug | Whether to enter debug mode. |
+| reliability | Reliability of the source providing the intelligence data. |
 
 ## Outputs
+
 ---
 
 | **Path** | **Description** | **Type** |
@@ -37,19 +55,30 @@ Predict phishing URLs using a pre-trained model.
 | DBotPredictURLPhishing.TopMajesticDomain | Whether the domain belongs to the top Majestic domain list. If it does, we will always consider this domain as benign. | String |
 | DBotScore.Score | Severity score. | Number |
 
-
 ## Script Examples
+
 ### Example command
-```!DBotPredictURLPhishing urls=google.com```
+
+```!DBotPredictURLPhishing urls="http://google.com"```
+
 ### Context Example
+
 ```json
-{}
+{
+  "DBotPredictURLPhishing": [
+    {
+      "FinalVerdict": "Benign",
+      "TopMajesticDomain": "True",
+      "URL": "http://google.com"
+    }
+  ]
+}
 ```
 
 ### Human Readable Output
 
 >### Phishing prediction summary for URLs
+>
 >|URL|Final Verdict|
 >|---|---|
 >| http://google.com | **Benign - whitelisted** |
-

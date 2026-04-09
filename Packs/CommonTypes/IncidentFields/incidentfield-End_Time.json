@@ -1,7 +1,13 @@
 {
     "associatedToAll": false,
     "associatedTypes": [
-        "Guardicore Incident"
+        "Guardicore Incident",
+        "Graph Security Alert",
+        "CrowdStrike Falcon IDP Detection",
+        "Exabeam Notable User",
+        "CrowdStrike Falcon NGSIEM Detection",
+        "CrowdStrike Falcon NGSIEM Incident",
+        "CrowdStrike Falcon NGSIEM Case"
     ],
     "breachScript": "",
     "caseInsensitive": true,
@@ -14,7 +20,6 @@
     "editForm": true,
     "extractIndicatorTypesIDs": [],
     "fieldCalcScript": "",
-    "fromServerVersion": "",
     "group": 0,
     "hidden": false,
     "id": "incident_endtime",

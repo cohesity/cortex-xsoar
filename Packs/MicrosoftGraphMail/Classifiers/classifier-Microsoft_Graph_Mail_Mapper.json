@@ -76,6 +76,24 @@
                     },
                     "simple": ""
                 },
+                "Categories": {
+                    "complex": {
+                        "filters": [],
+                        "root": "Categories",
+                        "transformers": [
+                            {
+                                "args": {
+                                    "separator": {
+                                        "value": {
+                                            "simple": ","
+                                        }
+                                    }
+                                },
+                                "operator": "join"
+                            }
+                        ]
+                    }
+                },
                 "Email Body Format": {
                     "complex": null,
                     "simple": "BodyType"
@@ -179,7 +197,19 @@
                             ]
                         ],
                         "root": "Headers",
-                        "transformers": []
+                        "transformers": [
+                            {
+                                "args": {
+                                    "separator": {
+                                        "isContext": false,
+                                        "value": {
+                                            "simple": ","
+                                        }
+                                    }
+                                },
+                                "operator": "join"
+                            }
+                        ]
                     },
                     "simple": ""
                 },
@@ -286,6 +316,27 @@
                     },
                     "simple": ""
                 },
+                "Email BCC": {
+                    "complex": {
+                        "accessor": "",
+                        "filters": [],
+                        "root": "Bcc",
+                        "transformers": [
+                            {
+                                "args": {
+                                    "separator": {
+                                        "isContext": false,
+                                        "value": {
+                                            "simple": ","
+                                        }
+                                    }
+                                },
+                                "operator": "join"
+                            }
+                        ]
+                    },
+                    "simple": ""
+                },
                 "Email To Count": {
                     "complex": {
                         "accessor": "",
@@ -314,5 +365,9 @@
     "name": "Microsoft Graph Mail Mapper",
     "type": "mapping-incoming",
     "version": -1,
-    "fromVersion": "6.0.0"
+    "fromVersion": "6.0.0",
+    "supportedModules": [
+        "agentix",
+        "xsiam"
+    ]
 }

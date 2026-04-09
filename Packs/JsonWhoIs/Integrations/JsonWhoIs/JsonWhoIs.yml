@@ -1,20 +1,37 @@
 category: Data Enrichment & Threat Intelligence
+provider: JsonWhois
+sectionorder:
+- Connect
+- Collect
 commonfields:
   id: JsonWhoIs
   version: -1
 configuration:
+- name: credentials
+  type: 9
+  displaypassword: API Token
+  hiddenusername: true
+  section: Connect
+  required: false
 - display: API Token
   name: token
-  required: true
   type: 4
+  hidden: true
+  section: Connect
+  advanced: true
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
+  section: Connect
+  advanced: true
+  required: false
 - display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  section: Connect
+  advanced: true
+  required: false
 description: Provides data enrichment for domains and IP addresses.
 display: JsonWhoIs
 name: JsonWhoIs
@@ -23,13 +40,9 @@ script:
   - arguments:
     - default: true
       description: URL, IP, or domain to enrich.
-      isArray: false
       name: query
       required: true
-      secret: false
-    deprecated: false
     description: Provides data enrichment for domains, URLs, and IP addresses.
-    execution: false
     name: whois
     outputs:
     - contextPath: Domain.WHOIS.DomainStatus
@@ -48,7 +61,7 @@ script:
       description: Expiration date of the domain.
       type: Date
     - contextPath: Domain.WHOIS.Registrant.Name
-      description: Registrant name
+      description: Registrant name.
       type: String
     - contextPath: Domain.WHOIS.Registrant.Email
       description: Registrant email address.
@@ -77,10 +90,7 @@ script:
     - contextPath: Domain.WHOIS.Admin.Phone
       description: Admin phone number.
       type: String
-  dockerimage: demisto/python3:3.9.9.25564
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
+  dockerimage: demisto/python3:3.12.8.3296088
   runonce: false
   script: '-'
   type: python

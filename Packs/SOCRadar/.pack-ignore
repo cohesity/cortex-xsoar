@@ -1,5 +1,12 @@
-[file:SOCRadarIncidents.yml]
-ignore=IN145
+[file:SOCRadarIncidents_image.png]
+ignore=IM111
 
-[file:SOCRadarThreatFusion.yml]
-ignore=IN145
+[file:SOCRadarThreatFusion_image.png]
+ignore=IM111
+
+[file:README.md]
+ignore=RM108
+
+# GR103 is temporary, see CIAC-11656
+[file:layoutscontainer-SOCRadar_Incident.json]
+ignore=GR103

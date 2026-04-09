@@ -1,4 +1,5 @@
 category: Data Enrichment & Threat Intelligence
+provider: Open Source
 commonfields:
   id: CSVFeed
   version: -1
@@ -6,10 +7,10 @@ configuration:
 - display: Fetch indicators
   name: feed
   defaultvalue: 'true'
-  required: false
   type: 8
-- additionalinfo: Indicators from this integration instance will be marked with this
-    reputation
+  required: false
+  section: Collect
+- additionalinfo: Indicators from this integration instance will be marked with this reputation
   defaultvalue: feedInstanceReputationNotSet
   display: Indicator Reputation
   name: feedReputation
@@ -18,8 +19,9 @@ configuration:
   - Good
   - Suspicious
   - Bad
-  required: false
   type: 18
+  required: false
+  section: Collect
 - additionalinfo: Reliability of the source providing the intelligence data
   defaultvalue: F - Reliability cannot be judged
   display: Source Reliability
@@ -33,6 +35,7 @@ configuration:
   - F - Reliability cannot be judged
   required: true
   type: 15
+  section: Collect
 - additionalinfo: The Traffic Light Protocol (TLP) designation to apply to indicators fetched from the feed
   display: Traffic Light Protocol Color
   name: tlp_color
@@ -41,8 +44,9 @@ configuration:
   - AMBER
   - GREEN
   - WHITE
-  required: false
   type: 15
+  required: false
+  section: Collect
 - defaultvalue: indicatorType
   display: ""
   name: feedExpirationPolicy
@@ -51,131 +55,163 @@ configuration:
   - interval
   - indicatorType
   - suddenDeath
-  required: false
   type: 17
+  required: false
+  section: Collect
+  advanced: true
 - defaultvalue: '20160'
   name: feedExpirationInterval
   display: ""
-  required: false
   type: 1
+  required: false
+  section: Collect
+  advanced: true
 - defaultvalue: '240'
   display: Feed Fetch Interval
   name: feedFetchInterval
-  required: false
   type: 19
-- additionalinfo: When selected, the exclusion list is ignored for indicators from
-    this feed. This means that if an indicator from this feed is on the exclusion
-    list, the indicator might still be added to the system.
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: When selected, the exclusion list is ignored for indicators from this feed. This means that if an indicator from this feed is on the exclusion list, the indicator might still be added to the system.
   display: Bypass exclusion list
   name: feedBypassExclusionList
-  required: false
   type: 8
-  defaultvalue: ""
+  required: false
+  section: Collect
+  advanced: true
 - additionalinfo: If selected, the indicator type will be auto detected for each indicator.
   defaultvalue: 'true'
   display: Auto detect indicator type
   name: auto_detect_type
-  required: false
   type: 8
-- additionalinfo: Type of the indicator in the feed, If auto-detect is checked then
-    the value set as Indicator Type will be ignored.
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: Type of the indicator in the feed, If auto-detect is checked then the value set as Indicator Type will be ignored.
   display: Indicator Type
   name: indicator_type
-  required: false
   type: 0
+  required: false
+  section: Collect
+  advanced: true
 - display: URL
   name: url
   required: true
   type: 0
+  section: Connect
 - display: Username
   name: credentials
-  required: false
   type: 9
+  required: false
+  section: Connect
 - additionalinfo: Time (in seconds) before HTTP requests timeout.
   defaultvalue: '20'
   display: Request Timeout
   name: polling_timeout
   required: true
   type: 0
+  section: Collect
+  advanced: true
 - additionalinfo: Python regular expression for lines to ignore.
   display: Ignore Regex
   name: ignore_regex
-  required: false
   type: 0
-- additionalinfo: The names to apply to the fields in the CSV feed. The name for the
-    field containing the indicator should be "value".
-    If left empty, the fetch will use existing headers only ('value' header is expected).
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: The names to apply to the fields in the CSV feed. The name for the field containing the indicator should be "value". If left empty, the fetch will use existing headers only ('value' header is expected).
   display: Field Names
   name: fieldnames
-  required: false
   type: 0
-- additionalinfo: A one-character string used to separate fields. For example, a comma
-    ",".
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: A one-character string used to separate fields. For example, a comma ",".
   defaultvalue: ','
   display: Delimiter
   name: delimiter
-  required: false
   type: 0
-- additionalinfo: Controls how instances of quotechar in a field should themselves
-    be quoted. When True, the character is doubled.
+  required: false
+  section: Collect
+  advanced: true
+- additionalinfo: Controls how instances of quotechar in a field should themselves be quoted. When True, the character is doubled.
   display: Double quote
   name: doublequote
-  required: false
   type: 8
+  required: false
+  section: Collect
+  advanced: true
 - additionalinfo: A one-character string used by the writer to escape the delimiter.
   display: Escape character
   name: escapechar
-  required: false
   type: 0
+  required: false
+  section: Collect
+  advanced: true
 - additionalinfo: A one-character string used to quote fields containing special characters.
   defaultvalue: '"'
   display: Quote Character
   name: quotechar
-  required: false
   type: 0
+  required: false
+  section: Collect
+  advanced: true
 - additionalinfo: When "True", whitespace immediately following the delimiter is ignored.
   display: Skip Initial Space
   name: skipinitialspace
-  required: false
   type: 8
-- additionalinfo: Supports CSV values.
-  display: Tags
-  name: feedTags
   required: false
+  section: Collect
+  advanced: true
+- additionalinfo: Text encoding for the CSV file. Defaults to latin-1.
+  display: Text Encoding
+  name: encoding
   type: 0
-- defaultvalue: ''
-  display: Trust any certificate (not secure)
-  name: insecure
+  required: true
+  defaultvalue: latin-1
+  section: Collect
+  advanced: true
+- display: Tags
+  name: feedTags
+  type: 0
   required: false
+  additionalinfo: Supports CSV values.
+  section: Collect
+  advanced: true
+- display: Trust any certificate (not secure)
+  name: insecure
   type: 8
+  required: false
+  section: Connect
+  advanced: true
 - display: Use system proxy settings
   name: proxy
   required: false
   type: 8
+  section: Connect
+  advanced: true
+- display: Enrichment Excluded
+  name: enrichmentExcluded
+  type: 8
+  required: false
+  defaultvalue: 'false'
+  additionalinfo: Select this option to exclude the fetched indicators from the enrichment process.
+  hidden:
+  - xsoar_on_prem
+  section: Collect
 description: Fetch indicators from a CSV feed.
 display: CSV Feed
 name: CSVFeed
 script:
   commands:
   - arguments:
-    - default: false
-      defaultValue: '50'
+    - defaultValue: '50'
       description: The maximum number of results to return to the output.
-      isArray: false
       name: limit
-      required: false
-      secret: false
-    - default: false
-      description: The indicator type. If the configuration parameter 'Auto detect
-        indicator type' is marked true for the integration instance, then this value
-        will be ignored.
-      isArray: false
+    - description: The indicator type. If the configuration parameter 'Auto detect indicator type' is marked true for the integration instance, then this value will be ignored.
       name: indicator_type
-      required: false
-      secret: false
-    deprecated: false
     description: Gets indicators from the feed.
-    execution: false
     name: csv-get-indicators
     outputs:
     - contextPath: CSV.Indicator.value
@@ -187,15 +223,15 @@ script:
     - contextPath: CSV.Indicator.rawJSON
       description: The indicator rawJSON value.
       type: Unknown
-  dockerimage: demisto/jmespath:1.0.0.23980
+  dockerimage: demisto/py3-tools:1.0.0.114656
   feed: true
-  isfetch: false
-  longRunning: false
-  longRunningPort: false
   runonce: false
-  script: '-'
+  script: ''
   subtype: python3
   type: python
 tests:
 - CSV_Feed_Test
 fromversion: 5.5.0
+sectionorder:
+- Connect
+- Collect

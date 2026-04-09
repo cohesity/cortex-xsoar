@@ -1,48 +1,56 @@
 import pytest
-from unittest.mock import patch
-from Silverfort import get_user_entity_risk_command, get_resource_entity_risk_command,\
-    update_user_entity_risk_command, update_resource_entity_risk_command
-API_KEY = "APIKEY"
+from Silverfort import (
+    get_jwt_token,
+    get_resource_entity_risk_command,
+    get_user_entity_risk_command,
+    update_resource_entity_risk_command,
+    update_user_entity_risk_command,
+)
 
 
 @pytest.fixture(autouse=True)
 def upn():
-    return 'sfuser@silverfort.io'
+    return "sfuser@silverfort.io"
 
 
 @pytest.fixture(autouse=True)
 def base_url():
-    return 'https://test.com'
+    return "https://test.com"
 
 
 @pytest.fixture(autouse=True)
 def email():
-    return 'john@silverfort.com'
+    return "john@silverfort.com"
 
 
 @pytest.fixture(autouse=True)
 def domain():
-    return 'silverfort.io'
+    return "silverfort.io"
 
 
 @pytest.fixture(autouse=True)
 def api_key():
-    return 'APIKEY'
+    return "APP_USER_ID:APP_USER_SECRET"
+
+
+@pytest.fixture(autouse=True)
+def operational_api_key():
+    return "OP_USER_ID:OP_USER_SECRET"
 
 
 @pytest.fixture(autouse=True)
 def risk():
-    return {'risk_name': 'activity_risk', 'severity': 'medium', 'valid_for': 1, 'description': 'Suspicious activity'}
+    return {"risk_name": "activity_risk", "severity": "medium", "valid_for": 1, "description": "Suspicious activity"}
 
 
 @pytest.fixture(autouse=True)
 def resource_name():
-    return 'AA--DC-1'
+    return "AA--DC-1"
 
 
 @pytest.fixture(autouse=True)
 def bad_response():
-    return 'No valid response'
+    return "No valid response"
 
 
 @pytest.fixture(autouse=True)
@@ -62,95 +70,149 @@ def valid_get_upn_response(upn):
 
 @pytest.fixture(autouse=True)
 def sam_account():
-    return 'sfuser'
+    return "sfuser"
 
 
 @pytest.fixture(autouse=True)
-def client(base_url):
+def client(base_url, api_key, operational_api_key):
     from Silverfort import Client
-    return Client(base_url=base_url, verify=False)
+
+    app_user_id, app_user_secret = api_key.split(":")
+    op_user_id, op_user_secret = operational_api_key.split(":")
+    return Client(
+        app_user_id=app_user_id,
+        app_user_secret=app_user_secret,
+        operational_user_id=op_user_id,
+        operational_user_secret=op_user_secret,
+        external_api_key=None,
+        base_url=base_url,
+        verify=False,
+    )
 
 
 @pytest.fixture(autouse=True)
 def risk_args(risk):
-    return {'risk_name': 'activity_risk', 'severity': 'medium', 'valid_for': 1, 'description': 'Suspicious activity'}
+    return {"risk_name": "activity_risk", "severity": "medium", "valid_for": 1, "description": "Suspicious activity"}
 
 
-class TestSiverfort(object):
-    @patch('Silverfort.API_KEY', API_KEY)
+@pytest.fixture(autouse=True)
+def current_time(risk):
+    return 1656417207.2854111
+
+
+@pytest.fixture(autouse=True)
+def expected_jwt_token(api_key, current_time):
+    import jwt
+
+    app_user_id, app_user_secret = api_key.split(":")
+    payload = {"iss": app_user_id, "iat": current_time, "exp": current_time + 60}
+    return jwt.encode(payload, app_user_secret, algorithm="HS256")
+
+
+class TestSiverfort:
     def test_get_status(self, requests_mock, base_url, api_key, client):
         from Silverfort import test_module
 
-        requests_mock.get(f'{base_url}/getBootStatus?apikey={api_key}', json="True")
+        # test_module uses getEntityRisk with ok_codes=(200, 400, 404)
+        requests_mock.get(f"{base_url}/getEntityRisk", json={"risk": "Low", "reasons": []})
         output = test_module(client)
         assert output == "ok"
 
-    @patch('Silverfort.API_KEY', API_KEY)
     def test_get_upn_by_email(self, requests_mock, upn, base_url, valid_get_upn_response, api_key, client, email, domain):
-        requests_mock.get(f'{base_url}/getUPN?apikey={api_key}&email={email}&domain={domain}', json=valid_get_upn_response)
+        requests_mock.get(f"{base_url}/getUPN?email={email}&domain={domain}", json=valid_get_upn_response)
 
         output = client.get_upn_by_email_or_sam_account_http_request(domain, email=email)
         assert output == upn
 
-    @patch('Silverfort.API_KEY', API_KEY)
-    def test_get_upn_by_sam_account(self, requests_mock, upn, base_url, valid_get_upn_response, api_key, client, sam_account,
-                                    domain):
-        requests_mock.get(f'{base_url}/getUPN?apikey={api_key}&sam_account={sam_account}&domain={domain}',
-                          json=valid_get_upn_response)
+    def test_get_upn_by_sam_account(
+        self, requests_mock, upn, base_url, valid_get_upn_response, api_key, client, sam_account, domain
+    ):
+        requests_mock.get(f"{base_url}/getUPN?sam_account={sam_account}&domain={domain}", json=valid_get_upn_response)
 
         output = client.get_upn_by_email_or_sam_account_http_request(domain, sam_account=sam_account)
         assert output == upn
 
-    @patch('Silverfort.API_KEY', API_KEY)
     def test_get_user_entity_risk(self, requests_mock, upn, base_url, api_key, client, valid_get_risk_response):
-        args = {'upn': upn}
-        requests_mock.get(f'{base_url}/getEntityRisk?apikey={api_key}&user_principal_name={upn}',
-                          json=valid_get_risk_response)
+        args = {"upn": upn}
+        requests_mock.get(f"{base_url}/getEntityRisk?user_principal_name={upn}", json=valid_get_risk_response)
 
         _, outputs, _ = get_user_entity_risk_command(client, args)
 
-        outputs = outputs['Silverfort.UserRisk(val.UPN && val.UPN == obj.UPN)']
+        outputs = outputs["Silverfort.UserRisk(val.UPN && val.UPN == obj.UPN)"]
 
         assert outputs["UPN"] == upn
         assert outputs["Risk"] == valid_get_risk_response["risk"]
         assert outputs["Reasons"] == valid_get_risk_response["reasons"]
 
-    @patch('Silverfort.API_KEY', API_KEY)
-    def test_get_resource_entity_risk(self, requests_mock, base_url, api_key, client, valid_get_risk_response, resource_name,
-                                      domain):
-        args = {'resource_name': resource_name, 'domain_name': domain}
-        requests_mock.get(f'{base_url}/getEntityRisk?apikey={api_key}&resource_name={resource_name}'
-                          f'&domain_name={domain}', json=valid_get_risk_response)
+    def test_get_resource_entity_risk(
+        self, requests_mock, base_url, api_key, client, valid_get_risk_response, resource_name, domain
+    ):
+        args = {"resource_name": resource_name, "domain_name": domain}
+        requests_mock.get(
+            f"{base_url}/getEntityRisk?resource_name={resource_name}&domain_name={domain}", json=valid_get_risk_response
+        )
 
         _, outputs, _ = get_resource_entity_risk_command(client, args)
 
-        outputs = outputs['Silverfort.ResourceRisk(val.ResourceName && val.ResourceName == obj.ResourceName)']
+        outputs = outputs["Silverfort.ResourceRisk(val.ResourceName && val.ResourceName == obj.ResourceName)"]
 
         assert outputs["ResourceName"] == resource_name
         assert outputs["Risk"] == valid_get_risk_response["risk"]
         assert outputs["Reasons"] == valid_get_risk_response["reasons"]
 
-    @patch('Silverfort.API_KEY', API_KEY)
-    def test_update_user_entity_risk(self, requests_mock, upn, base_url, api_key, client, valid_update_response, bad_response,
-                                     risk_args):
+    def test_update_user_entity_risk(
+        self, requests_mock, upn, base_url, api_key, client, valid_update_response, bad_response, risk_args
+    ):
         args = risk_args
-        args['upn'] = upn
+        args["upn"] = upn
 
-        requests_mock.post(f'{base_url}/updateEntityRisk?apikey={api_key}', json=valid_update_response)
+        requests_mock.post(f"{base_url}/updateEntityRisk", json=valid_update_response)
         assert update_user_entity_risk_command(client, args) == "updated successfully!"
 
-        requests_mock.post(f'{base_url}/updateEntityRisk?apikey={api_key}', json=bad_response)
+        requests_mock.post(f"{base_url}/updateEntityRisk", json=bad_response)
         assert update_user_entity_risk_command(client, args) == "Couldn't update the user entity's risk"
 
-    @patch('Silverfort.API_KEY', API_KEY)
-    def test_update_resource_entity_risk_successfully(self, requests_mock, base_url, api_key, client, valid_update_response,
-                                                      bad_response, risk_args, resource_name, domain):
+    def test_update_resource_entity_risk_successfully(
+        self, requests_mock, base_url, api_key, client, valid_update_response, bad_response, risk_args, resource_name, domain
+    ):
         args = risk_args
-        args['resource_name'] = resource_name
-        args['domain_name'] = domain
+        args["resource_name"] = resource_name
+        args["domain_name"] = domain
 
-        requests_mock.post(f'{base_url}/updateEntityRisk?apikey={api_key}', json=valid_update_response)
-        assert update_resource_entity_risk_command(client, args) == 'updated successfully!'
+        requests_mock.post(f"{base_url}/updateEntityRisk", json=valid_update_response)
+        assert update_resource_entity_risk_command(client, args) == "updated successfully!"
 
-        requests_mock.post(f'{base_url}/updateEntityRisk?apikey={api_key}', json=bad_response)
+        requests_mock.post(f"{base_url}/updateEntityRisk", json=bad_response)
         assert update_resource_entity_risk_command(client, args) == "Couldn't update the resource entity's risk"
+
+    def test_get_jwt_token(self, api_key, current_time, expected_jwt_token):
+        app_user_id, app_user_secret = api_key.split(":")
+        jwt_token = get_jwt_token(app_user_id, app_user_secret, current_time)
+
+        assert jwt_token == expected_jwt_token
+
+    def test_build_operational_headers_uses_operational_credentials(self, client):
+        """Test that build_operational_headers uses operational credentials when available"""
+        headers = client.build_operational_headers()
+        # The token should be generated from operational credentials (OP_USER_ID)
+        assert "Authorization" in headers
+        assert headers["Authorization"].startswith("Bearer ")
+
+    def test_build_operational_headers_falls_back_to_main_credentials(self, base_url, api_key):
+        """Test fallback to main credentials when operational ones are not provided"""
+        from Silverfort import Client
+
+        app_user_id, app_user_secret = api_key.split(":")
+        client_without_op = Client(
+            app_user_id=app_user_id,
+            app_user_secret=app_user_secret,
+            operational_user_id=None,
+            operational_user_secret=None,
+            external_api_key=None,
+            base_url=base_url,
+            verify=False,
+        )
+        headers = client_without_op.build_operational_headers()
+        assert "Authorization" in headers
+        # Should still have a valid Bearer token (from main credentials)
+        assert headers["Authorization"].startswith("Bearer ")

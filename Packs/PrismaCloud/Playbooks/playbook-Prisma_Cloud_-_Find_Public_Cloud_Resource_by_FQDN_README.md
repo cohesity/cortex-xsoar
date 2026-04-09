@@ -6,9 +6,9 @@ Supported Cortex XSOAR versions: 6.0.0 and later.
 This playbook uses the following sub-playbooks, integrations, and scripts.
 
 ### Sub-playbooks
-* Prisma Cloud - Find Azure Resource by FQDN
-* Prisma Cloud - Find GCP Resource by FQDN
-* Prisma Cloud - Find AWS Resource by FQDN
+* Prisma Cloud - Find Azure Resource by FQDN v2
+* Prisma Cloud - Find GCP Resource by FQDN v2
+* Prisma Cloud - Find AWS Resource by FQDN v2
 
 ### Integrations
 This playbook does not use any integrations.
@@ -36,4 +36,4 @@ This playbook does not use any commands.
 
 ## Playbook Image
 ---
-![Prisma Cloud - Find Public Cloud Resource by FQDN](https://raw.githubusercontent.com/demisto/content/852016ad0103ba42e8b5c8f596246fd14a4e7a90/Packs/PrismaCloud/doc_files/Prisma_Cloud_-_Find_Public_Cloud_Resource_by_FQDN.png)
+![Prisma Cloud - Find Public Cloud Resource by FQDN](./../doc_files/Prisma_Cloud_-_Find_Public_Cloud_Resource_by_FQDN.png)

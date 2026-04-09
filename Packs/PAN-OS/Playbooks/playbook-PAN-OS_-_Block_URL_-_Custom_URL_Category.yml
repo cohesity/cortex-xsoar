@@ -6,6 +6,7 @@ description: |-
   The playbook checks whether the input URL category already exists, and if the URLs are a part of this category. Otherwise, it will create the category, block the URLs, and commit the configuration.
 starttaskid: "0"
 fromversion: 5.0.0
+toversion: 6.9.9
 tasks:
   "0":
     id: "0"
@@ -15,9 +16,9 @@ tasks:
       id: b04e828c-66a7-4f40-8753-90ba9a20ccf2
       version: -1
       name: ""
-      description: ""
       iscommand: false
       brand: ""
+      description: ''
     nexttasks:
       '#none#':
       - "1"
@@ -32,6 +33,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "1":
     id: "1"
     taskid: e12beb96-60f4-4279-8122-884f57440b1e
@@ -87,6 +92,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "2":
     id: "2"
     taskid: d8aa9ca9-1af0-4c39-81b4-46c18e53167b
@@ -124,6 +133,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "3":
     id: "3"
     taskid: 2aeda206-4805-4701-8e03-baea02453361
@@ -133,7 +146,7 @@ tasks:
       version: -1
       name: PAN-OS - Create Custom URL Category
       description: Creates a custom URL category
-      script: '|||panorama-create-custom-url-category'
+      script: '|||pan-os-create-custom-url-category'
       type: regular
       iscommand: true
       brand: ""
@@ -175,6 +188,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "4":
     id: "4"
     taskid: a76fc659-c352-4025-88c6-1dff4bc36b6d
@@ -184,7 +201,7 @@ tasks:
       version: -1
       name: PAN-OS - Block Malicious URL Category
       description: Creates a custom block policy rule to block communication to URLs in this category.
-      script: '|||panorama-custom-block-rule'
+      script: '|||pan-os-custom-block-rule'
       type: regular
       iscommand: true
       brand: ""
@@ -195,7 +212,6 @@ tasks:
       device-group:
         complex:
           root: inputs.device-group
-      direction: {}
       log_forwarding:
         complex:
           root: inputs.LogForwarding
@@ -215,8 +231,6 @@ tasks:
           root: inputs.pre-post
       rulename:
         simple: Demisto Block Rule - ${incident.id}
-      tags: {}
-      target: {}
     separatecontext: false
     view: |-
       {
@@ -228,6 +242,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "5":
     id: "5"
     taskid: 4d893660-9b68-4b75-883f-6624620fb454
@@ -236,10 +254,10 @@ tasks:
       id: 4d893660-9b68-4b75-883f-6624620fb454
       version: -1
       name: Done
-      description: ""
       type: title
       iscommand: false
       brand: ""
+      description: ''
     separatecontext: false
     view: |-
       {
@@ -251,6 +269,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "9":
     id: "9"
     taskid: 287ee829-b825-42c7-8566-fe61135f7087
@@ -260,7 +282,7 @@ tasks:
       version: -1
       name: PAN-OS - Get Custom URL Category
       description: Returns information for a specified custom URL category
-      script: '|||panorama-get-custom-url-category'
+      script: '|||pan-os-get-custom-url-category'
       type: regular
       iscommand: true
       brand: ""
@@ -286,12 +308,16 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "10":
     id: "10"
-    taskid: 814170c9-fcf8-46d6-8223-711f0b5a7b60
+    taskid: 0519c3cc-452b-4c33-8fc0-45e60f6edcb9
     type: condition
     task:
-      id: 814170c9-fcf8-46d6-8223-711f0b5a7b60
+      id: 0519c3cc-452b-4c33-8fc0-45e60f6edcb9
       version: -1
       name: Malicious URLs already exist in the Custom URL Category?
       description: ""
@@ -315,6 +341,7 @@ tasks:
           right:
             value:
               simple: inputs.URL
+            iscontext: true
     view: |-
       {
         "position": {
@@ -325,6 +352,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "11":
     id: "11"
     taskid: 1d9d896f-0796-4e86-8dd9-d6072875a535
@@ -361,6 +392,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "12":
     id: "12"
     taskid: 54a0f680-1ec6-4843-8611-028d029f584c
@@ -370,7 +405,7 @@ tasks:
       version: -1
       name: PAN-OS - Add malicious URLs to Custom URL Category
       description: Add sites to, or remove sites from, a custom URL category
-      script: '|||panorama-edit-custom-url-category'
+      script: '|||pan-os-edit-custom-url-category'
       type: regular
       iscommand: true
       brand: ""
@@ -406,6 +441,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "13":
     id: "13"
     taskid: 1a6f474c-5f1a-4408-8bbc-25d7e892933f
@@ -415,10 +454,10 @@ tasks:
       version: -1
       name: PAN-OS Commit Configuration
       playbookName: PAN-OS Commit Configuration
-      description: ""
       type: playbook
       iscommand: false
       brand: ""
+      description: ''
     nexttasks:
       '#none#':
       - "4"
@@ -433,6 +472,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "14":
     id: "14"
     taskid: de76b9d7-bb2a-4757-89ee-9d906a278683
@@ -442,10 +485,10 @@ tasks:
       version: -1
       name: PAN-OS Commit Configuration
       playbookName: PAN-OS Commit Configuration
-      description: ""
       type: playbook
       iscommand: false
       brand: ""
+      description: ''
     nexttasks:
       '#none#':
       - "5"
@@ -460,6 +503,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "15":
     id: "15"
     taskid: 80060245-606b-4c59-8baa-c985a309745f
@@ -500,6 +547,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "16":
     id: "16"
     taskid: bc336c13-48d4-4f99-8225-9a6a53af8861
@@ -526,6 +577,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "17":
     id: "17"
     taskid: 3c782409-7469-45c5-80e0-c95308ad57bf
@@ -566,6 +621,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "18":
     id: "18"
     taskid: 73abf18f-a70f-4c67-81a3-3e9724cc9c5e
@@ -592,6 +651,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "19":
     id: "19"
     taskid: 42127c8f-922d-4c5c-8b7a-4e428e6b2f11
@@ -601,7 +664,7 @@ tasks:
       version: -1
       name: PAN-OS - Block Malicious URL Category
       description: Creates a custom block policy rule to block communication to URLs in this category.
-      script: '|||panorama-custom-block-rule'
+      script: '|||pan-os-custom-block-rule'
       type: regular
       iscommand: true
       brand: ""
@@ -612,7 +675,6 @@ tasks:
       device-group:
         complex:
           root: inputs.device-group
-      direction: {}
       log_forwarding:
         complex:
           root: inputs.LogForwarding
@@ -632,8 +694,6 @@ tasks:
           root: inputs.pre-post
       rulename:
         simple: Demisto Block Rule - ${incident.id}
-      tags: {}
-      target: {}
     separatecontext: false
     view: |-
       {
@@ -645,6 +705,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "20":
     id: "20"
     taskid: ae0d8023-81e3-4c95-8ccb-08f02de687e7
@@ -671,6 +735,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
   "21":
     id: "21"
     taskid: b20b0525-f692-4321-8b43-2e9f18de1073
@@ -698,6 +766,10 @@ tasks:
     note: false
     timertriggers: []
     ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
 view: |-
   {
     "linkLabelsPosition": {
@@ -731,15 +803,18 @@ inputs:
       - operator: uniq
   required: false
   description: URL to block
+  playbookInputQuery:
 - key: CustomURLCategory
   value:
     simple: Demisto Remediation - Malicious URLs
   required: false
   description: Custom URL Category name
+  playbookInputQuery:
 - key: LogForwarding
   value: {}
   required: false
   description: Panorama log forwarding object name
+  playbookInputQuery:
 - key: AutoCommit
   value:
     simple: "No"
@@ -748,23 +823,36 @@ inputs:
     This input establishes whether to commit the configuration automatically.
     Yes - Commit automatically.
     No - Commit manually.
+  playbookInputQuery:
 - key: type
   value: {}
   required: false
   description: Custom URL category type. Insert "URL List"/ "Category Match".
+  playbookInputQuery:
 - key: device-group
   value: {}
   required: false
   description: Device group for the Custom URL Category (Panorama instances).
+  playbookInputQuery:
 - key: categories
   value: {}
   required: false
   description: The list of categories. Relevant from PAN-OS v9.x.
+  playbookInputQuery:
 - key: pre-post
   value:
     simple: pre-rulebase
   required: false
   description: Specify pre-rulebase or post-rulebase. (Panorama instances).
+  playbookInputQuery:
 outputs: []
 tests:
 - PAN-OS - Block URL - Custom URL Category Test
+contentitemexportablefields:
+  contentitemfields: {}
+supportedModules:
+- agentix
+- xsiam
+- edr
+- cloud
+- cloud_runtime_security

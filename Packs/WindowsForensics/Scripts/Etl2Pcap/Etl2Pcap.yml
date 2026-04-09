@@ -6,14 +6,13 @@ args:
 commonfields:
   id: Etl2Pcap
   version: -1
-dockerimage: demisto/etl2pcap:1.0.0.19032
+dockerimage: demisto/etl2pcap:1.0.0.117169
 enabled: true
 name: Etl2Pcap
 outputs:
 - contextPath: EtlToPcap.NewFileName
   description: The output filename.
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

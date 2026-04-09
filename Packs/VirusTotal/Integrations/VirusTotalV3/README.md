@@ -3,37 +3,37 @@
 This integration analyzes suspicious hashes, URLs, domains, and IP addresses.
 The integration was integrated and tested with version v3 API of VirusTotal.
 
-## Configure VirusTotal (API v3) on Cortex XSOAR
+## Configure VirusTotal (API v3) in Cortex
 
-1. Navigate to **Settings** > **Integrations** > **Servers & Services**.
-1. Search for VirusTotal (API v3).
-1. Click **Add instance** to create and configure a new integration instance.
-
-    | **Parameter** | **Description** | **Required** |
-    | --- | --- | --- |
-    | API Key | See [Acquiring your API key](#acquiring-your-api-key) | True |
-    | Use system proxy settings |  | False |
-    | Trust any certificate (not secure) |  | False |
-    | Source Reliability | Reliability of the source providing the intelligence data |  |
-    | Premium Subscription | Whether to use premium subscription. (For advanced reputation analyze. See [Premium analysis - Relationship Files Threshold](#premium-analysis---relationship-files-threshold)) | False |
-    | File Threshold. Minimum number of positive results from VT scanners to consider the file malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
-    | IP Threshold. Minimum number of positive results from VT scanners to consider the IP malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
-    | URL Threshold. Minimum number of positive results from VT scanners to consider the URL malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
-    | Domain Threshold. Minimum number of positive results from VT scanners to consider the domain malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
-    | Preferred Vendors List. CSV list of vendors who are considered more trustworthy. | See [Indicator Thresholds](#indicator-thresholds).  | False |
-    | Preferred Vendor Threshold. The minimum number of highly trusted vendors required to consider a domain, IP address, URL, or file as malicious.  | See [Indicator Thresholds](#indicator-thresholds). | False |
-    | Enable score analyzing by Crowdsourced Yara Rules, Sigma, and IDS | See [Rules Threshold](#rules-threshold). | False |
-    | Crowdsourced Yara Rules Threshold | See [Rules Threshold](#rules-threshold). | False |
-    | Sigma and Intrusion Detection Rules Threshold |  See [Rules Threshold](#rules-threshold). | False |
-    | Domain Popularity Ranking Threshold | See [Rules Threshold](#rules-threshold). | False |
-    | Premium Subscription Only: Relationship Files Threshold | See [Premium analysis - Relationship Files Threshold](#premium-analysis---relationship-files-threshold) | False |
-
-1. Click **Test** to validate the URLs, token, and connection.
+| **Parameter** | **Description** | **Required** |
+| --- | --- | --- |
+| API Key | See [Acquiring your API key](#acquiring-your-api-key) | True |
+| Use system proxy settings |  | False |
+| Trust any certificate (not secure) |  | False |
+| Source Reliability | Reliability of the source providing the intelligence data |  |
+| Premium Subscription | Whether to use premium subscription. (For advanced reputation analyze. See [Premium analysis - Relationship Files Threshold](#premium-analysis---relationship-files-threshold)) | False |
+| File Malicious Threshold. Minimum number of positive results from VT scanners to consider the file malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| File Suspicious Threshold. Minimum number of positive and suspicious results from VT scanners to consider the file suspicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| IP Malicious Threshold. Minimum number of positive results from VT scanners to consider the IP malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| IP Suspicious Threshold. Minimum number of positive and suspicious results from VT scanners to consider the IP suspicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| Disable reputation lookups for private IP addresses | To reduce the number of lookups made to the VT API, this option can be selected to gracefully skip enrichment of any IP addresses allocated for private networks. | False |
+| URL Malicious Threshold. Minimum number of positive results from VT scanners to consider the URL malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| URL Suspicious Threshold. Minimum number of positive and suspicious results from VT scanners to consider the URL suspicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| Domain Malicious Threshold. Minimum number of positive results from VT scanners to consider the domain malicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| Domain Suspicious Threshold. Minimum number of positive and suspicious results from VT scanners to consider the domain suspicious. | See [Indicator Thresholds](#indicator-thresholds). | False |
+| Preferred Vendors List. CSV list of vendors who are considered more trustworthy. | See [Indicator Thresholds](#indicator-thresholds).  | False |
+| Preferred Vendor Threshold. The minimum number of highly trusted vendors required to consider a domain, IP address, URL, or file as malicious.  | See [Indicator Thresholds](#indicator-thresholds). | False |
+| Enable score analyzing by Crowdsourced Yara Rules, Sigma, and IDS | See [Rules Threshold](#rules-threshold). | False |
+| Crowdsourced Yara Rules Threshold | See [Rules Threshold](#rules-threshold). | False |
+| Sigma and Intrusion Detection Rules Threshold |  See [Rules Threshold](#rules-threshold). | False |
+| Domain Popularity Ranking Threshold | See [Rules Threshold](#rules-threshold). | False |
+| Premium Subscription Only: Relationship Malicious Files Threshold | See [Premium analysis - Relationship Files Threshold](#premium-analysis---relationship-files-threshold) | False |
+| Premium Subscription Only: Relationship Suspicious Files Threshold | See [Premium analysis - Relationship Files Threshold](#premium-analysis---relationship-files-threshold) | False |
 
 ### Acquiring your API key
 
-Your API key can be found in your VirusTotal account user menu:  
-![how to get api key in virus total](https://files.readme.io/ddeb298-Screen_Shot_2019-10-17_at_3.17.04_PM.png)  
+Your API key can be found in your VirusTotal account user menu:
+![how to get api key in virus total](../../doc_files/ddeb298-Screen_Shot_2019-10-17_at_3_17_04_PM.png)
 Your API key carries all your privileges, so keep it secure and don't share it with anyone.
 
 ## DBot Score / Reputation scores
@@ -46,8 +46,8 @@ Configure the default threshold for each indicator type in the instance settings
 You can also specify the threshold as an argument when running relevant commands.
 
 - Indicators with positive results from preferred vendors equal to or higher than the threshold will be considered malicious.
-- Indicators with positive results equal to or higher than the threshold will be considered malicious.
-- Indicators with positive results equal to or higher than half of the threshold value, and lower than the threshold, will be considered suspicious.
+- Indicators with positive results equal to or higher than the malicious threshold will be considered malicious.
+- Indicators with positive results equal to or higher than the suspicious threshold value will be considered suspicious.
 - Domain popularity ranks: VirusTotal is returning a popularity ranks for each vendor. The integration will calculate its average and will compare it to the threshold.
 
 ### Rules Threshold
@@ -66,7 +66,7 @@ Example of a VirusTotal (API v3) DBot score log:
 
 ```log
 Basic analyzing of "<domain>"
-Found popularity ranks. Analyzing. 
+Found popularity ranks. Analyzing.
 The average of the ranks is 809009.0 and the threshold is 10000
 Indicator is good by popularity ranks.
 Analyzing by get_domain_communicating_files
@@ -114,14 +114,16 @@ The following lists the changes in this version according to the commands from t
   - **Detonate File - VirusTotal (API v3)**
   - **Detonate URL - VirusTotal (API v3)**
 - Each reputation command will use at least 1 API call. For advanced reputation commands, use the *Premium API* flag.
-- For each reputation command there is the new *extended_data* argument . When set to "true", the results returned by the commands will contain  
+- For each reputation command there is the new *extended_data* argument . When set to "true", the results returned by the commands will contain
   additional information as *last_analysis_results* which contains the service name and its specific analysis.
 - Reputation commands can return relationships of the indicator.
   The relationships that are supported are defined as part of the instance configuration.
-  For more information regarding URL relationships, see: <https://developers.virustotal.com/v3.0/reference#url-object>
-  For more information regarding IP relationships, see: <https://developers.virustotal.com/v3.0/reference#ip-object>
-  For more information regarding Domain relationships, see: <https://developers.virustotal.com/v3.0/reference#domains-1>
-  For more information regarding File relationships, see: <https://developers.virustotal.com/v3.0/reference#files>
+  For more information regarding URL relationships, see: <https://docs.virustotal.com/reference/url-object>
+  For more information regarding IP relationships, see: <https://docs.virustotal.com/reference/ip-object>
+  For more information regarding Domain relationships, see: <https://docs.virustotal.com/reference/domains-object>
+  For more information regarding File relationships, see: <https://docs.virustotal.com/reference/files>
+
+- Starting with XSOAR version 6.8.0, You may monitor API usage via the *VirusTotal API Execution Metrics* dashboard.
 
 ### Comments
 
@@ -177,11 +179,15 @@ Checks the file reputation of the specified hash.
 | File.Relationships.EntityAType | String | The type of the source of the relationship. |
 | File.Relationships.EntityBType | String | The type of the destination of the relationship. |
 | File.Malicious.Vendor | String | For malicious files, the vendor that made the decision. |
+| File.Malicious.Description | String | For malicious files, the reason that the vendor made the decision. |
 | File.Malicious.Detections | Number | For malicious files, the total number of detections. |
 | File.Malicious.TotalEngines | Number | For malicious files, the total number of engines that checked the file hash. |
+| File.VTVendors.EngineDetections | Number | Number of VT vendors that flagged the file as malicious. |
+| File.VTVendors.EngineVendors | Array | VT vendors who flagged the file as malicious. |
+| File.VTVendors.EngineDetectionNames | Array | VT detection names that flagged the file as malicious. |
 | DBotScore.Indicator | String | The indicator that was tested. |
 | DBotScore.Type | String | The indicator type. |
-| DBotScore.Vendor | String | The vendor used to calculate the DBot score. |
+| DBotScore.Vendor | unknown | The vendor used to calculate the score. |
 | DBotScore.Score | Number | The actual score. |
 | DBotScore.Reliability | String | Reliability of the source providing the intelligence data. |
 | VirusTotal.File.attributes.type_description | String | Description of the type of the file. |
@@ -384,7 +390,7 @@ Checks the file reputation of the specified hash.
 
 ## Commands
 
-You can execute these commands from the Cortex XSOAR CLI, as part of an automation, or in a playbook.
+You can execute these commands from the CLI, as part of an automation, or in a playbook.
 After you successfully execute a command, a DBot message appears in the War Room with the command details.
 
 ### ip
@@ -402,25 +408,30 @@ Checks the reputation of an IP address.
 | --- | --- | --- |
 | ip | IP address to check. | Required |
 | extended_data | Whether to return extended data (last_analysis_results). Possible values are: true, false. | Optional |
+| override_private_lookup | When set to "true", enrichment of private IP addresses will be conducted even if it has been disabled at the integration level. Possible values are: true, false. | Optional |
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | IP.Address | unknown | Bad IP address. |
-| IP.Relationships.EntityA | String | The source of the relationship. |
-| IP.Relationships.EntityB | String | The destination of the relationship. |
-| IP.Relationships.Relationship | String | The name of the relationship. |
-| IP.Relationships.EntityAType | String | The type of the source of the relationship. |
-| IP.Relationships.EntityBType | String | The type of the destination of the relationship. |
 | IP.ASN | unknown | Bad IP ASN. |
 | IP.Geo.Country | unknown | Bad IP country. |
-| IP.Malicious.Vendor | unknown | For malicious IPs, the vendor that made the decision. |
-| IP.Malicious.Description | unknown | For malicious IPs, the reason that the vendor made the decision. |
+| IP.Relationships.EntityA | string | The source of the relationship. |
+| IP.Relationships.EntityB | string | The destination of the relationship. |
+| IP.Relationships.Relationship | string | The name of the relationship. |
+| IP.Relationships.EntityAType | string | The type of the source of the relationship. |
+| IP.Relationships.EntityBType | string | The type of the destination of the relationship. |
+| IP.Malicious.Vendor | String | For malicious IPs, the vendor who made the decision. |
+| IP.Malicious.Description | String | For malicious IPs, the reason that the vendor made the decision. |
+| IP.VTVendors.EngineDetections | Number | Number of VT vendors that flagged the IP as malicious. |
+| IP.VTVendors.EngineVendors | Array | VT vendors who flagged the IP as malicious. |
+| IP.VTVendors.EngineDetectionNames | Array | VT detection names that flagged the IP as malicious. |
+| IP.ASOwner | String | The autonomous system owner of the IP. |
 | DBotScore.Indicator | unknown | The indicator that was tested. |
 | DBotScore.Type | unknown | The indicator type. |
-| DBotScore.Vendor | unknown | The vendor used to calculate the DBot score. |
-| DBotScore.Score | unknown | The actual score. |
+| DBotScore.Vendor | unknown | The vendor used to calculate the score. |
+| DBotScore.Score | Number | The actual score. |  
 | DBotScore.Reliability | String | Reliability of the source providing the intelligence data. |
 | VirusTotal.IP.attributes.regional_internet_registry | String | Regional internet registry \(RIR\). |
 | VirusTotal.IP.attributes.jarm | String | JARM data. |
@@ -443,7 +454,7 @@ Checks the reputation of an IP address.
 | VirusTotal.IP.type | String | Indicator IP type. |
 | VirusTotal.IP.id | String | ID of the IP. |
 
-#### Command Example
+#### Command example
 
 ```!ip ip=1.1.1.1```
 
@@ -453,34 +464,46 @@ Checks the reputation of an IP address.
 {
     "DBotScore": {
         "Indicator": "1.1.1.1",
-        "Reliability": "A - Completely reliable",
+        "Reliability": "C - Fairly reliable",
         "Score": 1,
         "Type": "ip",
-        "Vendor": "VirusTotal"
+        "Vendor": "VirusTotal (API v3)"
     },
     "IP": {
         "ASN": 13335,
+        "ASOwner": "CLOUDFLARENET",
         "Address": "1.1.1.1",
-        "DetectionEngines": 82,
-        "Geo": {
-            "Country": "AU"
-        },
-        "PositiveDetections": 1
+        "DetectionEngines": 94,
+        "PositiveDetections": 4,
+        "Relationships": [
+            {
+                "EntityA": "1.1.1.1",
+                "EntityAType": "IP",
+                "EntityB": "00000cd773f456da710fa334507f8303e87ee228a0c42e365b0250a9a267e734",
+                "EntityBType": "File",
+                "Relationship": "communicates-with"
+            },
+            {
+                "EntityA": "1.1.1.1",
+                "EntityAType": "IP",
+                "EntityB": "0000703e66fe64992425a5a6231671c08a6c3382a28d0efacc7efd3fb289a143",
+                "EntityBType": "File",
+                "Relationship": "communicates-with"
+            }
+        ]
     },
     "VirusTotal": {
         "IP": {
             "attributes": {
                 "as_owner": "CLOUDFLARENET",
                 "asn": 13335,
-                "continent": "OC",
-                "country": "AU",
                 "jarm": "27d3ed3ed0003ed1dc42d43d00041d6183ff1bfae51ebd88d70384363d525c",
                 "last_analysis_stats": {
-                    "harmless": 73,
-                    "malicious": 1,
-                    "suspicious": 1,
+                    "harmless": 80,
+                    "malicious": 4,
+                    "suspicious": 0,
                     "timeout": 0,
-                    "undetected": 7
+                    "undetected": 10
                 },
                 "last_https_certificate": {
                     "cert_signature": {
@@ -524,7 +547,7 @@ Checks the reputation of an IP address.
                             "GGd",
                             "GGd"
                         ],
-                        "subject_key_identifier": "e1b6fc06f9b98b05f4c1e2489b02b90bc1b53d79",
+                        "subject_key_identifier": "19451b2318f874da2214cb466be213b360158240",
                         "tags": []
                     },
                     "issuer": {
@@ -553,27 +576,48 @@ Checks the reputation of an IP address.
                     "thumbprint": "f1b38143b992645497cf452f8c1ac84249794282",
                     "thumbprint_sha256": "fb444eb8e68437bae06232b9f5091bccff62a768ca09e92eb5c9c2cf9d17c426",
                     "validity": {
-                        "not_after": "2022-01-18 23:59:59",
-                        "not_before": "2021-01-11 00:00:00"
+                        "not_after": "2022-10-25 23:59:59",
+                        "not_before": "2021-10-25 00:00:00"
                     },
                     "version": "V3"
                 },
                 "last_https_certificate_date": 1617041198,
                 "last_modification_date": 1617083545,
                 "network": "1.1.1.0/24",
-                "regional_internet_registry": "APNIC",
-                "reputation": 33,
+                "reputation": 134,
                 "tags": [],
                 "total_votes": {
-                    "harmless": 22,
-                    "malicious": 6
-                 },
+                    "harmless": 63,
+                    "malicious": 8
+                },
                 "whois": "**whois string**",
-                "whois_date": 1615771527
+                "whois_date": 1631599972
             },
             "id": "1.1.1.1",
             "links": {
                 "self": "https://www.virustotal.com/api/v3/ip_addresses/1.1.1.1"
+            },
+            "relationships": {
+                "communicating_files": {
+                    "data": [
+                        {
+                            "id": "00000cd773f456da710fa334507f8303e87ee228a0c42e365b0250a9a267e734",
+                            "type": "file"
+                        },
+                        {
+                            "id": "0000703e66fe64992425a5a6231671c08a6c3382a28d0efacc7efd3fb289a143",
+                            "type": "file"
+                        }
+                    ],
+                    "links": {
+                        "next": "https://www.virustotal.com/api/v3/ip_addresses/1.1.1.1/relationships/communicating_files?cursor=eyJsaW1pdCI6IDIwLCAib2Zmc2V0IjogMjB9&limit=20",
+                        "related": "https://www.virustotal.com/api/v3/ip_addresses/1.1.1.1/communicating_files",
+                        "self": "https://www.virustotal.com/api/v3/ip_addresses/1.1.1.1/relationships/communicating_files?limit=20"
+                    },
+                    "meta": {
+                        "cursor": "eyJsaW1pdCI6IDIwLCAib2Zmc2V0IjogMjB9"
+                    }
+                }
             },
             "type": "ip_address"
         }
@@ -585,9 +629,9 @@ Checks the reputation of an IP address.
 
 >### IP reputation of 1.1.1.1
 >
->|Id|Network|Country|LastModified|Reputation|Positives|
->|---|---|---|---|---|---|
->| 1.1.1.1 | 1.1.1.0/24 | AU | 2021-03-30 05:52:25Z | 33 | 1/82 |
+>|Id|Network|Country|AsOwner|LastModified| Reputation |Positives|
+>|---|---|---|---|---|---|---|
+>| 1.1.1.1 | 1.1.1.0/24 |  | CLOUDFLARENET | 2022-08-29 15:15:41Z | 134        | 4/94 |
 
 ### url
 
@@ -615,12 +659,15 @@ Checks the reputation of a URL.
 | URL.Relationships.Relationship | String | The name of the relationship. |
 | URL.Relationships.EntityAType | String | The type of the source of the relationship. |
 | URL.Relationships.EntityBType | String | The type of the destination of the relationship. |
-| URL.Malicious.Vendor | unknown | For malicious URLs, the vendor that made the decision. |
-| URL.Malicious.Description | unknown | For malicious URLs, the reason that the vendor made the decision. |
+| URL.Malicious.Vendor | String | For malicious URLs, the vendor who made the decision. |
+| URL.Malicious.Description | String | For malicious URLs, the reason that the vendor made the decision. |
+| URL.VTVendors.EngineDetections | Number | Number of VT vendors that flagged the URL as malicious. |
+| URL.VTVendors.EngineVendors | Array | VT vendors who flagged the URL as malicious. |
+| URL.VTVendors.EngineDetectionNames | Array | VT detection names that flagged the URL as malicious. |
 | DBotScore.Indicator | unknown | The indicator that was tested. |
 | DBotScore.Type | unknown | The indicator type. |
-| DBotScore.Vendor | unknown | The vendor used to calculate the DBot score. |
-| DBotScore.Score | unknown | The actual score. |
+| DBotScore.Vendor | unknown | The vendor used to calculate the score. |
+| DBotScore.Score | Number | The actual score. |
 | DBotScore.Reliability | String | Reliability of the source providing the intelligence data. |
 | VirusTotal.URL.attributes.favicon.raw_md5 | String | The MD5 hash of the URL. |
 | VirusTotal.URL.attributes.favicon.dhash | String | Difference hash. |
@@ -772,12 +819,15 @@ Checks the reputation of a domain.
 | Domain.Relationships.Relationship | String | The name of the relationship. |
 | Domain.Relationships.EntityAType | String | The type of the source of the relationship. |
 | Domain.Relationships.EntityBType | String | The type of the destination of the relationship. |
-| Domain.Malicious.Vendor | unknown | For malicious domains, the vendor that made the decision. |
-| Domain.Malicious.Description | unknown | For malicious domains, the reason that the vendor made the decision. |
+| Domain.Malicious.Vendor | String | For malicious domains, the vendor who made the decision. |
+| Domain.Malicious.Description | String | For malicious domains, the reason that the vendor made the decision. |
+| Domain.VTVendors.EngineDetections | Number | Number of VT vendors that flagged the domain as malicious. |
+| Domain.VTVendors.EngineVendors | Array | VT vendors who flagged the domain as malicious. |
+| Domain.VTVendors.EngineDetectionNames | Array | VT detection names that flagged the domain as malicious. |
 | DBotScore.Indicator | unknown | The indicator that was tested. |
 | DBotScore.Type | unknown | The indicator type. |
 | DBotScore.Vendor | unknown | The vendor used to calculate the score. |
-| DBotScore.Score | unknown | The actual DBot score. |
+| DBotScore.Score | Number | The actual score. |
 | DBotScore.Reliability | String | Reliability of the source providing the intelligence data. |
 | VirusTotal.Domain.attributes.last_dns_records.type | String | The type of the last DNS records. |
 | VirusTotal.Domain.attributes.last_dns_records.value | String | The value of the last DNS records. |
@@ -1402,7 +1452,7 @@ Search for an indicator in VirusTotal.
                     "timeout": 0,
                     "undetected": 7
                 },
-                "last_dns_records": [  
+                "last_dns_records": [
                     {
                         "ttl": 14399,
                         "type": "TXT",
@@ -1871,7 +1921,9 @@ Returns passive DNS records by indicator.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| ip | IP for which to get its DNS data. | Required |
+| id | IP or domain for which to get its DNS data. | Optional |
+| ip | IP for which to get its DNS data. | Optional |
+| domain | Domain for which to get its DNS data. | Optional |
 | limit | Maximum number of results to fetch. Default is 10. | Optional |
 
 #### Context Output
@@ -2014,3 +2066,581 @@ Retrieves resolutions of the given IP.
 >|Id|Stats|Status|
 >|---|---|---|
 >| u-20694f234fbac92b1dcc16f424aa1c85e9dd7af75b360745df6484dcae410853-1613980758 | harmless: 69<br/>malicious: 7<br/>suspicious: 0<br/>undetected: 7<br/>timeout: 0 | completed |
+
+### vt-file-sigma-analysis
+
+***
+Retrieves result of the last Sigma analysis.
+
+#### Base Command
+
+`vt-file-sigma-analysis`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| file | File hash (md5, sha1, sha256). | Required |
+| only_stats | Print only Sigma analysis summary stats. | Optional |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.SigmaAnalysis.data.attributes.last_modification_date | Number | Date of the last update in epoch format. |
+| VirusTotal.SigmaAnalysis.data.attributes.analysis_date | Number | Date of the last update in epoch format. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.match_context | String | Matched strings from the log file. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_author | String | Rule authors separated by commas. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_description | String | Brief summary about what the rule detects. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_id | String | Rule ID in VirusTotal's database. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_level | String | Rule severity. Can be "low", "medium", "high" or "critical". |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_source | String | Ruleset where the rule belongs. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.rule_matches.rule_title | String | Rule title. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.severity_stats.critical | Number | Number of matched rules having a "critical" severity. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.severity_stats.high | Number | Number of matched rules having a "high" severity. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.severity_stats.low | Number | Number of matched rules having a "low" severity. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.severity_stats.medium | Number | Number of matched rules having a "medium" severity. |
+| VirusTotal.SigmaAnalysis.data.attributes.stats.source_severity_stats | unknown | Same as severity_stats but grouping stats by ruleset. Keys are ruleset names as string and values are stats in a dictionary. |
+| VirusTotal.SigmaAnalysis.data.id | String | ID of the analysis. |
+
+#### Command Example
+
+```!vt-file-sigma-analysis file=f912398cb3542ab704fe917af4a60d4feee21ac577535b10453170f10c6fd6de```
+
+#### Context Example
+
+```json
+{
+    "VirusTotal": {
+        "SigmaAnalysis": {
+            "meta": {
+                "count": 1
+            },
+            "data": {
+                "attributes": {
+                    "last_modification_date": 1650970667,
+                    "analysis_date": 1650968852,
+                    "rule_matches": [
+                        {
+                            "match_context": "$EventID: '1117'",
+                            "rule_level": "high",
+                            "rule_description": "Detects all actions taken by Windows Defender malware detection engines",
+                            "rule_source": "Sigma Integrated Rule Set (GitHub)",
+                            "rule_title": "Windows Defender Threat Detected",
+                            "rule_id": "cf90b923dcb2c8192e6651425886607684aac6680bf25b20c39ae3f8743aebf1",
+                            "rule_author": "Ján Trenčanský"
+                        },
+                        {
+                            "match_context": "$EventID: '2002'",
+                            "rule_level": "low",
+                            "rule_description": "Setting have been change in Windows Firewall",
+                            "rule_source": "Sigma Integrated Rule Set (GitHub)",
+                            "rule_title": "Setting Change in Windows Firewall with Advanced Security",
+                            "rule_id": "693c36f61ac022fd66354b440464f490058c22b984ba1bef05ca246aba210ed1",
+                            "rule_author": "frack113"
+                        }
+                    ],
+                    "source_severity_stats": {
+                        "Sigma Integrated Rule Set (GitHub)": {
+                            "high": 1,
+                            "medium": 0,
+                            "critical": 0,
+                            "low": 1
+                        },
+                    },
+                    "severity_stats": {
+                        "high": 1,
+                        "medium": 0,
+                        "critical": 0,
+                        "low": 1
+                    }
+                },
+                "type": "sigma_analysis",
+                "id": "f912398cb3542ab704fe917af4a60d4feee21ac577535b10453170f10c6fd6de",
+                "links": {
+                    "self": "https://www.virustotal.com/api/v3/sigma_analyses/f912398cb3542ab704fe917af4a60d4feee21ac577535b10453170f10c6fd6de"
+                }
+            },
+            "links": {
+                "self": "https://www.virustotal.com/api/v3/files/f912398cb3542ab704fe917af4a60d4feee21ac577535b10453170f10c6fd6de/sigma_analysis"
+            }
+        }
+    }
+}
+```
+
+#### Human Readable Output
+
+>### Last Sigma analysis results
+>
+>|MatchContext|RuleLevel|RuleDescription|RuleSource|RuleTitle|RuleId|RuleAuthor|
+>|---|---|---|---|---|---|---|
+>| $EventID: '1117' | high | Detects all actions taken by Windows Defender malware detection engines | Sigma Integrated Rule Set (GitHub) | Windows Defender Threat Detected | 693c36f61ac022fd66354b440464f490058c22b984ba1bef05ca246aba210ed1 | Ján Trenčanský |
+
+### vt-privatescanning-file
+
+***
+Checks the file reputation of the specified private hash.
+
+See files through the eyes of VirusTotal without uploading them to the main threat corpus, keeping them entirely private. Static, dynamic, network and similarity analysis included, as well as automated threat intel enrichment, but NOT multi-antivirus analysis.
+
+#### Base Command
+
+`vt-privatescanning-file`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| file | File hash (md5, sha1, sha256). | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.File.attributes.type_description | String | Description of the type of the file. |
+| VirusTotal.File.attributes.tlsh | String | The locality-sensitive hashing. |
+| VirusTotal.File.attributes.exiftool.MIMEType | String | MIME type of the file. |
+| VirusTotal.File.attributes.names | String | Names of the file. |
+| VirusTotal.File.attributes.javascript_info.tags | String | Tags of the JavaScript. |
+| VirusTotal.File.attributes.exiftool.FileType | String | The file type. |
+| VirusTotal.File.attributes.exiftool.WordCount | Number | Total number of words in the file. |
+| VirusTotal.File.attributes.exiftool.LineCount | Number | Total number of lines in file. |
+| VirusTotal.File.attributes.exiftool.MIMEEncoding | String | The MIME encoding. |
+| VirusTotal.File.attributes.exiftool.FileTypeExtension | String | The file type extension. |
+| VirusTotal.File.attributes.exiftool.Newlines | Number | Number of newlines signs. |
+| VirusTotal.File.attributes.crowdsourced_ids_stats.info | Number | Number of IDS that marked the file as "info". |
+| VirusTotal.File.attributes.crowdsourced_ids_stats.high | Number | Number of IDS that marked the file as "high". |
+| VirusTotal.File.attributes.crowdsourced_ids_stats.medium | Number | Number of IDS that marked the file as "medium". |
+| VirusTotal.File.attributes.crowdsourced_ids_stats.low | Number | Number of IDS that marked the file as "low". |
+| VirusTotal.File.attributes.trid.file_type | String | The TrID file type. |
+| VirusTotal.File.attributes.trid.probability | Number | The TrID probability. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.description | String | Description of the YARA rule. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.source | String | Source of the YARA rule. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.author | String | Author of the YARA rule. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.ruleset_name | String | Rule set name of the YARA rule. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.rule_name | String | Name of the YARA rule. |
+| VirusTotal.File.attributes.crowdsourced_yara_results.ruleset_id | String | ID of the YARA rule. |
+| VirusTotal.File.attributes.names | String | Name of the file. |
+| VirusTotal.File.attributes.type_tag | String | Tag of the type. |
+| VirusTotal.File.attributes.size | Number | Size of the file. |
+| VirusTotal.File.attributes.sha256 | String | SHA-256 hash of the file. |
+| VirusTotal.File.attributes.type_extension | String | Extension of the type. |
+| VirusTotal.File.attributes.tags | String | File tags. |
+| VirusTotal.File.attributes.last_analysis_date | Number | Last analysis date in epoch format. |
+| VirusTotal.File.attributes.ssdeep | String | SSDeep hash of the file. |
+| VirusTotal.File.attributes.md5 | String | MD5 hash of the file. |
+| VirusTotal.File.attributes.sha1 | String | SHA-1 hash of the file. |
+| VirusTotal.File.attributes.magic | String | Identification of file by the magic number. |
+| VirusTotal.File.attributes.meaningful_name | String | Meaningful name of the file. |
+| VirusTotal.File.attributes.threat_severity.threat_severity_level | String | Threat severity level of the file. |
+| VirusTotal.File.attributes.threat_severity.threat_severity_data.popular_threat_category | String | Popular threat category of the file. |
+| VirusTotal.File.attributes.threat_verdict | String | Threat verdict of the file. |
+| VirusTotal.File.type | String | Type of the file. |
+| VirusTotal.File.id | String | ID of the file. |
+| VirusTotal.File.links.self | String | Link to the response. |
+
+#### Command Example
+
+```!vt-privatescanning-file file=example-file-hash```
+
+#### Context Example
+
+```json
+{
+    "VirusTotal": {
+        "File": {
+            "attributes": {
+                "type_description": "ELF",
+                "tlsh": "Example tlsh",
+                "vhash": "Example vhash",
+                "exiftool": {
+                    "MIMEType": "application/octet-stream",
+                    "CPUByteOrder": "Little endian",
+                    "ObjectFileType": "Executable file",
+                    "CPUArchitecture": "32 bit",
+                    "CPUType": "i386",
+                    "FileType": "ELF executable"
+                },
+                "trid": [
+                    {
+                        "file_type": "ELF Executable and Linkable format (Linux)",
+                        "probability": 55
+                    },
+                    {
+                        "file_type": "ELF Executable and Linkable format (generic)",
+                        "probability": 45
+                    }
+                ],
+                "crowdsourced_yara_results": [
+                    {
+                        "description": "Detects a suspicious ELF binary with UPX compression",
+                        "source": "https://www.example.com",
+                        "author": "Author X",
+                        "ruleset_name": "gen_elf_file_anomalies",
+                        "rule_name": "SUSP_ELF_LNX_UPX_Compressed_File",
+                        "ruleset_id": "0224a54ba7"
+                    }
+                ],
+                "threat_severity": {
+                    "threat_severity_level": "SEVERITY_HIGH",
+                    "threat_severity_data": {
+                        "has_dropped_files_with_detections": true,
+                        "type_tag": "elf",
+                        "has_execution_parents_with_detections": true,
+                        "can_be_detonated": true,
+                        "popular_threat_category": "trojan"
+                    },
+                    "last_analysis_date": "1681045097",
+                    "version": 1
+                },
+                "names": [
+                    "private",
+                    "/usr/lib/sample.so",
+                    "private_sample.bin",
+                ],
+                "owner": "virustotal",
+                "type_tag": "elf",
+                "elf_info": {
+                    "header": {
+                        "hdr_version": "1 (current)",
+                        "type": "EXEC (Executable file)",
+                        "obj_version": "0x1",
+                        "data": "2's complement, little endian",
+                        "machine": "Intel 80386",
+                        "num_section_headers": 0,
+                        "os_abi": "UNIX - Linux",
+                        "abi_version": 0,
+                        "entrypoint": 4633,
+                        "num_prog_headers": 2,
+                        "class": "ELF32"
+                    },
+                    "packers": [
+                        "upx"
+                    ],
+                    "segment_list": [
+                        {
+                            "segment_type": "LOAD"
+                        }
+                    ]
+                },
+                "size": 255510,
+                "type_extension": "so",
+                "threat_verdict": "VERDICT_MALICIOUS",
+                "detectiteasy": {
+                    "filetype": "ELF32",
+                    "values": [
+                        {
+                            "info": "EXEC 386-32",
+                            "version": "3.05",
+                            "type": "Packer",
+                            "name": "UPX"
+                        }
+                    ]
+                },
+                "crowdsourced_ids_stats": {
+                    "high": 0,
+                    "info": 0,
+                    "medium": 1,
+                    "low": 1
+                },
+                "type_tags": [
+                    "executable",
+                    "linux",
+                    "elf"
+                ],
+                "sandbox_verdicts": {
+                    "Zenbox Linux": {
+                        "category": "malicious",
+                        "confidence": 81,
+                        "sandbox_name": "Zenbox Linux",
+                        "malware_classification": [
+                            "MALWARE",
+                            "TROJAN",
+                            "EVADER"
+                        ],
+                        "malware_names": [
+                            "MalwareName"
+                        ]
+                    }
+                },
+                "sha256": "Example_sha256",
+                "tags": [
+                    "elf",
+                    "upx"
+                ],
+                "crowdsourced_ids_results": [
+                    {
+                        "rule_category": "Misc Attack",
+                        "alert_severity": "medium",
+                        "rule_msg": "Known Compromised or Hostile Host Traffic",
+                        "rule_raw": "alert ip [8.8.8.8] any -> $HOME_NET any"
+                    },
+                    {
+                        "rule_category": "Misc Attack",
+                        "alert_severity": "low",
+                        "rule_msg": "Poor Reputation IP",
+                        "rule_raw": "alert ip [1.1.1.1] any -> $HOME_NET any)"
+                    },
+                ],
+                "last_analysis_date": 1681386314,
+                "ssdeep": "Example ssdeep",
+                "packers": {
+                    "Gandelf": "upx"
+                },
+                "md5": "Example_md5",
+                "sha1": "Example_sha1",
+                "magic": "ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped",
+                "meaningful_name": "private"
+            },
+            "type": "private_file",
+            "id": "Example_sha256",
+            "links": {
+                "self": "https://www.virustotal.com/api/v3/private/files/Example_sha256"
+            }
+        }
+    }
+}
+```
+
+#### Human Readable Output
+
+>### Results of file hash Example_sha256
+>
+>|Sha1|Sha256|Md5|Meaningful Name|Threat Severity Level|Popular Threat Category|Threat Verdict|
+>|---|---|---|---|---|---|---|
+>| Example_sha1 | Example_sha256 | Example_md5 | private | HIGH | trojan | MALICIOUS |
+
+### vt-privatescanning-file-scan
+
+***
+Submits a file for private scanning. Use the vt-privatescanning-analysis-get command to get the scan results.
+
+#### Base Command
+
+`vt-privatescanning-file-scan`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| entryID | The file entry ID to submit. | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.Submission.type | String | The type of the submission (analysis). |
+| VirusTotal.Submission.id | String | The ID of the submission. |
+| VirusTotal.Submission.EntryID | String | The entry ID of the file detonated. |
+| VirusTotal.Submission.Extension | String | File extension. |
+| VirusTotal.Submission.Info | String | File info. |
+| VirusTotal.Submission.MD5 | String | MD5 hash of the file. |
+| VirusTotal.Submission.Name | String | Name of the file. |
+| VirusTotal.Submission.SHA1 | String | SHA-1 of the file. |
+| VirusTotal.Submission.SHA256 | String | SHA-256 of the file. |
+| VirusTotal.Submission.SHA512 | String | SHA-512 of the file. |
+| VirusTotal.Submission.SSDeep | String | SSDeep of the file. |
+| VirusTotal.Submission.Size | String | Size of the file. |
+| VirusTotal.Submission.Type | String | Type of the file. |
+
+#### Command Example
+
+```!vt-privatescanning-file-scan entryID=example-entry-id```
+
+#### Context Example
+
+```json
+{
+    "VirusTotal": {
+        "Submission": {
+            "type": "private_analysis",
+            "id": "example-analysis-id",
+            "EntryID": "example-entry-id",
+            "Extension": "txt",
+            "Info": "ASCII text, with no line terminators",
+            "MD5": "Example_md5",
+            "Name": "Testing.txt",
+            "SHA1": "Example_sha1",
+            "SHA256": "Example_sha256",
+            "SHA512": "Example_sha512",
+            "SSDeep": "Example ssdeep",
+            "Size": "71 bytes",
+            "Type": "text/plain; charset=utf-8"
+        }
+    }
+}
+```
+
+#### Human Readable Output
+
+>### The file has been submitted "Testing.txt"
+>
+>|id|EntryID|MD5|SHA1|SHA256|
+>|---|---|---|---|---|---|---|
+>| example-analysis-id | example-entry-id | Example_md5 | Example_sha1 | Example_sha256 |
+
+### vt-privatescanning-analysis-get
+
+***
+Get analysis of a private file or URL submitted to VirusTotal.
+
+#### Base Command
+
+`vt-privatescanning-analysis-get`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| id | ID of the analysis. | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.Analysis.data.attributes.date | Number | Date of the analysis in epoch format. |
+| VirusTotal.Analysis.data.attributes.status | String | Status of the analysis. |
+| VirusTotal.Analysis.data.attributes.sha256 | String | SHA-256 hash of the private file. |
+| VirusTotal.Analysis.data.attributes.threat_severity_level | String | Threat severity level of the private file \(if analysis is completed\). |
+| VirusTotal.Analysis.data.attributes.popular_threat_category | String | Popular threat category of the private file \(if analysis is completed\). |
+| VirusTotal.Analysis.data.attributes.threat_verdict | String | Threat verdict of the private file \(if analysis is completed\). |
+| VirusTotal.Analysis.data.attributes.url | String | URL submitted. |
+| VirusTotal.Analysis.data.attributes.title | String | Title of the private URL \(if analysis is completed\). |
+| VirusTotal.Analysis.data.attributes.last_http_response_content_sha256 | String | Last HTTP response content SHA-256 hash of the private URL \(if analysis is completed\). |
+| VirusTotal.Analysis.data.attributes.positives | String | Ratio of malicious detections to the total number of engines that scanned the private URL \(if analysis is completed\). |
+| VirusTotal.Analysis.data.id | String | ID of the analysis. |
+| VirusTotal.Analysis.data.type | String | Type of object \(private_analysis\). |
+| VirusTotal.Analysis.meta.file_info.sha256 | String | SHA-256 hash of the file. |
+| VirusTotal.Analysis.meta.file_info.sha1 | String | SHA-1 hash of the file. |
+| VirusTotal.Analysis.meta.file_info.md5 | String | MD5 hash of the file. |
+| VirusTotal.Analysis.meta.file_info.size | Number | Size of the file. |
+| VirusTotal.Analysis.meta.url_info.id | String | ID of the URL. |
+| VirusTotal.Analysis.meta.url_info.url | String | URL submitted. |
+| VirusTotal.Analysis.id | String | The analysis ID. |
+
+#### Command Example
+
+```!vt-privatescanning-analysis-get id=example-analysis-id```
+
+#### Context Example
+
+```json
+{
+    "VirusTotal": {
+        "Analysis": {
+            "id": "example-analysis-id",
+            "meta": {
+                "file_info": {
+                    "sha256": "Example_sha256",
+                    "sha1": "Example_sha1",
+                    "md5": "Example_md5",
+                    "size": 48
+                }
+            },
+            "data": {
+                "attributes": {
+                    "date": 1681461324,
+                    "status": "completed",
+                    "threat_severity_level": "SEVERITY_HIGH",
+                    "popular_threat_category": "trojan",
+                    "threat_verdict": "VERDICT_MALICIOUS",
+                },
+                "type": "private_analysis",
+                "id": "example-analysis-id"
+            }
+        }
+    }
+}
+```
+
+#### Human Readable Output
+
+>### Analysis results
+>
+>|Id|Threat Severity Level|Popular Threat Category|Threat Verdict|Status|
+>|---|---|---|---|---|---|---|
+>| example-analysis-id | HIGH | trojan | MALICIOUS | completed |
+
+## VT indicator fields
+
+3 indicator fields have been added to all indicator types:
+
+- **VT Engine Detections**. Number. Number of VT vendors that flagged the indicator as malicious.
+- **VT Engine Vendors**. Array. VT vendors who flagged the indicator as malicious.
+- **VT Engine Detection Names**. Array. VT detection names that flagged the indicator as malicious.
+
+To display the new fields in indicators:
+
+1. Navigate to `Settings > Objects Setup > Indicators > Types`.
+2. Select the desired indicator type, for example, `File`.
+3. Click `Edit` and, under `Custom Fields`, choose the desired field and add the corresponding path. For instance, if you select the `VT Engine Detections` field for the `File` indicator type, add the path `File.VTVendors.EngineDetections`. This will enable the field to be populated in the indicator data.
+
+Note that the field will not automatically appear in the indicator's layout. To make it visible:
+
+1. Navigate to `Settings > Objects Setup > Indicators > Layouts`.
+2. Select the desired layout (e.g., `File Indicator`).
+3. Click `Detach` if needed, and then edit the layout to include the new field.
+
+### vt-privatescanning-url-scan
+
+***
+Submits an URL for private scanning. Use the vt-privatescanning-analysis-get command to get the scan results.
+
+#### Base Command
+
+`vt-privatescanning-url-scan`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| url | The private URL to scan. | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.Submission.Type | String | The type of the submission \(private_analysis\). |
+| VirusTotal.Submission.id | String | The ID of the submission. |
+
+### vt-privatescanning-url
+
+***
+Checks the reputation of a private URL.
+
+#### Base Command
+
+`vt-privatescanning-url`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| url | Private URL to check. | Required |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| VirusTotal.URL.attributes.favicon.raw_md5 | String | The MD5 hash of the URL. |
+| VirusTotal.URL.attributes.favicon.dhash | String | Difference hash. |
+| VirusTotal.URL.attributes.last_http_response_content_length | Number | The last HTTPS response length. |
+| VirusTotal.URL.attributes.last_http_response_headers.date | Date | The last response header date. |
+| VirusTotal.URL.attributes.last_http_response_headers.x-sinkhole | String | DNS sinkhole from last response. |
+| VirusTotal.URL.attributes.last_http_response_headers.content-length | String | The content length of the last response. |
+| VirusTotal.URL.attributes.last_http_response_headers.content-type | String | The content type of the last response. |
+| VirusTotal.URL.attributes.last_http_response_content_sha256 | String | The SHA-256 hash of the content of the last response. |
+| VirusTotal.URL.attributes.last_http_response_code | Number | Last response status code. |
+| VirusTotal.URL.attributes.last_final_url | String | Last final URL. |
+| VirusTotal.URL.attributes.url | String | The URL itself. |
+| VirusTotal.URL.attributes.title | String | Title of the page. |
+| VirusTotal.URL.attributes.last_analysis_stats.harmless | Number | The number of engines that found the domain to be harmless. |
+| VirusTotal.URL.attributes.last_analysis_stats.malicious | Number | The number of engines that found the indicator to be malicious. |
+| VirusTotal.URL.attributes.last_analysis_stats.suspicious | Number | The number of engines that found the indicator to be suspicious. |
+| VirusTotal.URL.attributes.last_analysis_stats.undetected | Number | The number of engines that could not detect the indicator. |
+| VirusTotal.URL.attributes.last_analysis_stats.timeout | Number | The number of engines that timed out for the indicator. |
+| VirusTotal.URL.attributes.outgoing_links | String | Outgoing links of the URL page. |
+| VirusTotal.URL.type | String | Type of the indicator \(private_url\). |
+| VirusTotal.URL.id | String | ID of the indicator. |
+| VirusTotal.URL.links.self | String | Link to the response. |

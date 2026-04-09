@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 import time
 
-import dateparser
+import dateparser  # type: ignore
 from luminateapi.luminate_python import LuminateV2Client
 
 ''' CONSTS '''
@@ -216,7 +216,7 @@ try:
     elif demisto.command() == 'lum-get-ssh-access-logs':
         demisto.results(get_ssh_access_logs_command())
 
-except Exception, e:
+except Exception as e:
     LOG('{}: {}'.format(type(e), e.message))
     if demisto.command() != 'test-module':
         LOG.print_log()

@@ -3,16 +3,15 @@ from CommonServerPython import *  # noqa # pylint: disable=unused-wildcard-impor
 from CommonServerUserPython import *  # noqa
 
 import requests
-import traceback
-from typing import Dict, Tuple, List, Any, Optional
+from typing import Any
 
 # Disable insecure warnings
 # requests.packages.urllib3.disable_warnings()  # pylint: disable=no-member
 
-''' CONSTANTS '''
+""" CONSTANTS """
 
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'  # ISO8601 format with UTC, default in XSOAR
-READABLE_DATE_FORMAT = '%B %d, %Y at %I:%M:%S %p'
+DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"  # ISO8601 format with UTC, default in XSOAR
+READABLE_DATE_FORMAT = "%B %d, %Y at %I:%M:%S %p"
 API_VERSION = 2
 LOGGING_INTEGRATION_NAME = "[VMware Workspace ONE UEM (AirWatch MDM)]"
 HTTP_ERROR = {
@@ -20,31 +19,20 @@ HTTP_ERROR = {
     403: "Invalid API key or the user doesn't have sufficient permissions to perform this operation.",
     404: "The resource cannot be found.",
     407: "Proxy Error - cannot connect to proxy. Either try clearing the 'Use system proxy' check-box or"
-         "check the host, authentication details and connection details for the proxy.",
-    500: "The server encountered an internal error for VMWare Workspace ONE UEM "
-         "and was unable to complete your request."
+    "check the host, authentication details and connection details for the proxy.",
+    500: "The server encountered an internal error for VMWare Workspace ONE UEM and was unable to complete your request.",
 }
-ARG_TO_PARAM_OWNERSHIP = {
-    "corporate owned": "C",
-    "employee owned": "E",
-    "shared": "S",
-    "undefined": "undefined"
-}
-REVERSED_ARG_TO_PARAM_OWNERSHIP = {
-    'C': 'Corporate owned',
-    'E': 'Employee owned',
-    'S': 'Shared',
-    'Undefined': 'Undefined'
-}
+ARG_TO_PARAM_OWNERSHIP = {"corporate owned": "C", "employee owned": "E", "shared": "S", "undefined": "undefined"}
+REVERSED_ARG_TO_PARAM_OWNERSHIP = {"C": "Corporate owned", "E": "Employee owned", "S": "Shared", "Undefined": "Undefined"}
 MESSAGES = {
     "NO_RECORDS_FOUND": "No {} record(s) found for the given argument(s).",
     "INVALID_PAGE_SIZE": "Argument page_size should be greater than 1.",
     "INVALID_PAGE": "Argument page should be greater than 0.",
     "INVALID_OWNERSHIP": "Argument ownership should be one of the following: "
-                         "Corporate owned, Employee owned, Shared, or Undefined.",
+    "Corporate owned, Employee owned, Shared, or Undefined.",
     "INVALID_SORT_ORDER": "Argument sort_order should be one of the following: ASC, or DESC.",
     "REQUIRED_ARGUMENT": "{} is a required argument.",
-    "INVALID_COMPLIANCE_STATUS": "Argument compliance_status should be one of the following: true, or false."
+    "INVALID_COMPLIANCE_STATUS": "Argument compliance_status should be one of the following: true, or false.",
 }
 CONSTANT_STRING = {
     "DEVICE_FRIENDLY": "Device Friendly Name",
@@ -52,9 +40,9 @@ CONSTANT_STRING = {
     "MAC_ADDR": "MAC Address",
     "COMPLIANCE_STATUS": "Compliance Status",
     "USER_EMAIL": "User Email Address",
-    "LAST_SEEN": "Last Seen (In UTC)"
+    "LAST_SEEN": "Last Seen (In UTC)",
 }
-''' CLIENT CLASS '''
+""" CLIENT CLASS """
 
 
 class Client(BaseClient):
@@ -98,9 +86,9 @@ class Client(BaseClient):
         session id which is cached in IntegrationContext
         """
 
-        kwargs['ok_codes'] = (200, 201, 204)
-        kwargs['error_handler'] = self.exception_handler
-        kwargs['resp_type'] = 'response'
+        kwargs["ok_codes"] = (200, 201, 204)
+        kwargs["error_handler"] = self.exception_handler
+        kwargs["resp_type"] = "response"
         return super()._http_request(*args, **kwargs)
 
     @staticmethod
@@ -122,18 +110,17 @@ class Client(BaseClient):
         elif response.status_code > 500:
             err_msg = HTTP_ERROR[500]
         elif response.status_code not in HTTP_ERROR:
-            err_msg = 'Error in API call [{}] - {}' \
-                .format(response.status_code, response.reason)
+            err_msg = f"Error in API call [{response.status_code}] - {response.reason}"
             headers = response.headers
-            if 'application/json' in headers.get('Content-Type', ''):
+            if "application/json" in headers.get("Content-Type", ""):
                 error_entry = response.json()
-                if error_entry.get('message'):
-                    err_msg = '{}'.format(error_entry.get('message'))
+                if error_entry.get("message"):
+                    err_msg = "{}".format(error_entry.get("message"))
 
         raise DemistoException(err_msg)
 
 
-''' HELPER FUNCTIONS '''
+""" HELPER FUNCTIONS """
 
 
 def remove_empty_elements_for_context(src):
@@ -148,15 +135,14 @@ def remove_empty_elements_for_context(src):
     """
 
     def empty(x):
-        return x is None or x == '' or x == {} or x == []
+        return x is None or x == "" or x == {} or x == []
 
-    if not isinstance(src, (dict, list)):
+    if not isinstance(src, dict | list):
         return src
     elif isinstance(src, list):
         return [v for v in (remove_empty_elements_for_context(v) for v in src) if not empty(v)]
     else:
-        return {k: v for k, v in ((k, remove_empty_elements_for_context(v))
-                                  for k, v in src.items()) if not empty(v)}
+        return {k: v for k, v in ((k, remove_empty_elements_for_context(v)) for k, v in src.items()) if not empty(v)}
 
 
 def validate_uuid_argument(args: dict) -> str:
@@ -169,10 +155,10 @@ def validate_uuid_argument(args: dict) -> str:
     :return: validated arguments.
     :rtype: ``str``
     """
-    if not args.get('uuid'):
-        raise ValueError(MESSAGES['REQUIRED_ARGUMENT'].format("uuid"))
+    if not args.get("uuid"):
+        raise ValueError(MESSAGES["REQUIRED_ARGUMENT"].format("uuid"))
 
-    return args.get('uuid')  # type: ignore
+    return args.get("uuid")  # type: ignore
 
 
 def camel_to_pascal(src: dict) -> dict:
@@ -183,7 +169,7 @@ def camel_to_pascal(src: dict) -> dict:
     :param src: the dictionary whose keys require change in case
     :return: a dictionary with the keys changed from camel case to pascal case
     """
-    if not isinstance(src, (dict, list)):
+    if not isinstance(src, dict | list):
         return src
     return_src = {}
 
@@ -200,14 +186,14 @@ def camel_to_pascal(src: dict) -> dict:
         return return_src
 
     for key, value in src.items():
-        if isinstance(value, (dict, list)):
+        if isinstance(value, dict | list):
             return_src[capitalize_first_letter(key)] = camel_to_pascal(value)  # type: ignore
         else:
             return_src[capitalize_first_letter(key)] = value
     return return_src
 
 
-def prepare_context_hr_os_updates_list_command(result: dict, uuid: str) -> Tuple[Union[dict, List[dict]], str]:
+def prepare_context_hr_os_updates_list_command(result: dict, uuid: str) -> tuple[Union[dict, list[dict]], str]:
     """
     To prepare context and human readable output for vmwuem_device_os_updates_list_command.
 
@@ -221,31 +207,38 @@ def prepare_context_hr_os_updates_list_command(result: dict, uuid: str) -> Tuple
     :rtype: ``Tuple[Dict, str]``
     """
     result = remove_empty_elements_for_context(result)  # type: ignore
-    result['OSUpdateList'] = camel_to_pascal(result['OSUpdateList'])
-    result['Uuid'] = uuid.lower()
+    result["OSUpdateList"] = camel_to_pascal(result["OSUpdateList"])
+    result["Uuid"] = uuid.lower()
     context_data = result
     hr = []
-    for osupdate in result['OSUpdateList']:
-        release_date = osupdate.get('ReleaseDate', '')
-        expiration_date = osupdate.get('ExpiationDate', '')
+    for osupdate in result["OSUpdateList"]:
+        release_date = osupdate.get("ReleaseDate", "")
+        expiration_date = osupdate.get("ExpiationDate", "")
         if release_date:
             release_date = dateparser.parse(release_date).strftime(READABLE_DATE_FORMAT)  # type: ignore
         if expiration_date:
             expiration_date = dateparser.parse(expiration_date).strftime(READABLE_DATE_FORMAT)  # type: ignore
         data = {
-            'Device UUID': result['Uuid'],
-            'Update Name': osupdate.get('DeviceUpdateName', ''),
-            'Update Version': osupdate.get('DeviceUpdateVersion', ''),
-            'Critical Update': "Yes" if osupdate.get('IsCritical', False) else "No",
-            'Restart Required': "Yes" if osupdate.get('RestartRequired', False) else "No",
-            'Release Date': release_date,
-            'Expiration Date': expiration_date
+            "Device UUID": result["Uuid"],
+            "Update Name": osupdate.get("DeviceUpdateName", ""),
+            "Update Version": osupdate.get("DeviceUpdateVersion", ""),
+            "Critical Update": "Yes" if osupdate.get("IsCritical", False) else "No",
+            "Restart Required": "Yes" if osupdate.get("RestartRequired", False) else "No",
+            "Release Date": release_date,
+            "Expiration Date": expiration_date,
         }
         hr.append(data)
 
-    headers = ['Device UUID', 'Update Name', 'Update Version', 'Critical Update', 'Restart Required',
-               'Release Date', 'Expiration Date']
-    hr_output = tableToMarkdown('OSUpdate(s)', hr, headers=headers, removeNull=True)
+    headers = [
+        "Device UUID",
+        "Update Name",
+        "Update Version",
+        "Critical Update",
+        "Restart Required",
+        "Release Date",
+        "Expiration Date",
+    ]
+    hr_output = tableToMarkdown("OSUpdate(s)", hr, headers=headers, removeNull=True)
 
     return context_data, hr_output
 
@@ -262,7 +255,7 @@ def strip_args(args: dict):
             args[key] = value.strip()
 
 
-def is_present_in_list(value_to_check: Any, list_to_check_in: List[Any], message: str) -> Optional[bool]:
+def is_present_in_list(value_to_check: Any, list_to_check_in: list[Any], message: str) -> bool | None:
     """
     Checks for presence of value in list, raises ValueError, if the value is not present
 
@@ -281,7 +274,7 @@ def is_present_in_list(value_to_check: Any, list_to_check_in: List[Any], message
     return True
 
 
-def prepare_context_and_hr_for_devices_search(response: dict) -> Tuple[Union[dict, List[dict]], str]:
+def prepare_context_and_hr_for_devices_search(response: dict) -> tuple[Union[dict, list[dict]], str]:
     """
     Prepare entry context and human readable for devices search command
 
@@ -291,45 +284,52 @@ def prepare_context_and_hr_for_devices_search(response: dict) -> Tuple[Union[dic
     :rtype: ``Tuple[list, str]``
     :return: tuple of dict entry context and str human readable
     """
-    context = response.get('Devices', [])
+    context = response.get("Devices", [])
     hr_devices_list = []
     for device in context:
-        last_seen = device.get('LastSeen', '')
+        last_seen = device.get("LastSeen", "")
         if last_seen:
             last_seen = dateparser.parse(last_seen).strftime(READABLE_DATE_FORMAT)  # type: ignore
 
-        compromised = device.get('CompromisedStatus', '')
-        if isinstance(compromised, str):
-            compromised = "Unknown"
-        else:
-            compromised = "Compromised" if compromised else "Not Compromised"
+        compromised = device.get("CompromisedStatus", "")
+        compromised = "Unknown" if isinstance(compromised, str) else "Compromised" if compromised else "Not Compromised"
 
-        ownership = device.get('Ownership', '')
-        if ownership in REVERSED_ARG_TO_PARAM_OWNERSHIP.keys():
-            ownership = REVERSED_ARG_TO_PARAM_OWNERSHIP[ownership]
-        else:
-            ownership = ''
+        ownership = device.get("Ownership", "")
+        ownership = REVERSED_ARG_TO_PARAM_OWNERSHIP.get(ownership, "")
 
-        hr_devices_list.append({
-            CONSTANT_STRING['DEVICE_FRIENDLY']: device.get(CONSTANT_STRING['DEVICE_FRIENDLY'].replace(' ', ''), ''),
-            "UUID": device.get('Uuid', ''),
-            "Platform": device.get('Platform', ''),
-            "Model": device.get('Model', ''),
-            "Ownership": ownership,
-            CONSTANT_STRING["SERIAL_NUM"]: device.get(CONSTANT_STRING["SERIAL_NUM"].replace(' ', ''), ''),
-            CONSTANT_STRING["MAC_ADDR"]: device.get('MacAddress', ''),
-            CONSTANT_STRING["COMPLIANCE_STATUS"]: device.get('ComplianceStatus', ''),
-            "Compromised Status": compromised,
-            CONSTANT_STRING["USER_EMAIL"]: device.get('UserEmailAddress', ''),
-            CONSTANT_STRING["LAST_SEEN"]: last_seen
-        })
-    hr = tableToMarkdown("Device(s)", hr_devices_list,
-                         [CONSTANT_STRING['DEVICE_FRIENDLY'], "UUID", "Platform", "Model", "Ownership",
-                          CONSTANT_STRING["SERIAL_NUM"],
-                          CONSTANT_STRING["MAC_ADDR"], CONSTANT_STRING["COMPLIANCE_STATUS"], "Compromised Status",
-                          CONSTANT_STRING["USER_EMAIL"],
-                          CONSTANT_STRING["LAST_SEEN"]],
-                         removeNull=True)
+        hr_devices_list.append(
+            {
+                CONSTANT_STRING["DEVICE_FRIENDLY"]: device.get(CONSTANT_STRING["DEVICE_FRIENDLY"].replace(" ", ""), ""),
+                "UUID": device.get("Uuid", ""),
+                "Platform": device.get("Platform", ""),
+                "Model": device.get("Model", ""),
+                "Ownership": ownership,
+                CONSTANT_STRING["SERIAL_NUM"]: device.get(CONSTANT_STRING["SERIAL_NUM"].replace(" ", ""), ""),
+                CONSTANT_STRING["MAC_ADDR"]: device.get("MacAddress", ""),
+                CONSTANT_STRING["COMPLIANCE_STATUS"]: device.get("ComplianceStatus", ""),
+                "Compromised Status": compromised,
+                CONSTANT_STRING["USER_EMAIL"]: device.get("UserEmailAddress", ""),
+                CONSTANT_STRING["LAST_SEEN"]: last_seen,
+            }
+        )
+    hr = tableToMarkdown(
+        "Device(s)",
+        hr_devices_list,
+        [
+            CONSTANT_STRING["DEVICE_FRIENDLY"],
+            "UUID",
+            "Platform",
+            "Model",
+            "Ownership",
+            CONSTANT_STRING["SERIAL_NUM"],
+            CONSTANT_STRING["MAC_ADDR"],
+            CONSTANT_STRING["COMPLIANCE_STATUS"],
+            "Compromised Status",
+            CONSTANT_STRING["USER_EMAIL"],
+            CONSTANT_STRING["LAST_SEEN"],
+        ],
+        removeNull=True,
+    )
 
     return remove_empty_elements_for_context(context), hr
 
@@ -354,36 +354,36 @@ def validate_and_parameterize_devices_search_arguments(args: dict) -> dict:
     }
     params = remove_empty_elements(params)
     if args.get("ownership"):
-        ownership = args.get("ownership", '').lower()  # type: ignore
-        is_present_in_list(ownership, list(ARG_TO_PARAM_OWNERSHIP.keys()), MESSAGES['INVALID_OWNERSHIP'])
-        params['ownership'] = ARG_TO_PARAM_OWNERSHIP[ownership]
+        ownership = args.get("ownership", "").lower()  # type: ignore
+        is_present_in_list(ownership, list(ARG_TO_PARAM_OWNERSHIP.keys()), MESSAGES["INVALID_OWNERSHIP"])
+        params["ownership"] = ARG_TO_PARAM_OWNERSHIP[ownership]
 
     # Validate date-time params
     if args.get("last_seen"):
-        params['lastseen'] = arg_to_datetime(args.get("last_seen"), "last_seen").strftime(DATE_FORMAT)  # type: ignore
+        params["lastseen"] = arg_to_datetime(args.get("last_seen"), "last_seen").strftime(DATE_FORMAT)  # type: ignore
 
     # Validate paging and sorting params
     if args.get("page_size"):
         page_size = arg_to_number(args.get("page_size", "10"), "page_size")
         if page_size < 1:  # type: ignore
-            raise ValueError(MESSAGES['INVALID_PAGE_SIZE'])
-        params['pagesize'] = page_size
+            raise ValueError(MESSAGES["INVALID_PAGE_SIZE"])
+        params["pagesize"] = page_size
 
     if args.get("page"):
         page = arg_to_number(args.get("page"), "page")
         if page < 0:  # type: ignore
-            raise ValueError(MESSAGES['INVALID_PAGE'])
-        params['page'] = page
+            raise ValueError(MESSAGES["INVALID_PAGE"])
+        params["page"] = page
 
     if args.get("sort_order"):
         sort_order = args.get("sort_order").upper()  # type: ignore
-        is_present_in_list(sort_order, ["ASC", "DESC"], MESSAGES['INVALID_SORT_ORDER'])
-        params['sortorder'] = sort_order
+        is_present_in_list(sort_order, ["ASC", "DESC"], MESSAGES["INVALID_SORT_ORDER"])
+        params["sortorder"] = sort_order
 
     return params
 
 
-def prepare_context_and_hr_for_devices_get(response: dict) -> Tuple[dict, str]:
+def prepare_context_and_hr_for_devices_get(response: dict) -> tuple[dict, str]:
     """
     Prepare entry context and human readable for device get command
 
@@ -393,40 +393,48 @@ def prepare_context_and_hr_for_devices_get(response: dict) -> Tuple[dict, str]:
     :rtype: ``Tuple[dict, str]``
     :return: tuple of dict entry context and str human readable
     """
-    enrollment_info = response.get('enrollmentInfo', {})
+    enrollment_info = response.get("enrollmentInfo", {})
 
-    compliance = enrollment_info.get('compliant', '')
-    if isinstance(compliance, str):
-        compliance = "Unknown"
-    else:
-        compliance = "Compliant" if compliance else "Non-Compliant"
+    compliance = enrollment_info.get("compliant", "")
+    compliance = "Unknown" if isinstance(compliance, str) else "Compliant" if compliance else "Non-Compliant"
 
-    last_seen = enrollment_info.get('lastSeenTimestamp', '')
+    last_seen = enrollment_info.get("lastSeenTimestamp", "")
     if last_seen:
         last_seen = dateparser.parse(last_seen).strftime(READABLE_DATE_FORMAT)  # type: ignore
 
     hr_dict = {
-        CONSTANT_STRING["DEVICE_FRIENDLY"]: response.get('friendlyName', ''),
-        "UUID": response.get('uuid', ''),
-        "Platform": response.get('platformInfo', {}).get('platformName', ''),
-        "Model": response.get('platformInfo', {}).get('modelName'),
-        "Ownership": enrollment_info.get('ownership', ''),
-        CONSTANT_STRING["SERIAL_NUM"]: response.get('serialNumber', ''),
-        CONSTANT_STRING["MAC_ADDR"]: response.get('macAddress', ''),
+        CONSTANT_STRING["DEVICE_FRIENDLY"]: response.get("friendlyName", ""),
+        "UUID": response.get("uuid", ""),
+        "Platform": response.get("platformInfo", {}).get("platformName", ""),
+        "Model": response.get("platformInfo", {}).get("modelName"),
+        "Ownership": enrollment_info.get("ownership", ""),
+        CONSTANT_STRING["SERIAL_NUM"]: response.get("serialNumber", ""),
+        CONSTANT_STRING["MAC_ADDR"]: response.get("macAddress", ""),
         CONSTANT_STRING["COMPLIANCE_STATUS"]: compliance,
-        CONSTANT_STRING["USER_EMAIL"]: enrollment_info.get('userEmailAddress', ''),
-        CONSTANT_STRING["LAST_SEEN"]: last_seen
+        CONSTANT_STRING["USER_EMAIL"]: enrollment_info.get("userEmailAddress", ""),
+        CONSTANT_STRING["LAST_SEEN"]: last_seen,
     }
-    hr = tableToMarkdown("Device", hr_dict,
-                         [CONSTANT_STRING["DEVICE_FRIENDLY"], "UUID", "Platform", "Model", "Ownership",
-                          CONSTANT_STRING["SERIAL_NUM"],
-                          CONSTANT_STRING["MAC_ADDR"], CONSTANT_STRING["COMPLIANCE_STATUS"],
-                          CONSTANT_STRING["USER_EMAIL"], CONSTANT_STRING["LAST_SEEN"]],
-                         removeNull=True)
+    hr = tableToMarkdown(
+        "Device",
+        hr_dict,
+        [
+            CONSTANT_STRING["DEVICE_FRIENDLY"],
+            "UUID",
+            "Platform",
+            "Model",
+            "Ownership",
+            CONSTANT_STRING["SERIAL_NUM"],
+            CONSTANT_STRING["MAC_ADDR"],
+            CONSTANT_STRING["COMPLIANCE_STATUS"],
+            CONSTANT_STRING["USER_EMAIL"],
+            CONSTANT_STRING["LAST_SEEN"],
+        ],
+        removeNull=True,
+    )
     return remove_empty_elements_for_context(camel_to_pascal(response)), hr
 
 
-''' COMMAND FUNCTIONS '''
+""" COMMAND FUNCTIONS """
 
 
 def test_module(client: Client) -> str:
@@ -443,8 +451,8 @@ def test_module(client: Client) -> str:
     :rtype: ``str``
     """
 
-    client.http_request(method='GET', url_suffix='devices/search')
-    return 'ok'
+    client.http_request(method="GET", url_suffix="devices/search")
+    return "ok"
 
 
 def vmwuem_devices_search_command(client: Client, args: dict) -> CommandResults:
@@ -464,19 +472,24 @@ def vmwuem_devices_search_command(client: Client, args: dict) -> CommandResults:
     params = validate_and_parameterize_devices_search_arguments(args)
 
     # Make the call.
-    response = client.http_request(method='GET', url_suffix='devices/search', params=params)
+    response = client.http_request(method="GET", url_suffix="devices/search", params=params)
 
     if not response.text:
-        return CommandResults(readable_output=MESSAGES['NO_RECORDS_FOUND'].format('device'))
+        return CommandResults(readable_output=MESSAGES["NO_RECORDS_FOUND"].format("device"))
 
     # Prepare context and human readable
     json_response = response.json()
     outputs, readable_output = prepare_context_and_hr_for_devices_search(json_response)
-    return CommandResults(outputs_prefix='VMwareWorkspaceONEUEM.Device', outputs_key_field="Uuid", outputs=outputs,
-                          readable_output=readable_output, raw_response=json_response)
+    return CommandResults(
+        outputs_prefix="VMwareWorkspaceONEUEM.Device",
+        outputs_key_field="Uuid",
+        outputs=outputs,
+        readable_output=readable_output,
+        raw_response=json_response,
+    )
 
 
-def vmwuem_device_get_command(client: Client, args: Dict) -> CommandResults:
+def vmwuem_device_get_command(client: Client, args: dict) -> CommandResults:
     """
     Retrieves a device using get device endpoint according to given uuid.
 
@@ -491,13 +504,18 @@ def vmwuem_device_get_command(client: Client, args: Dict) -> CommandResults:
     # Validate uuid argument.
     uuid = validate_uuid_argument(args)
 
-    response = client.http_request(method='GET', url_suffix=f'devices/{uuid}')
+    response = client.http_request(method="GET", url_suffix=f"devices/{uuid}")
 
     # Prepare context and human readable
     json_response = response.json()
     outputs, readable_output = prepare_context_and_hr_for_devices_get(json_response)
-    return CommandResults(outputs_prefix='VMwareWorkspaceONEUEM.Device', outputs_key_field="Uuid", outputs=outputs,
-                          readable_output=readable_output, raw_response=json_response)
+    return CommandResults(
+        outputs_prefix="VMwareWorkspaceONEUEM.Device",
+        outputs_key_field="Uuid",
+        outputs=outputs,
+        readable_output=readable_output,
+        raw_response=json_response,
+    )
 
 
 def vmwuem_device_os_updates_list_command(client: Client, args: dict) -> CommandResults:
@@ -516,25 +534,25 @@ def vmwuem_device_os_updates_list_command(client: Client, args: dict) -> Command
     # validating arguments
     uuid = validate_uuid_argument(args)
 
-    response = client.http_request(method='GET', url_suffix=f'devices/{uuid}/osupdate')
+    response = client.http_request(method="GET", url_suffix=f"devices/{uuid}/osupdate")
     result = response.json()
 
-    if not result.get('OSUpdateList', []):
-        return CommandResults(readable_output=MESSAGES['NO_RECORDS_FOUND'].format("osupdate(s)"))
+    if not result.get("OSUpdateList", []):
+        return CommandResults(readable_output=MESSAGES["NO_RECORDS_FOUND"].format("osupdate(s)"))
 
     # prepare context and human readable
     context_data, hr_output = prepare_context_hr_os_updates_list_command(result, uuid)
 
     return CommandResults(
-        outputs_prefix='VMwareWorkspaceONEUEM.OSUpdate',
-        outputs_key_field='Uuid',
+        outputs_prefix="VMwareWorkspaceONEUEM.OSUpdate",
+        outputs_key_field="Uuid",
         outputs=context_data,
         readable_output=hr_output,
-        raw_response=result
+        raw_response=result,
     )
 
 
-''' MAIN FUNCTION '''
+""" MAIN FUNCTION """
 
 
 def main() -> None:
@@ -549,50 +567,41 @@ def main() -> None:
     command = demisto.command()
 
     # get the username and password for authentication
-    username = dict_param.get('credentials')['identifier'].strip()
-    password = dict_param.get('credentials')['password']
+    username = dict_param.get("credentials")["identifier"].strip()
+    password = dict_param.get("credentials")["password"]
 
-    api_key = dict_param['aw_tenant_code']
+    api_key = dict_param.get("aw_tenant_code_creds", {}).get("password") or dict_param.get("aw_tenant_code")
 
     # get the service API url
-    base_url = urljoin(dict_param['url'], '/API/mdm/')
+    base_url = urljoin(dict_param["url"], "/API/mdm/")
 
     verify_certificate = False
-    proxy = dict_param.get('proxy', False)
+    proxy = dict_param.get("proxy", False)
 
-    demisto.debug(f'{LOGGING_INTEGRATION_NAME} Command being called is {command}')
+    demisto.debug(f"{LOGGING_INTEGRATION_NAME} Command being called is {command}")
     try:
-
-        headers: Dict = {"aw-tenant-code": "{}".format(api_key),
-                         "Accept": "application/json;version={}".format(API_VERSION)}
+        headers: dict = {"aw-tenant-code": f"{api_key}", "Accept": f"application/json;version={API_VERSION}"}
 
         client = Client(
-            base_url=base_url,
-            verify=verify_certificate,
-            headers=headers,
-            proxy=proxy,
-            username=username,
-            password=password
+            base_url=base_url, verify=verify_certificate, headers=headers, proxy=proxy, username=username, password=password
         )
 
         commands = {
-            'vmwuem-devices-search': vmwuem_devices_search_command,
-            'vmwuem-device-get': vmwuem_device_get_command,
-            'vmwuem-device-os-updates-list': vmwuem_device_os_updates_list_command
-
+            "vmwuem-devices-search": vmwuem_devices_search_command,
+            "vmwuem-device-get": vmwuem_device_get_command,
+            "vmwuem-device-os-updates-list": vmwuem_device_os_updates_list_command,
         }
-        if command == 'test-module':
+        if command == "test-module":
             # This is the call made when pressing the integration Test button.
             return_results(test_module(client))
         elif command in commands:
             return_results(commands[command](client, dict_args))
     # Log exceptions and return errors
     except Exception as e:
-        demisto.error(traceback.format_exc())  # print the traceback
-        return_error(f'Failed to execute {demisto.command()} command.\nError:\n{str(e)}')
+        return_error(f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}")
 
 
-''' ENTRY POINT '''
+""" ENTRY POINT """
 
-if __name__ in ('__main__', '__builtin__', 'builtins'):
+if __name__ in ("__main__", "__builtin__", "builtins"):
     main()

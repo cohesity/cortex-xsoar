@@ -13,10 +13,10 @@ This playbook does not use any sub-playbooks.
 This playbook does not use any scripts.
 
 ### Commands
-* panorama-edit-rule
-* panorama-list-rules
-* panorama-move-rule
-* panorama-create-rule
+* pan-os-edit-rule
+* pan-os-list-rules
+* pan-os-move-rule
+* pan-os-create-rule
 
 ## Playbook Inputs
 ---
@@ -39,4 +39,4 @@ There are no outputs for this playbook.
 
 ## Playbook Image
 ---
-![PAN-OS_Create_Or_Edit_Rule](https://raw.githubusercontent.com/demisto/content/1bdd5229392bd86f0cc58265a24df23ee3f7e662/docs/images/playbooks/PAN-OS_Create_Or_Edit_Rule.png)
+![PAN-OS_Create_Or_Edit_Rule](../doc_files/PAN-OS_Create_Or_Edit_Rule.png)

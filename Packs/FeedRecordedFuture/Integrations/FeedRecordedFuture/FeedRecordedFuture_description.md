@@ -1,6 +1,7 @@
 ## Notes
 1. It is highly recommended to not create multiple instances of the same indicator type, even when fetching both from fusion and connectApi. Creating multiple instances with same indicator type will lead to duplicate indicators being fetched which can cause performance issues for the server.
-2. Recommended interval for fetching indicators according to Recorded Future documentation:
+2. Because of restrictions on the API side, it is strongly advisable to maintain the number of indicators below 100,000 per instance. Exceeding this limit may result in unforeseen expiration of indicators beyond that threshold.
+3. Recommended interval for fetching indicators according to Recorded Future documentation:
 
 | **Indicator Type** | **Recommended Fetch Interval**
 | --- | --- |
@@ -8,9 +9,10 @@
 | Domain | 2 Hours. |
 | Hash | 1 Day. |
 | URL | 2 Hours. |
+| Vulnerability | 2 Hours. |
 3. Per instance configuration, it is recommended to use either `connectApi` or `fusion` as a service for chosen indicator type, and not both, as most of the data between both services is duplicated.
 ## Recorded Future Feed
-This integration downloads from Recorded Future a list of IP addresses, domains, URLs, or file hashes with known risk associations.
+This integration downloads from Recorded Future a list of IP addresses, domains, URLs, CVEs or file hashes with known risk associations.
 The risk list includes risk scores and supporting evidence details.
 - The 'Connect Api' feed can be configured to load a specific risk list by specifying a risk rule.
 If no risk rule is specified, Recorded Future’s default risk list is used, which only contains indicators with score above 65.

@@ -51,8 +51,7 @@ tasks:
       id: de4a37f6-af95-43b4-8956-107dd5fac3ad
       version: -1
       name: Check if Panorama connected
-      description: Check whether the values provided in arguments are equal. If either
-        of the arguments are missing, no is returned.
+      description: Check whether the values provided in arguments are equal. If either of the arguments are missing, no is returned.
       type: condition
       iscommand: false
       brand: ""
@@ -135,7 +134,7 @@ tasks:
       version: -1
       name: Upload content update to Panorama
       description: Uploads content file to Panorama
-      script: '|||panorama-upload-content-update-file'
+      script: '|||pan-os-upload-content-update-file'
       type: regular
       iscommand: true
       brand: ""
@@ -170,7 +169,7 @@ tasks:
       name: Install content update
       description: |
         Installs specific content update file. Please download the content update file for apps from https://support.paloaltonetworks.com/Updates/DynamicUpdates (choose apps from the dropdown menu , the file should be in similar structure :"panupv2-all-apps-8388-6599 " ).
-      script: '|||panorama-install-file-content-update'
+      script: '|||pan-os-install-file-content-update'
       type: regular
       iscommand: true
       brand: ""
@@ -206,7 +205,7 @@ tasks:
       version: -1
       name: Get installation status
       description: Gets the installation status of the PAN-OS software.
-      script: '|||panorama-install-panos-status'
+      script: '|||pan-os-install-panos-status'
       type: regular
       iscommand: true
       brand: ""
@@ -303,12 +302,11 @@ tasks:
       PollingCommandArgName:
         simple: job_id
       PollingCommandName:
-        simple: panorama-install-panos-status
+        simple: pan-os-install-panos-status
       Timeout:
         simple: "10"
       dt:
-        simple: Panorama.PANOS.Install(val.Status !== 'Completed' && val.Status !==
-          'Failed').JobID
+        simple: Panorama.PANOS.Install(val.Status !== 'Completed' && val.Status !== 'Failed').JobID
     separatecontext: false
     loop:
       iscommand: false
@@ -386,3 +384,6 @@ tests:
 - PAN-OS DAG Configuration Test
 - Panorama Query Logs - Test
 - PAN-OS - Block IP - Custom Block Rule Test
+supportedModules:
+- agentix
+- xsiam

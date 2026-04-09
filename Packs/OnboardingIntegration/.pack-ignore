@@ -9,3 +9,10 @@ ignore=RM104
 
 [file:classifier-mapper-incoming-OnboardingIntegration.json]
 ignore=BA101
+
+[file:classifier-OnboardingIntegration.json]
+ignore=BA101
+
+[file:OnboardingCleanup.yml]
+ignore=BA124
+

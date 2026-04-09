@@ -1,14 +1,14 @@
 ## Overview
 ---
 
-Palo Alto Networks Cortex Data Lake provides cloud-based, centralized log storage and aggregation for your on premise, virtual (private cloud and public cloud) firewalls, for Prisma Access, and for cloud-delivered services such as Cortex XDR
-This integration was integrated and tested with version 2 of Cortex Data Lake
+Palo Alto Networks Strata Logging Service XSOAR Connector provides cloud-based, centralized log storage and aggregation for your on premise, virtual (private cloud and public cloud) firewalls, for Prisma Access, and for cloud-delivered services such as Cortex XDR.
+This integration was integrated and tested with version 2 of Strata Logging Service XSOAR Connector.
 
 
 
 ---
 
-## Configure Cortex Data Lake on XSOAR
+## Configure Strata Logging Service XSOAR Connector on Cortex XSOAR 
 
 ---
 
@@ -21,9 +21,10 @@ to get the __Authentication Token__  __Registration ID__ __Encryption Key__
 6. Navigate to __Settings__ > __Integrations__ > __Servers & Services__.
 7. Search for Palo Alto Networks Cortex v2.
 8. Click __Add instance__ to create and configure a new integration instance.
-    * __Name__: a textual name for the integration instance.
+    * __Name__: A textual name for the integration instance.
     * __Authentication Token__: From the authentication process
     * __Registration ID__: From the authentication process
+       * The token retrieval URL is inferred based on the tenant's FedRAMP status unless explicitly specified in the __Registration ID__ parameter in the format `REGISTRATION_ID@URL`.
     * __Encryption Key__: From the authentication process
     * __proxy__: Use system proxy settings
     * __insecure__: Trust any certificate (not secure)

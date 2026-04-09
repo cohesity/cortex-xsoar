@@ -1,29 +1,31 @@
 {
     "name": "JARM",
     "description": "This pack introduces the JARM indicator type and commands for generating new JARM fingerprints of servers using TLS.",
-    "support": "developer",
-    "currentVersion": "1.0.0",
+    "support": "community",
+    "currentVersion": "1.0.20",
     "author": "Palo Alto Networks Developer Relations",
     "url": "",
     "email": "devrel@paloaltonetworks.com",
     "created": "2021-01-15T21:23:23Z",
     "categories": [
-        "Data Enrichment & Threat Intelligence"
+        "Utilities"
     ],
     "tags": [
-        "Threat Intelligence",
-        "Network"
+        "Free Enricher",
+        "Plug & Enrich"
     ],
-    "useCases": [
-        "Hunting",
-        "Network Security"
-    ],
+    "useCases": [],
     "keywords": [
         "JARM",
         "Fingerprint"
     ],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

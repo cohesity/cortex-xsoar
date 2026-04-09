@@ -222,6 +222,16 @@
 <td style="width: 417px;">Default Access Control List for the object.</td>
 <td style="width: 106px;">Optional</td>
 </tr>
+<tr>
+<td style="width: 185px;">location</td>
+<td style="width: 417px;">The location of the bucket, The default value is US.</td>
+<td style="width: 106px;">Optional</td>
+</tr>
+<tr>
+<td style="width: 185px;">uniform_bucket_level_access</td>
+<td style="width: 417px;">Whether the bucket is configured to allow only IAM, The default value is false.</td>
+<td style="width: 106px;">Optional</td>
+</tr>
 </tbody>
 </table>
 <p> </p>
@@ -280,6 +290,16 @@
 <td style="width: 184px;">bucket_name</td>
 <td style="width: 421px;">Name of the bucket in which to list objects.</td>
 <td style="width: 103px;">Required</td>
+</tr>
+<tr>
+<td style="width: 184px;">prefix</td>
+<td style="width: 421px;">Specify to limit blobs within a "folder" i.e., "folder-1/" if blob is "folder-1/file.txt".</td>
+<td style="width: 103px;">Optional</td>
+</tr>
+<tr>
+<td style="width: 184px;">delimiter</td>
+<td style="width: 421px;">Use a delimiter if you want to limit results within a specific "folder" and without any nested blobs i.e., "/".</td>
+<td style="width: 103px;">Optional</td>
 </tr>
 </tbody>
 </table>
@@ -358,7 +378,7 @@
 </table>
 <p> </p>
 <h5>Command Example</h5>
-<pre>gcs-list-bucket-objects bucket_name=my-bucket</pre>
+<pre>gcs-list-bucket-objects bucket_name=my-bucket prefix=some/path/ delimiter=/</pre>
 <h5>Human Readable Output</h5>
 <h3>Objects in bucket my-bucket</h3>
 <table style="width: 750px;" border="2" cellpadding="6">
@@ -928,3 +948,100 @@
 <pre>gcs-delete-bucket-object-policy bucket_name=my-bucket object_name=/some/path/my_file.txt entity=allUsers</pre>
 <h5>Human Readable Output</h5>
 <p>Removed entity allUsers from ACL of object /some/path/my_file.txt</p>
+
+<h3>16. Copy an object from one bucket to another</h3>
+<hr>
+<p>Copies an object from one bucket to another.</h3>
+<h5>Base Command</h5>
+<p><code>gcs-copy-file</code></p>
+<h5>Input</h5>
+<table style="width: 748px;" border="2" cellpadding="6">
+<thead>
+<tr>
+<th style="width: 169px;"><strong>Argument Name</strong></th>
+<th style="width: 451px;"><strong>Description</strong></th>
+<th style="width: 88px;"><strong>Required</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 169px;">source_bucket_name</td>
+<td style="width: 451px;">Name of the Bucket to copy the object from. If not specified, operation will be performed on the default bucket parameter.</td>
+<td style="width: 88px;">Optional</td>
+</tr>
+<tr>
+<td style="width: 169px;">destination_bucket_name</td>
+<td style="width: 451px;">Name of the Bucket to copy the object to</td>
+<td style="width: 88px;">Required</td>
+</tr>
+<tr>
+<td style="width: 169px;">source_object_name</td>
+<td style="width: 451px;">Name of the object to copy</td>
+<td style="width: 88px;">Required</td>
+</tr>
+<tr>
+<td style="width: 169px;">destination_object_name</td>
+<td style="width: 451px;">Name of the object in the destination bucket. If not specified, operation will be performed with the source_object_name parameter.</td>
+<td style="width: 88px;">Optional</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<h5>Command Example</h5>
+<pre>gcs-copy-file source_bucket_name="my-bucket" destination_bucket_name="another-bucket" source_object_name="/some/path/my_file.txt"</pre>
+<h5>Human Readable Output</h5>
+<p>File was successfully copied to bucket "another-bucket" as /some/path/my_file.txt</p>
+
+<h3>17. Use public access prevention</h3>
+<hr>
+<p>Blocks public access to a specified Google Cloud Storage bucket by enabling public access prevention, ensuring only authorized users can access the bucket.</h3>
+<h5>Base Command</h5>
+<p><code>gcs-block-public-access-bucket</code></p>
+<h5>Input</h5>
+<table style="width: 748px;" border="2" cellpadding="6">
+<thead>
+<tr>
+<th style="width: 169px;"><strong>Argument Name</strong></th>
+<th style="width: 451px;"><strong>Description</strong></th>
+<th style="width: 88px;"><strong>Required</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 169px;">bucket_name</td>
+<td style="width: 451px;">Name of the bucket to which public access policy is to be applied.</td>
+<td style="width: 88px;">Optional</td>
+</tr>
+<tr>
+<td style="width: 169px;">public_access_prevention</td>
+<td style="width: 451px;">Defines the public access prevention mode for the bucket.
+        - enforced: Completely blocks public access to the bucket, ensuring only authorized users can access it.
+        - inherited: The bucket will inherit the public access prevention setting from its parent project.</td>
+<td style="width: 88px;">Required</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<h5>Command Example</h5>
+<pre>gcs-block-public-access-bucket source_bucket_name="my-bucket" public_access_prevention="enforced"</pre>
+<h5>Human Readable Output</h5>
+<p>Public access prevention is set to enforced for my-bucket.</p>
+### gcs-delete-file
+
+***
+Deletes a file (object) from a bucket.
+
+#### Base Command
+
+`gcs-delete-file`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| object_name | Name of the file to delete. | Required |
+| bucket_name | Name of the bucket that stores the file to delete. | Optional |
+
+#### Context Output
+
+There is no context output for this command.

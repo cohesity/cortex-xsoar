@@ -1,5 +1,5 @@
 [file:SplunkPy.yml]
-ignore=IN126,IN135,IN145
+ignore=IN126,IN135
 
 [file:README.md]
 ignore=RM106
@@ -10,14 +10,52 @@ ignore=RM106
 [file:classifier-mapper-incoming-SplunkPy.json]
 ignore=BA101
 
-[file:playbook-SplunkPySearch_Test.yml]
-ignore=auto-test
+[file:SplunkPy_image.png]
+ignore=IM111
 
-[file:SplunkPy_KV_commands.yml]
-ignore=auto-test
+[known_words]
+splunk
+splunkpy
+hec
+splunk-search
+drilldown
 
-[file:playbook-SplunkTest2.yml]
-ignore=auto-test
+[file:classifier-SplunkPy.json]
+ignore=BA101
 
-[file:playbook-SplunkPy-Test-V2.yml]
-ignore=auto-test
+[file:SplunkShowIdentity.yml]
+ignore=BA124
+
+[file:SplunkShowAsset.yml]
+ignore=BA124
+
+# GR103 is temporary, see CIAC-11705
+[file:incidentfield-Notable_-_ID.json]
+ignore=GR103
+
+[file:incidentfield-Splunk_Urgency.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Security_Domain.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Status.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Dest_Risk_Score.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Disposition.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Dest_Risk_Object_Type.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Sensitivity.json]
+ignore=IF115
+
+[file:incidentfield-Splunk_Drilldown.json]
+ignore=IF115
+
+[file:SplunkPyV2_image.png]
+ignore=IM111

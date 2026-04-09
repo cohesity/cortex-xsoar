@@ -69,3 +69,16 @@ ignore=RM104
 
 [file:classifier-mapper-incoming-FireEye_NX.json]
 ignore=BA101
+
+[file:classifier-FireEye_NX.json]
+ignore=BA101
+
+[known_words]
+nx
+
+[file:FireEyeNX.yml]
+ignore=MR108,PR101
+
+[file:FireEyeNX_1_3.yml]
+ignore=MR108
+

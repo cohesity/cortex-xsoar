@@ -1,0 +1,53 @@
+{
+    "result": {
+        "total_hits": 1,
+        "next_page_token": "",
+        "previous_page_token": "",
+        "query_duration_millis": 36,
+        "hits": [
+            {
+                "host_v1": {
+                    "resource": {
+                        "ip": "127.0.0.1",
+                        "location": {
+                            "continent": "Asia",
+                            "country": "Taiwan",
+                            "country_code": "TW",
+                            "city": "Taipei",
+                            "coordinates": {
+                                "latitude": 25.05306,
+                                "longitude": 121.52639
+                            }
+                        },
+                        "autonomous_system": {
+                            "asn": 32934,
+                            "description": "FACEBOOK",
+                            "bgp_prefix": "127.0.0.1/24",
+                            "name": "FACEBOOK",
+                            "country_code": "US"
+                        },
+                        "labels": [],
+                        "dns": {
+                            "names": [
+                                "facebook.com",
+                                "www.facebook.com"
+                            ]
+                        },
+                        "services": [
+                            {
+                                "port": 80,
+                                "protocol": "HTTP",
+                                "transport_protocol": "tcp"
+                            },
+                            {
+                                "port": 443,
+                                "protocol": "HTTPS",
+                                "transport_protocol": "tcp"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}

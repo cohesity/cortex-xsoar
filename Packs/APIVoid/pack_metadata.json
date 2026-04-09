@@ -2,19 +2,28 @@
     "name": "APIVoid",
     "description": "APIVoid wraps up a number of services such as ipvoid & urlvoid",
     "support": "xsoar",
-    "currentVersion": "1.0.8",
+    "currentVersion": "2.0.1",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
     "categories": [
-        "Data Enrichment & Threat Intelligence"
+        "Data Enrichment & Threat Intelligence",
+        "Network Security"
     ],
-    "tags": [],
+    "tags": [
+        "Free Enricher",
+        "Network"
+    ],
     "created": "2020-04-01T22:23:20Z",
     "useCases": [],
     "keywords": [],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

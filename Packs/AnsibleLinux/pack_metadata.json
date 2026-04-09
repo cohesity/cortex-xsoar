@@ -2,7 +2,7 @@
     "name": "Ansible Linux",
     "description": "Manage and control Linux hosts.",
     "support": "xsoar",
-    "currentVersion": "1.0.2",
+    "currentVersion": "1.0.19",
     "author": "Cortex XSOAR",
     "url": "https://www.paloaltonetworks.com/cortex",
     "email": "",
@@ -19,10 +19,16 @@
         "CentOS",
         "Red Hat",
         "FreeBSD",
-        "Asset Management"
+        "Asset Management",
+        "system configuration"
     ],
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam"
     ]
 }

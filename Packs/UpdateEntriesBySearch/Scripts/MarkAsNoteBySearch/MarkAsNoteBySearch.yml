@@ -6,20 +6,18 @@ script: ''
 type: python
 tags:
 - Utility
-comment: Search entries in the war room for the pattern text, and mark as note to
-  the entries found.
+comment: Search entries in the war room for the pattern text, and mark as note to the entries found.
 enabled: true
 args:
 - name: incident_id
-  description: The incident ID to search entries from. If not given, the current incident
-    is used.
+  description: The incident ID to search entries from. If not given, the current incident is used.
 - name: mark
   auto: PREDEFINED
   predefined:
-  - "true"
-  - "false"
+  - 'true'
+  - 'false'
   description: false if you un-mark entries as note, otherwise mark entries.
-  defaultValue: "true"
+  defaultValue: 'true'
 - name: filter_categories
   auto: PREDEFINED
   predefined:
@@ -85,17 +83,17 @@ args:
 - name: case_insensitive
   auto: PREDEFINED
   predefined:
-  - "true"
-  - "false"
+  - 'true'
+  - 'false'
   description: true if the pattern is matched in case-insensitive, false otherwise
-  defaultValue: "false"
+  defaultValue: 'false'
 - name: dry_run
   auto: PREDEFINED
   predefined:
-  - "true"
-  - "false"
+  - 'true'
+  - 'false'
   description: true if it only search the entries and doesn't update, false otherwise
-  defaultValue: "false"
+  defaultValue: 'false'
 - name: summary
   auto: PREDEFINED
   predefined:
@@ -106,8 +104,7 @@ args:
   defaultValue: basic
 scripttarget: 0
 subtype: python3
-runonce: false
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.8.3296088
 runas: DBotWeakRole
 fromversion: 6.0.0
 tests:

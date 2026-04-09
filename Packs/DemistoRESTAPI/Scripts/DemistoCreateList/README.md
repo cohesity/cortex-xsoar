@@ -1,6 +1,7 @@
 Creates a new list.
 
 ## Script Data
+
 ---
 
 | **Name** | **Description** |
@@ -8,13 +9,15 @@ Creates a new list.
 | Script Type | javascript |
 | Tags | DemistoAPI |
 
-
 ## Dependencies
+
 ---
 This script uses the following commands and scripts.
-* demisto-api-post
+
+* core-api-post
 
 ## Inputs
+
 ---
 
 | **Argument Name** | **Description** |
@@ -23,5 +26,6 @@ This script uses the following commands and scripts.
 | listData | The initial data of the list. |
 
 ## Outputs
+
 ---
 There are no outputs for this script.

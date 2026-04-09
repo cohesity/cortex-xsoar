@@ -1,4 +1,5 @@
 category: IT Services
+provider: IBM
 commonfields:
   id: AnsibleDNS
   version: -1
@@ -34,8 +35,7 @@ configuration:
   - hmac-sha256
   - hmac-sha384
   - hmac-sha512
-- additionalinfo: Sets the transport protocol (TCP or UDP). TCP is the recommended
-    and a more robust option.
+- additionalinfo: Sets the transport protocol (TCP or UDP). TCP is the recommended and a more robust option.
   defaultvalue: 'tcp'
   display: Protocol
   name: protocol
@@ -44,7 +44,7 @@ configuration:
   options:
   - tcp
   - udp
-description: Manage DNS records using NSUpdate
+description: Manage DNS records using NSUpdate.
 display: Ansible DNS
 fromversion: 6.0.0
 name: AnsibleDNS
@@ -58,12 +58,9 @@ script:
       predefined:
       - present
       - absent
-    - description: 'DNS record will be modified on this `zone`. When omitted DNS will
-        be queried to attempt finding the correct zone. Starting with Ansible 2.7
-        this parameter is optional.'
+    - description: 'DNS record will be modified on this `zone`. When omitted DNS will be queried to attempt finding the correct zone. Starting with Ansible 2.7 this parameter is optional.'
       name: zone
-    - description: Sets the DNS record to modify. When zone is omitted this has to
-        be absolute (ending with a dot).
+    - description: Sets the DNS record to modify. When zone is omitted this has to be absolute (ending with a dot).
       name: record
       required: true
     - defaultValue: A
@@ -78,31 +75,30 @@ script:
     name: dns-nsupdate
     outputs:
     - contextPath: DNS.Nsupdate.changed
-      description: If module has modified record
+      description: If module has modified record.
       type: string
     - contextPath: DNS.Nsupdate.record
-      description: DNS record
+      description: DNS record.
       type: string
     - contextPath: DNS.Nsupdate.ttl
-      description: DNS record TTL
+      description: DNS record TTL.
       type: number
     - contextPath: DNS.Nsupdate.type
-      description: DNS record type
+      description: DNS record type.
       type: string
     - contextPath: DNS.Nsupdate.value
-      description: DNS record value(s)
+      description: DNS record value(s).
       type: unknown
     - contextPath: DNS.Nsupdate.zone
-      description: DNS record zone
+      description: DNS record zone.
       type: string
     - contextPath: DNS.Nsupdate.dns_rc
-      description: dnspython return code
+      description: dnspython return code.
       type: number
     - contextPath: DNS.Nsupdate.dns_rc_str
-      description: dnspython return code (string representation)
+      description: dnspython return code (string representation).
       type: string
-  dockerimage: demisto/ansible-runner:1.0.0.24037
-  runonce: false
+  dockerimage: demisto/ansible-runner:1.0.0.3262406
   script: ''
   subtype: python3
   type: python

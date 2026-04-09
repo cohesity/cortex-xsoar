@@ -2,11 +2,10 @@ comment: "This script prints the assets fetched from the offense in a table form
 commonfields:
   id: QRadarPrintAssets
   version: -1
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.8.3296088
 enabled: true
 name: QRadarPrintAssets
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3
@@ -16,3 +15,7 @@ type: python
 fromversion: 6.0.0
 tests:
 - No tests (auto formatted)
+supportedModules:
+- agentix
+- xsiam
+- edr

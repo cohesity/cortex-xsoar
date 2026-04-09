@@ -1,0 +1,9 @@
+fromversion: 6.10.0
+id: Github_Parsing_Rule
+name: Github Parsing Rule
+rules: ''
+samples: ''
+supportedModules:
+- agentix
+- xsiam
+tags: []

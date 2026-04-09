@@ -1,4 +1,5 @@
 category: Endpoint
+provider: Trend Micro
 commonfields:
   id: Trend Micro Deep Security
   version: -1
@@ -12,18 +13,25 @@ configuration:
 - additionalinfo: The API secret key
   display: API Secret
   name: api_secret
-  required: true
   type: 4
+  hidden: true
+  required: false
+- displaypassword: API Secret
+  name: credentials_api_secret
+  additionalinfo: The API secret key
+  hiddenusername: true
+  type: 9
+  required: false
 - defaultvalue: 'false'
   display: Trust any certificate (not secure)
   name: insecure
-  required: false
   type: 8
+  required: false
 - display: Use system proxy settings
   name: proxy
-  required: false
   type: 8
-description: Cloud Security Protection
+  required: false
+description: Cloud Security Protection.
 display: Trend Micro Deep Security
 name: Trend Micro Deep Security
 script:
@@ -31,10 +39,8 @@ script:
   commands:
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: none
-      description: The computer information to include in the response.
-        Note that the information is appended to the context data only.
+      description: The computer information to include in the response. Note that the information is appended to the context data only.
       isArray: true
       name: expand
       predefined:
@@ -66,7 +72,6 @@ script:
       - workspaceVirtualMachineSummary
       - gcpVirtualMachineSummary
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -83,8 +88,7 @@ script:
       name: description
     - description: ID of the computer group to which the computer belongs.
       name: group_id
-    - description: ID of the policy assigned to the computer. The ID can be obtained
-        from the trendmicro-list-policies and trendmicro-search-policies commands.
+    - description: ID of the policy assigned to the computer. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
     - description: ID of the asset importance assigned to the computer.
       name: asset_importance_id
@@ -154,7 +158,7 @@ script:
       - string
     - auto: PREDEFINED
       description: 'The comparison operation to use. Possible values: "less-than", "less-than-or-equal", "equal",  "greater-than-or-equal", "greater-than", and "not-equal".'
-      name: operation 
+      name: operation
       predefined:
       - less-than
       - less-than-or-equal
@@ -166,14 +170,9 @@ script:
     - description: The value to compare against the field name.
       name: value
       required: true
-    - description: If true, forces the response objects to be sorted by ID, overriding
-        the default sort order.
+    - description: If true, forces the response objects to be sorted by ID, overriding the default sort order.
       name: sort_by_object_id
-    description: Search for specific computers by a field name with a certain type.
-      Every field has a specific type. It can be a simple type like a string, a numeric,
-      or a boolean. However, it can also be a choice, which is a string with specific
-      options (enumeration). To search, you must provide the field_name and field_type,
-      the operation to perform, and the value to search.
+    description: Search for specific computers by a field name with a certain type. Every field has a specific type. It can be a simple type like a string, a numeric, or a boolean. However, it can also be a choice, which is a string with specific options (enumeration). To search, you must provide the field_name and field_type, the operation to perform, and the value to search.
     name: trendmicro-search-computers
     outputs:
     - contextPath: TrendMicro.Computers.hostName
@@ -198,15 +197,12 @@ script:
       description: ID of the relay list that is assigned to the computer.
       type: integer
   - arguments:
-    - description: The ID number of the computer to get. The ID can be obtained from the
-        trendmicro-list-computers and trendmicro-search-computers commands.
+    - description: The ID number of the computer to get. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: none
-      description: The computer information to include in the response.
-        Note that the information is appended to the context data only.
+      description: The computer information to include in the response. Note that the information is appended to the context data only.
       isArray: true
       name: expand
       predefined:
@@ -238,7 +234,6 @@ script:
       - workspaceVirtualMachineSummary
       - gcpVirtualMachineSummary
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -271,10 +266,8 @@ script:
       type: integer
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: none
-      description: The computer information to include in the response.
-        Note that the information is appended to the context data only.
+      description: The computer information to include in the response. Note that the information is appended to the context data only.
       isArray: true
       name: expand
       predefined:
@@ -306,7 +299,6 @@ script:
       - workspaceVirtualMachineSummary
       - gcpVirtualMachineSummary
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -338,15 +330,12 @@ script:
       description: ID of the relay list that is assigned to the computer.
       type: integer
   - arguments:
-    - description: The ID number of the computer to modify. The ID can be obtained
-        from the trendmicro-list-computers and trendmicro-search-computers commands.
+    - description: The ID number of the computer to modify. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: none
-      description: Determines the computer information to include in the response.
-        Note that the information is appended to the context data only.
+      description: Determines the computer information to include in the response. Note that the information is appended to the context data only.
       isArray: true
       name: expand
       predefined:
@@ -385,15 +374,13 @@ script:
       name: description
     - description: ID of the computer group to which the computer belongs.
       name: group_id
-    - description: ID of the policy assigned to the computer. The ID can be obtained
-        from the trendmicro-list-policies and trendmicro-search-policies commands.
+    - description: ID of the policy assigned to the computer. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
     - description: ID of the asset importance assigned to the computer.
       name: asset_importance_id
     - description: ID of the relay list that is assigned to the computer.
       name: relay_list_id
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -425,15 +412,13 @@ script:
       description: ID of the relay list that is assigned to the computer.
       type: integer
   - arguments:
-    - description: The ID number of the computer to delete. The ID can be obtained
-        from the trendmicro-list-computers and trendmicro-search-computers commands.
+    - description: The ID number of the computer to delete. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     description: Delete a certain computer.
     name: trendmicro-delete-computer
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
@@ -661,7 +646,6 @@ script:
       - intrusionPreventionSettingCombinedModeProtectionSource
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -681,8 +665,7 @@ script:
       description: The value of a setting.
       type: string
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
@@ -910,7 +893,6 @@ script:
       - intrusionPreventionSettingCombinedModeProtectionSource
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -933,12 +915,11 @@ script:
       description: The value of a setting.
       type: string
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      description: The name of the setting
+      description: The name of the setting.
       name: name
       predefined:
       - logInspectionSettingSeverityClippingAgentEventSendSyslogLevelMin
@@ -1162,7 +1143,6 @@ script:
       - intrusionPreventionSettingCombinedModeProtectionSource
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -1176,12 +1156,12 @@ script:
       description: The ID of the computer that owns the setting.
       type: integer
     - contextPath: TrendMicro.ComputersSettings.name
-      description: The name of the setting
+      description: The name of the setting.
       type: string
     - contextPath: TrendMicro.ComputersSettings.value
       description: The value of the setting.
       type: string
-  - description: Get information about all existing computer groups
+  - description: Get information about all existing computer groups.
     name: trendmicro-list-computer-groups
     outputs:
     - contextPath: TrendMicro.ComputerGroups.name
@@ -1258,14 +1238,9 @@ script:
     - description: The value to compare against the field name.
       name: value
       required: true
-    - description: If true, forces the response objects to be sorted by ID, overriding
-        the default sort order
+    - description: If true, forces the response objects to be sorted by ID, overriding the default sort order.
       name: sort_by_object_id
-    description: Search for specific computer groups by some field name with a certain
-      type. Every field has a specific type. It can be a simple type like a string,
-      a numeric, or a boolean. However, it can also be a choice, which is a string
-      with specific options (enumeration). To search, you must provide the field_name
-      and field_type, the operation to perform, and the value to search.
+    description: Search for specific computer groups by some field name with a certain type. Every field has a specific type. It can be a simple type like a string, a numeric, or a boolean. However, it can also be a choice, which is a string with specific options (enumeration). To search, you must provide the field_name and field_type, the operation to perform, and the value to search.
     name: trendmicro-search-computer-groups
     outputs:
     - contextPath: TrendMicro.ComputerGroups.name
@@ -1278,12 +1253,10 @@ script:
       description: ID of the computer group's parent group.
       type: integer
   - arguments:
-    - description: The ID number of the computer group to get. The ID can be obtained
-        from the trendmicro-list-computer-groups and trendmicro-search-computer-groups
-        commands.
+    - description: The ID number of the computer group to get. The ID can be obtained from the trendmicro-list-computer-groups and trendmicro-search-computer-groups commands.
       name: computer_group_id
       required: true
-    description: Get information of a certain computer group
+    description: Get information of a certain computer group.
     name: trendmicro-get-computer-group
     outputs:
     - contextPath: TrendMicro.ComputerGroups.name
@@ -1296,9 +1269,7 @@ script:
       description: ID of the computer group's parent group.
       type: integer
   - arguments:
-    - description: The ID number of the computer group to modify. The ID can be obtained
-        from the trendmicro-list-computer-groups and trendmicro-search-computer-groups
-        commands.
+    - description: The ID number of the computer group to modify. The ID can be obtained from the trendmicro-list-computer-groups and trendmicro-search-computer-groups commands.
       name: computer_group_id
       required: true
     - description: Name of the computer group.
@@ -1320,18 +1291,15 @@ script:
       description: ID of the computer group's parent group.
       type: integer
   - arguments:
-    - description: The ID number of the computer group to delete. The ID can be obtained
-        from the trendmicro-list-computer-groups and trendmicro-search-computer-groups
-        commands.
+    - description: The ID number of the computer group to delete. The ID can be obtained from the trendmicro-list-computer-groups and trendmicro-search-computer-groups commands.
       name: computer_group_id
       required: true
-    description: Delete a certain computer group
+    description: Delete a certain computer group.
     name: trendmicro-delete-computer-group
   - arguments:
     - description: The maximum number of objects to return.
       name: max_items
-    - default: false
-      required: true
+    - required: true
       description: The field name to search.
       name: field_name
       auto: PREDEFINED
@@ -1400,7 +1368,6 @@ script:
       - string
     - auto: PREDEFINED
       required: true
-      default: false
       description: 'The comparison operation to use. Possible values: "less-than", "less-than-or-equal", "equal",  "greater-than-or-equal", "greater-than", and "not-equal".'
       name: operation
       predefined:
@@ -1410,18 +1377,12 @@ script:
       - greater-than-or-equal
       - greater-than
       - not-equal
-    - default: false
-      required: true
+    - required: true
       description: The value to compare against the field.
       name: value
-    - description: If true, forces the response objects to be sorted by ID, overriding
-        the default sort order.
+    - description: If true, forces the response objects to be sorted by ID, overriding the default sort order.
       name: sort_by_object_id
-    description: Search for specific firewall rules by some field name with a certain
-      type. Every field has a specific type. It can be a simple type like a string,
-      a numeric, or a boolean. However, it can also be a choice, which is a string
-      with specific options (enumeration). To search, you must provide the field_name
-      and field_type, the operation to perform, and the value to search.
+    description: Search for specific firewall rules by some field name with a certain type. Every field has a specific type. It can be a simple type like a string, a numeric, or a boolean. However, it can also be a choice, which is a string with specific options (enumeration). To search, you must provide the field_name and field_type, the operation to perform, and the value to search.
     name: trendmicro-search-firewall-rules
     outputs:
     - contextPath: TrendMicro.FirewallRules.name
@@ -1737,7 +1698,7 @@ script:
       description: Whether logging for this filter is disabled.
       type: boolean
     - contextPath: TrendMicro.FirewallRules.includePacketData
-      description: Whether this filter should capture data for every log
+      description: Whether this filter should capture data for every log.
       type: boolean
     - contextPath: TrendMicro.FirewallRules.alertEnabled
       description: Whether this filter should be alerted on.
@@ -1864,7 +1825,7 @@ script:
       - single
       - multiple
       - mac-list
-    - description: Source MAC address
+    - description: Source MAC address.
       name: source_mac_value
     - description: List of MAC addresses.
       isArray: true
@@ -2146,8 +2107,7 @@ script:
       description: Whether the ICMP settings are inverted.
       type: boolean
   - arguments:
-    - description: The ID number of the firewall rule to get. The ID can be obtained
-        from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands..
+    - description: The ID number of the firewall rule to get. The ID can be obtained from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands..
       name: firewall_rule_id
       required: true
     description: Get information about a certain firewall rule.
@@ -2157,7 +2117,7 @@ script:
       description: Name of the firewall rule.
       type: string
     - contextPath: TrendMicro.FirewallRules.description
-      description: Description of the firewall. rule
+      description: Description of the firewall. rule.
       type: string
     - contextPath: TrendMicro.FirewallRules.action
       description: Action of the packet filter.
@@ -2322,8 +2282,7 @@ script:
       description: Whether the ICMP settings are inverted.
       type: boolean
   - arguments:
-    - description: The ID number of the firewall rule to modify. The ID can be obtained
-        from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands.
+    - description: The ID number of the firewall rule to modify. The ID can be obtained from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands.
       name: firewall_rule_id
       required: true
     - description: Name of the firewall rule.
@@ -2484,7 +2443,7 @@ script:
     - description: Comma-delimited list of the addresses.
       isArray: true
       name: destination_mac_multiple
-    - description: ID of the MAC address list,
+    - description: ID of the MAC address list,.
       name: destination_mac_list_id
     - description: Whether the destination MAC setting should be inverted.
       name: destination_mac_not
@@ -2705,39 +2664,33 @@ script:
       description: Whether the ICMP settings are inverted.
       type: boolean
   - arguments:
-    - description: The ID number of the firewall rule to delete. The ID can be obtained
-        from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands.
+    - description: The ID number of the firewall rule to delete. The ID can be obtained from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands.
       name: firewall_rule_id
       required: true
     description: Delete a certain firewall rule.
     name: trendmicro-delete-firewall-rule
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to return only rule IDs assigned directly to the current computer. Possible values: "true" and "false".'
       name: overrides
       predefined:
       - 'true'
       - 'false'
-    description: List all IDs of the firewall rules that are assigned to a certain
-      computer.
+    description: List all IDs of the firewall rules that are assigned to a certain computer.
     name: trendmicro-list-firewall-rule-ids-of-computer
     outputs:
     - contextPath: TrendMicro.FirewallAssignments.assignedRuleIDs
       description: List of the assigned firewall rule IDs.
       type: array
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to return only rule IDs assigned directly to the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -2755,12 +2708,10 @@ script:
       description: List of the assigned firewall rule IDs.
       type: array
   - arguments:
-    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The ID number of the computer. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to return only rule IDs assigned directly to the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -2778,12 +2729,10 @@ script:
       description: List of assigned firewall rule IDs.
       type: array
   - arguments:
-    - description: The ID number of the policy to get. The ID can be obtained from the
-        trendmicro-list-policies and trendmicro-search-policies commands.
+    - description: The ID number of the policy to get. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -2803,20 +2752,16 @@ script:
       description: Description of the policy.
       type: string
     - contextPath: TrendMicro.Policies.recommendationScanMode
-      description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+      description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       type: string
     - contextPath: TrendMicro.Policies.autoRequiresUpdate
-      description: Automatically update computers assigned this policy when the configuration
-        changes.
+      description: Automatically update computers assigned this policy when the configuration changes.
       type: string
   - arguments:
-    - description: The ID number of the policy to modify. The ID can be obtained from the
-        trendmicro-list-policies and trendmicro-search-policies commands.
+    - description: The ID number of the policy to modify. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -2829,11 +2774,9 @@ script:
       name: name
     - description: Description of the policy.
       name: description
-    - description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+    - description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       name: recommendation_scan_mode
-    - description: Automatically update computers assigned this policy when the configuration
-        changes.
+    - description: Automatically update computers assigned this policy when the configuration changes.
       name: auto_requires_update
     description: Modify a certain policy.
     name: trendmicro-modify-policy
@@ -2848,23 +2791,19 @@ script:
       description: Description of the policy.
       type: string
     - contextPath: TrendMicro.Policies.recommendationScanMode
-      description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+      description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       type: string
     - contextPath: TrendMicro.Policies.autoRequiresUpdate
-      description: Automatically update computers assigned this policy when the configuration
-        changes.
+      description: Automatically update computers assigned this policy when the configuration changes.
       type: string
   - arguments:
-    - description: The ID number of the policy to delete. The ID can be obtained from the
-        trendmicro-list-policies and trendmicro-search-policies commands.
+    - description: The ID number of the policy to delete. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
     description: Delete a certain policy.
     name: trendmicro-delete-policy
   - arguments:
-    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies
-        and trendmicro-search-policies commands.
+    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
     - description: The name of the policy setting.
@@ -3092,7 +3031,6 @@ script:
       - platformSettingAutoUpdateAntiMalwareEngineEnabled
       - intrusionPreventionSettingCombinedModeProtectionSource
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -3112,8 +3050,7 @@ script:
       description: The value of a setting.
       type: string
   - arguments:
-    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies
-        and trendmicro-search-policies commands.
+    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
     - description: The name of the setting.
@@ -3341,7 +3278,6 @@ script:
       - platformSettingAutoUpdateAntiMalwareEngineEnabled
       - intrusionPreventionSettingCombinedModeProtectionSource
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -3363,11 +3299,10 @@ script:
       description: The value of a setting.
       type: string
   - arguments:
-    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies
-        and trendmicro-search-policies commands.
+    - description: The ID number of the policy. The ID can be obtained from the trendmicro-list-policies and trendmicro-search-policies commands.
       name: policy_id
       required: true
-    - description: The name of the policy settings
+    - description: The name of the policy settings.
       name: name
       required: true
       auto: PREDEFINED
@@ -3592,7 +3527,6 @@ script:
       - platformSettingAutoUpdateAntiMalwareEngineEnabled
       - intrusionPreventionSettingCombinedModeProtectionSource
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -3603,7 +3537,7 @@ script:
     name: trendmicro-reset-policy-setting
     outputs:
     - contextPath: TrendMicro.PolicySettings.policyId
-      description: Policy ID of a setting
+      description: Policy ID of a setting.
       type: integer
     - contextPath: TrendMicro.PolicySettings.name
       description: Name of a setting.
@@ -3613,7 +3547,6 @@ script:
       type: string
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -3633,16 +3566,13 @@ script:
       description: Description of the policy.
       type: string
     - contextPath: TrendMicro.Policies.recommendationScanMode
-      description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+      description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       type: string
     - contextPath: TrendMicro.Policies.autoRequiresUpdate
-      description: Automatically update computers assigned this policy when the configuration
-        changes.
+      description: Automatically update computers assigned this policy when the configuration changes.
       type: string
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current computer. Possible values: "true" and "false".'
       name: overrides
@@ -3687,14 +3617,9 @@ script:
     - description: The value to compare against the field name.
       name: value
       required: true
-    - description: If true, forces the response objects to be sorted by ID, overriding
-        the default sort order.
+    - description: If true, forces the response objects to be sorted by ID, overriding the default sort order.
       name: sort_by_object_id
-    description: Search for specific policies by some field name with a certain type.
-      Every field has a specific type. It can be a simple type like a string, a numeric
-      or a boolean. However, it can also be a choice, which is a string with specific
-      options (enumeration). To search, you must provide the field_name and field_type,
-      the operation to perform, and the value to search.
+    description: Search for specific policies by some field name with a certain type. Every field has a specific type. It can be a simple type like a string, a numeric or a boolean. However, it can also be a choice, which is a string with specific options (enumeration). To search, you must provide the field_name and field_type, the operation to perform, and the value to search.
     name: trendmicro-search-policies
     outputs:
     - contextPath: TrendMicro.Policies.parentID
@@ -3707,16 +3632,13 @@ script:
       description: Description of the policy.
       type: string
     - contextPath: TrendMicro.Policies.recommendationScanMode
-      description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+      description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       type: string
     - contextPath: TrendMicro.Policies.autoRequiresUpdate
-      description: Automatically update computers assigned this policy when the configuration
-        changes.
+      description: Automatically update computers assigned this policy when the configuration changes.
       type: string
   - arguments:
     - auto: PREDEFINED
-      default: false
       defaultValue: 'false'
       description: 'Whether to display only overrides defined for the current policy. Possible values: "true" and "false".'
       name: overrides
@@ -3731,15 +3653,13 @@ script:
     - description: Description of the policy.
       name: description
     - auto: PREDEFINED
-      description: 'Enable or disable ongoing recommendation scans for computers assigned
-        this policy. Possible values: "off" and "ongoing".'
+      description: 'Enable or disable ongoing recommendation scans for computers assigned this policy. Possible values: "off" and "ongoing".'
       name: recommendation_scan_mode
       predefined:
       - 'off'
       - 'ongoing'
     - auto: PREDEFINED
-      description: 'Automatically update computers assigned this policy when the configuration
-        changes. Posssible values: "off" and "on".'
+      description: 'Automatically update computers assigned this policy when the configuration changes. Posssible values: "off" and "on".'
       name: auto_requires_update
       predefined:
       - 'off'
@@ -3757,20 +3677,16 @@ script:
       description: Description of the policy.
       type: string
     - contextPath: TrendMicro.Policies.recommendationScanMode
-      description: Enable or disable ongoing recommendation scans for computers assigned
-        this policy.
+      description: Enable or disable ongoing recommendation scans for computers assigned this policy.
       type: string
     - contextPath: TrendMicro.Policies.autoRequiresUpdate
-      description: Automatically update computers assigned this policy when the configuration
-        changes.
+      description: Automatically update computers assigned this policy when the configuration changes.
       type: string
   - arguments:
-    - description: The computer ID. The ID can be obtained from the trendmicro-list-computers
-        and trendmicro-search-computers commands.
+    - description: The computer ID. The ID can be obtained from the trendmicro-list-computers and trendmicro-search-computers commands.
       name: computer_id
       required: true
-    - description: The firewall rule ID to remove. The ID can be obtained from the trendmicro-list-firewall-rules
-        and trendmicro-search-firewall-rules commands.
+    - description: The firewall rule ID to remove. The ID can be obtained from the trendmicro-list-firewall-rules and trendmicro-search-firewall-rules commands.
       name: firewall_rule_id
       required: true
     description: Remove a firewall rule ID from a certain computer.
@@ -4044,7 +3960,107 @@ script:
       description: The name of the default policy setting.
     - contextPath: TrendMicro.DefaultPolicySettings.value
       description: The value of the default policy setting.
-  dockerimage: demisto/python3:3.9.8.24399
+  - arguments:
+    - description: The name of the scheduled task.
+      name: name
+      required: true
+    - description: The type of the scheduled task.
+      name: type
+      required: true
+      predefined:
+        - scan-for-open-ports
+        - scan-for-recommendations
+        - scan-for-integrity-changes
+        - scan-for-malware
+      auto: PREDEFINED
+    - description: The computer ID to create the task on. Can be retrieved from the trendmicro-list-computers command.
+      name: computer_id
+      required: true
+    description: Creates a once-only scheduled task with a specific computer ID and runs it.
+    name: trendmicro-create-onceonly-scan-scheduled-task
+    outputs:
+      - contextPath: TrendMicro.ScheduledTask.name
+        description: The name of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.type
+        description: The type of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.timeZone
+        description: The timezone of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.recurrenceType
+        description: The recurrence type of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.onceOnlyScheduleParameters.startTime
+        description: The start time of the scheduled task.
+        type: Number
+      - contextPath: TrendMicro.ScheduledTask.enabled
+        description: Whether the scheduled task is enabled.
+        type: Boolean
+      - contextPath: TrendMicro.ScheduledTask.nextRunTime
+        description: The next run time of the scheduled task.
+        type: Date
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.computerFilter.type
+        description: The type of the computer filter of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.computerFilter.computerID
+        description: The computer ID of the scheduled task.
+        type: Number
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.timeout
+        description: The timeout for the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.ID
+        description: The ID of the scheduled task.
+        type: Number
+  - arguments:
+    - description: A comma seperated of task-IDs to delete.
+      name: task_ids
+      required: true
+      isArray: true
+    description: Deletes a scheduled task.
+    name: trendmicro-delete-scheduled-task
+    outputs: []
+  - arguments:
+    - description: The ID of the task to retrieve.
+      name: task_id
+      required: false
+    description: Get information on all scheduled tasks.
+    name: trendmicro-list-scheduled-task
+    outputs:
+      - contextPath: TrendMicro.ScheduledTask.name
+        description: The name of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.type
+        description: The type of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.timeZone
+        description: The timezone of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.recurrenceType
+        description: The recurrence type of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scheduleDetails.onceOnlyScheduleParameters.startTime
+        description: The start time of the scheduled task.
+        type: Number
+      - contextPath: TrendMicro.ScheduledTask.enabled
+        description: Whether the scheduled task is enabled.
+        type: Boolean
+      - contextPath: TrendMicro.ScheduledTask.nextRunTime
+        description: The next run time of the scheduled task.
+        type: Date
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.computerFilter.type
+        description: The type of the computer filter of the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.computerFilter.computerID
+        description: The computer ID of the scheduled task.
+        type: Number
+      - contextPath: TrendMicro.ScheduledTask.scanForMalwareTaskParameters.timeout
+        description: The timeout for the scheduled task.
+        type: String
+      - contextPath: TrendMicro.ScheduledTask.ID
+        description: The ID of the scheduled task.
+        type: Number
+  dockerimage: demisto/python3:3.12.8.3296088
   runonce: false
   subtype: python3
   type: python

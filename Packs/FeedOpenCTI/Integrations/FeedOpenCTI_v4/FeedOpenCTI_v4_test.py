@@ -1,11 +1,11 @@
-from FeedOpenCTI_v4 import *
-from test_data.feed_data import RESPONSE_DATA, RESPONSE_DATA_WITHOUT_INDICATORS
 from CommonServerPython import CommandResults
+from FeedOpenCTI_v4 import *
 from pycti import StixCyberObservable
+from test_data.feed_data import RESPONSE_DATA, RESPONSE_DATA_WITHOUT_INDICATORS
 
 
 class Client:
-    temp = ''
+    temp = ""
     stix_cyber_observable = StixCyberObservable
 
 
@@ -22,9 +22,32 @@ def test_get_indicators(mocker):
             command.
     """
     client = Client
-    mocker.patch.object(client.stix_cyber_observable, 'list', return_value=RESPONSE_DATA)
-    _, indicators = get_indicators(client, indicator_types=['registry key', 'account'], limit=10)
+    mocker.patch.object(client.stix_cyber_observable, "list", return_value=RESPONSE_DATA)
+    _, indicators = get_indicators(client, indicator_types=["registry key", "account"], limit=10)
     assert len(indicators) == 2
+
+
+def test_get_indicators__filters(mocker):
+    """Tests get_indicators function filters
+    Given
+        The following: indicator types: 'registry key', 'account', score: [1, 2].
+    When
+        -  the get_indicators function is called
+    Then
+        - validate the filters that are sent to the API are correct.
+
+    """
+    client = Client
+    mock_request = mocker.patch.object(client.stix_cyber_observable, "list", return_value=RESPONSE_DATA)
+    _, indicators = get_indicators(client, indicator_types=["registry key", "account"], score=[1, 2], limit=10)
+    assert mock_request.call_args[1]["filters"] == {
+        "mode": "and",
+        "filters": [
+            {"key": "entity_type", "values": ["Windows-Registry-Key", "User-Account"], "operator": "eq", "mode": "or"},
+            {"key": "x_opencti_score", "values": [1, 2], "operator": "eq", "mode": "or"},
+        ],
+        "filterGroups": [],
+    }
 
 
 def test_fetch_indicators_command(mocker):
@@ -38,8 +61,8 @@ def test_fetch_indicators_command(mocker):
         - validate the length of the indicators list
     """
     client = Client
-    mocker.patch.object(client.stix_cyber_observable, 'list', return_value=RESPONSE_DATA)
-    indicators = fetch_indicators_command(client, indicator_types=['registry key', 'account'], max_fetch=200)
+    mocker.patch.object(client.stix_cyber_observable, "list", return_value=RESPONSE_DATA)
+    indicators = fetch_indicators_command(client, indicator_types=["registry key", "account"], max_fetch=200)
     assert len(indicators) == 2
 
 
@@ -54,11 +77,8 @@ def test_get_indicators_command(mocker):
         - validate the readable_output, raw_response.
     """
     client = Client
-    args = {
-        'indicator_types': 'registry key,account',
-        'limit': 2
-    }
-    mocker.patch.object(client.stix_cyber_observable, 'list', return_value=RESPONSE_DATA)
+    args = {"indicator_types": "registry key,account", "limit": 2}
+    mocker.patch.object(client.stix_cyber_observable, "list", return_value=RESPONSE_DATA)
     results: CommandResults = get_indicators_command(client, args)
     assert len(results.raw_response) == 2
     assert "Indicators" in results.readable_output
@@ -74,9 +94,7 @@ def test_get_indicators_command_with_no_data_to_return(mocker):
         - validate the response to have a "No indicators" string
     """
     client = Client
-    args = {
-        'indicator_types': ['registry key', 'account']
-    }
-    mocker.patch.object(client.stix_cyber_observable, 'list', return_value=RESPONSE_DATA_WITHOUT_INDICATORS)
+    args = {"indicator_types": ["registry key", "account"]}
+    mocker.patch.object(client.stix_cyber_observable, "list", return_value=RESPONSE_DATA_WITHOUT_INDICATORS)
     results: CommandResults = get_indicators_command(client, args)
     assert "No indicators" in results.readable_output

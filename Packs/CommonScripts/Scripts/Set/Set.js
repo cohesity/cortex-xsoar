@@ -1,19 +1,23 @@
 var ec = {};
 var value;
 try {
-    if (args.stringify === 'true') {
+    if (args.stringify === 'true' ) {
         if (typeof args.value === 'string') {
             value = args.value
         } else {
             value = JSON.stringify(args.value)
         }
     } else {
-        value = JSON.parse(args.value);
+        if (!isNaN(args.value) && !args.value.includes('.') && Number(args.value) >= Number.MAX_SAFE_INTEGER) {
+            value = BigInt(args.value);
+        }
+        else {
+            value = JSON.parse(args.value);
+        }
     }
-} catch(err) {
+} catch (err) {
     value = args.value;
 }
-
 ec[args.key] = value;
 var result = {
     Type: entryTypes.note,
@@ -27,5 +31,5 @@ if (!args.append || args.append === 'false') {
 } else {
     result.EntryContext = ec;
 }
-
+logDebug(`Setting ${JSON.stringify(result)}`)
 return result;

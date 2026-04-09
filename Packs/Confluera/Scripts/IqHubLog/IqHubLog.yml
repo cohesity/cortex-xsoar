@@ -5,9 +5,9 @@ name: IqHubLog
 script: '-'
 type: python
 tags: []
-comment: |-
-  Logs detection and progression count with respective links to confluera's IQ-Hub portal
-  in tabular format
+comment: 'Logs detection and progression count with respective links to confluera''s IQ-Hub portal
+
+  in tabular format.'
 enabled: true
 scripttarget: 0
 subtype: python3
@@ -18,8 +18,7 @@ dependson:
   should:
   - Confluera|||confluera-fetch-detections
   - Confluera|||confluera-fetch-progressions
-runonce: false
-dockerimage: demisto/python3:3.9.7.24076
+dockerimage: demisto/python3:3.12.8.3296088
 runas: DBotWeakRole
 fromversion: 6.0.0
 tests:

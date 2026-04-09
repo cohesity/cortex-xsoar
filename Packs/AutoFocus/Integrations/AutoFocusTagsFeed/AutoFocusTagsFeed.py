@@ -1,3 +1,5 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 """
 AutoFocus Tags Feed integration
 """
@@ -5,8 +7,6 @@ from typing import Dict, List, Optional
 
 import urllib3
 
-import demistomock as demisto  # noqa: F401
-from CommonServerPython import *  # noqa: F401
 
 # disable insecure warnings
 urllib3.disable_warnings()
@@ -83,7 +83,7 @@ class Client(BaseClient):
             'Content-Type': 'application/json'
         }
 
-        LOG.add_replace_strs(api_key)
+        add_sensitive_log_strs(api_key)
 
     def get_tags(self, data: Dict[str, Any]):
         res = self._http_request('POST',
@@ -605,7 +605,6 @@ def main():
             raise NotImplementedError(f'Command {command} is not implemented.')
 
     except Exception as e:
-        demisto.error(traceback.format_exc())  # Print the traceback
         return_error(f'Failed to execute {command} command.\nError:\n{str(e)}')
 
 

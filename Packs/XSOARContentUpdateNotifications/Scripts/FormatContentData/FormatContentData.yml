@@ -5,11 +5,10 @@ args:
 commonfields:
   id: FormatContentData
   version: -1
-dockerimage: demisto/python3:3.9.8.24399
+dockerimage: demisto/python3:3.12.8.3296088
 enabled: true
 name: FormatContentData
 runas: DBotWeakRole
-runonce: false
 script: ''
 scripttarget: 0
 subtype: python3

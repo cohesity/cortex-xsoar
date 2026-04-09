@@ -2,13 +2,14 @@ commonfields:
   id: Remedy On-Demand
   version: -1
 name: Remedy On-Demand
-display: Remedy On-Demand
+display: Remedy On-Demand (Deprecated)
+deprecated: true
 category: Case Management
-description: Use Remedy On-Demand to manage tickets
+provider: KKR
+description: Deprecated. Use BMC Helix ITSM instead.
 configuration:
 - display: Server URL (e.g. 'https://myurl.com', 'http://41.79.151.82')
   name: url
-  defaultvalue: ""
   type: 0
   required: true
 - display: Port
@@ -18,12 +19,10 @@ configuration:
   required: false
 - display: Username
   name: credentials
-  defaultvalue: ""
   type: 9
   required: true
 - display: Use system proxy settings
   name: proxy
-  defaultvalue: ""
   type: 8
   required: false
 - display: Trust any certificate (not secure)
@@ -38,6 +37,11 @@ configuration:
   name: incidentType
   type: 13
   required: false
+- defaultvalue: '1'
+  display: Incidents Fetch Interval
+  name: incidentFetchInterval
+  type: 19
+  required: false
 script:
   script: ''
   type: javascript
@@ -45,16 +49,12 @@ script:
   - name: remedy-incident-create
     arguments:
     - name: first-name
-      required: false
-      description: costumer's first name (make sure costumer already exists)
+      description: customer's first name (make sure customer already exists)
     - name: last-name
-      required: false
-      description: costumer's first name (make sure costumer already exists)
+      description: customer's first name (make sure customer already exists)
     - name: description
-      required: false
       description: Incident description
     - name: status
-      required: false
       auto: PREDEFINED
       predefined:
       - New
@@ -66,7 +66,6 @@ script:
       - Cancelled
       description: Incident status
     - name: source
-      required: false
       auto: PREDEFINED
       predefined:
       - Direct Input
@@ -82,7 +81,6 @@ script:
       - Other
       description: Incident source
     - name: service-type
-      required: false
       auto: PREDEFINED
       predefined:
       - User Service Restoration
@@ -91,7 +89,6 @@ script:
       - Infrastructure Restoration
       description: Incident service-type
     - name: impact
-      required: false
       auto: PREDEFINED
       predefined:
       - 1-Extensive/Widespread
@@ -100,7 +97,6 @@ script:
       - 4-Minor/Localized
       description: Incident impact
     - name: urgency
-      required: false
       auto: PREDEFINED
       predefined:
       - 1-Critical
@@ -109,8 +105,10 @@ script:
       - 4-Low
       description: Incident urgency
     - name: custom-fields
-      description: Custom fields for incident creation. Should be comma separated
-        query (i.e. field1=value1,field2=value2).
+      description: Custom fields for incident creation. Comma-separated query or custom-fields-seperator separated query. (e.g., field1=value1,field2=value2).
+    - name: custom-fields-separator
+      description: A custom delimiter to use for the custom-fields. Don't use '=' as a delimiter. Default value is ','.
+      defaultValue: ','
     outputs:
     - contextPath: Ticket.ID
       description: Ticket ID
@@ -134,9 +132,7 @@ script:
     - name: ID
       required: true
       default: true
-      description: Incident Entry ID. If EntryID is not available to you, incident
-        details can be found using `remedy-fetch-incidents query="'Incident Number'
-        = \"<incident number>\"".
+      description: Incident Entry ID. If EntryID is not available to you, incident details can be found using `remedy-fetch-incidents query="'Incident Number' = \"<incident number>\"".
     outputs:
     - contextPath: Ticket.ID
       description: Ticket ID
@@ -158,34 +154,51 @@ script:
   - name: remedy-fetch-incidents
     arguments:
     - name: query
-      description: Search query/qualification format of '<field> LIKE "<values>"'
-        (e.g. 'Company LIKE "My company"', 'Submitter LIKE "%john%"')
+      description: Search query/qualification format of '<field> LIKE "<values>"' (e.g. 'Company LIKE "My company"', 'Submitter LIKE "%john%"')
+    - description: integer value to limit the amount of results returned (default no limit)
+      name: limit
+    - description: Sort query results in descending or ascending order. Format:'<field>.asc' or '<field>.desc' (e.g. 'Assigned To.asc').
+      name: sort
     outputs:
-    - contextPath: Ticket.ID
-      description: Ticket ID
-    - contextPath: Ticket.Submitter
-      description: Ticket submitter
-    - contextPath: Ticket.Status
-      description: Ticket status
+    - contextPath: Ticket.Assignee
+      description: Ticket assignee
     - contextPath: Ticket.Description
       description: Ticket description
+    - contextPath: Ticket.Email
+      description: Ticket email
+    - contextPath: Ticket.EntryID
+      description: Ticket entry ID
+    - contextPath: Ticket.ID
+      description: Ticket request ID
+    - contextPath: Ticket.Impact
+      description: Ticket impact
+    - contextPath: Ticket.IncidentNumber
+      description: Ticket number
+    - contextPath: Ticket.ModifiedDate
+      description: Ticket modified date
+    - contextPath: Ticket.Priority
+      description: Ticket priority
+    - contextPath: Ticket.RequestID
+      description: Ticket request ID
+    - contextPath: Ticket.ServiceType
+      description: Ticket service type
     - contextPath: Ticket.Source
       description: Ticket reported source
-    - contextPath: Ticket.Impact
-      description: TicketiImpact
-    - contextPath: Ticket.Urgency
-      description: Ticket urgency
+    - contextPath: Ticket.Status
+      description: Ticket status
+    - contextPath: Ticket.Submitter
+      description: Ticket submitter
     - contextPath: Ticket.Type
       description: Ticket service type
+    - contextPath: Ticket.Urgency
+      description: Ticket urgency
     description: Fetch all incidents
   - name: remedy-incident-update
     arguments:
     - name: ID
       required: true
       default: true
-      description: Incident Entry ID. If EntryID is not available to you, incident
-        details can be found using `remedy-fetch-incidents query="'Incident Number'
-        = \"<incident number>\"".
+      description: Incident Entry ID. If EntryID is not available to you, incident details can be found using `remedy-fetch-incidents query="'Incident Number' = \"<incident number>\"".
     - name: description
       description: Updated description
     - name: status
@@ -238,6 +251,8 @@ script:
       - Infrastructure Event
       - Infrastructure Restoration
       description: Updated service-type (unchanged if not specified)
+    - description: Custom fields for incident update. Comma separated query (e.g., field1=value1,field2=value2)
+      name: custom_fields
     outputs:
     - contextPath: Ticket.ID
       description: Ticket ID
@@ -257,5 +272,6 @@ script:
       description: Ticket service type
     description: Update exiting incident
   isfetch: true
-hidden: false
 fromversion: 5.0.0
+tests:
+- Remedy-On-Demand-Test

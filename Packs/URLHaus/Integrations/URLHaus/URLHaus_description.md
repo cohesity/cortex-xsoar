@@ -1,23 +1,40 @@
 ## How DBot Score is Calculated
 
-A URL or domain can have one of the following statuses in a blacklist.
-- Malicious: the site is a known malware site.
-- Compromised: the site is legitimate but has been compromised.
-- Not listed
+### URL
 
-If the `compromised_is_malicious` parameter is set to True, then compromised URLs or domains are treated as malicious.
+Determined by the status of the URL.
 
-If the `compromised_is_malicious` parameter is set to False, then compromised URLs or domains are treated as legitimate.
+| **Status** | **DBotScore** |
+| --- | --- |
+| online | Malicious |
+| offline | Suspicious |
+| unknown | Unknown |
 
-### DBot Score: Bad
-URLs and domains receive a DBot score of Bad if their total number of appearances in blacklists exceeds the `threshold` parameter.
+### Domain
 
-### DBot Score: Suspicious
-URLs and domains receive a DBot score of Suspicious if they appear on at least on blacklist, but their total number of appearances in blacklists does not exceed the `threshold` parameter.
-If the URL or domain appeared in at least one blacklist, but not enough blacklists to exceed the threshold, it is considered suspicious.
+Determined by the blacklist spamhaus_dbl/surbl of the Domain.
 
-### DBot Score: Good
-URLs and domains receive a DBot score of Good if they do not appear on any blacklists.their total number of appearances in blacklists exceeds the `threshold` parameter.
+| **Status**                                                | **DBotScore** |
+|-----------------------------------------------------------| --- |
+| spammer_domain/ phishing_domain/ botnet_cc_domain/ listed | Malicious |
+| not listed                                                | Unknown |
+| In any other case                                                       | Benign |
 
-### DBot Score: Empty
-If there is no information for the URLs and domains, they will not receive a DBot score.
+### File
+
+Score is Malicious.
+
+
+Notice: Submitting indicators using the following commands of this integration might make the indicator data publicly available.
+- ***url***
+- ***domain***
+See the vendor’s documentation for more details.
+
+#### Create an Auth Key for abuse.ch
+> Note: If you already have a profile, you can skip steps 1 and 2.
+
+1. Sign up for an abuse.ch account. You can do this easily by using an existing account that you may already have on X, LinkedIn, Google or Github. Just log in with the authentication provider of your choice here: https://auth.abuse.ch/
+  
+2. Once you are authenticated on abuse.ch, ensure that you connect at least one additional authentication provider. This will ensure that you have access to abuse.ch platforms, even if one of the authentication providers you use shuts down (yes, it happened with Twitter!)
+
+3. Ensure that you hit the "Save profile" button. In the "Optional" section, you can now generate an "Auth-Key". This is your personal Auth-Key that you can now use in the integration.

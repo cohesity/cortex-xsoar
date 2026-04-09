@@ -15,7 +15,11 @@
         "Vulnerability",
         "Cyber Crime",
         "Cyber Espionage",
-        "Hacktivism"
+        "Hacktivism",
+        "Financial Gain",
+        "Espionage",
+        "Destruction",
+        "Disruption"
     ],
     "useAsKpi": false,
     "locked": false,
@@ -27,7 +31,8 @@
         "IP",
         "Domain",
         "URL",
-        "Intrusion Set"
+        "Intrusion Set",
+        "Threat Actor"
     ],
     "associatedToAll": false,
     "unmapped": false,

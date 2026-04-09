@@ -1,18 +1,19 @@
+import demistomock as demisto  # noqa: F401
+from CommonServerPython import *  # noqa: F401
 from typing import Tuple
 
-import demistomock as demisto
-from CommonServerPython import *
 
 ''' IMPORTS '''
 
 import dateparser
 import requests
 import trustar
+import urllib3
 from trustar.models.indicator import Indicator
 from trustar.models.report import Report
 
 # Disable insecure warnings
-requests.packages.urllib3.disable_warnings()
+urllib3.disable_warnings()
 
 handle_proxy()
 
@@ -31,6 +32,7 @@ class Utils(object):
     @staticmethod
     def date_to_unix(timestamp):
         d = dateparser.parse(timestamp)
+        assert d is not None, f'could not parse {timestamp}'
         return int(d.strftime("%s")) * 1000
 
 
@@ -741,7 +743,7 @@ class TrustarClient:
         enclaves the user making the request has READ access to.
 
         :param indicators: indicators list to search the corresponding metadata.
-        :param enclave_ids: list of enclave IDs to restrict to. By default, uses all of the user’s enclaves.
+        :param enclave_ids: list of enclave IDs to restrict to. By default, uses all of the user's enclaves.
 
         :return: Entry context with indicators metadata.
         """
@@ -806,7 +808,7 @@ class TrustarClient:
 
     def get_whitelist(self, limit=None):
         """
-        Gets a list of indicators that the user’s company has whitelisted.
+        Gets a list of indicators that the user's company has whitelisted.
 
         :param limit: Maximum number of whitelisted indicators to return.
         :return: Entry context with whitelisted indicators.

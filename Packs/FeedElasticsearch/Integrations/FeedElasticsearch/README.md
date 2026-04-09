@@ -1,280 +1,74 @@
 ## Overview
+
 ---
 
-Fetch indicators stored in an Elasticsearch database. 
-1. The Cortex XSOAR Feed contains system indicators saved in an Elasticsearch index. 
-2. The Cortex XSOAR MT Shared Feed contains indicators shared by a tenant account in a multi-tenant environment. 
+Fetch indicators stored in an Elasticsearch database.
+
+1. The Cortex XSOAR Feed contains system indicators saved in an Elasticsearch index.
+2. The Cortex XSOAR MT Shared Feed contains indicators shared by a tenant account in a multi-tenant environment.
 3. The Generic Feed contains a feed in a format specified by the user.
 
-## Configure ElasticsearchFeed on Cortex XSOAR
----
+Supports version 6 and later.
+This integration was integrated and tested with versions 6.6.2, 7.3, 8.4.1 of Elasticsearch.
 
-1. Navigate to __Settings__ > __Integrations__ > __Servers & Services__.
-2. Search for SharedTenantElasticsearchFeed.
-3. Click __Add instance__ to create and configure a new integration instance.
-    * __Server URL__: Elasticsearch database URL. 
-    * __Name__: Used for authentication via Username + Password or API ID + API Key (If you wish to use API Key authorization enter **_api_key_id:** followed by your API key ID).
-    * __Password__: Used for authentication via Username + Password or API ID + API Key (If you wish to use API Key authorization enter your API key).    
-    * __Trust any certificate (not secure)__: Ignore HTTPS certificates.
-    * __Use system proxy settings__: Enable/Disable
-    * __Feed Type__: Choose the feed type saved into the Elasticsearch database. Cortex XSOAR Feed are indicators saved by Cortex XSOAR in an Elasticsearch
-        configured enviornment. Cortex XSOAR MT Shared Feed are indicators shared by a
-        tenant in a MT env. Generic Feed is a feed in a format dictated by the user
-    * __Fetch indicators__: Enable/Disable
-    * __First Fetch Time__: Determine how far to look back for fetched indicators (&lt;number&gt; &lt;time unit&gt;, e.g., 12 hours, 7 days).
-    * __Indicator Reputation__: Indicators from this integration instance will be marked with this reputation.
-    * __Source Reliability__: Reliability of the source providing the intelligence data.
-    * __Traffic Light Protocol Color__: The Traffic Light Protocol (TLP) designation to apply to indicators fetched from the feed. More information about the protocol can be found at https://us-cert.cisa.gov/tlp.
-    * __Indicator Value Field__: Source field that contains the indicator value in the index.
-    * __Indicator Type Field__: Source field that contains the indicator type in the index.
-    * __Indicator Type__: Default indicator type used in case no "Indicator Type Field" was provided
-    * __Index From Which To Fetch Indicators__: Multiple indices may be used by separating them with a comma. If none is provided, will search in all indices
-    * __Time Field Type__: Time field type used in the database.
-    * __Index Time Field__: Used for sorting sort and limiting data. If left empty, no sorting will be done.
-    * __Query__: Elasticsearch query to be executed when fetching indicators from Elasticsearch.
-4. Click __Test__ to validate the URLs, token, and connection.
-## Fetched Incidents Data
----
+## Configure Elasticsearch Feed in Cortex
+
+| **Parameter** | **Description** | **Required** |
+| --- | --- | --- |
+| Server URL |  | True |
+| Name (see ?-&gt;Authentication) | Provide Username \+ Passoword instead of API key \+ API ID | False |
+| Password |  | False |
+| Client type | For Elasticsearch version 7 and below, select 'Elasticsearch'. For Elasticsearch server version 8, select 'Elasticsearch_v8'. In some hosted ElasticSearch environments, the standard ElasticSearch client is not supported. If you encounter any related client issues, please consider using the OpenSearch client type. | False |
+| Trust any certificate (not secure) |  | False |
+| Use system proxy settings |  | False |
+| Feed Type | The Cortex XSOAR Feed contains system indicators saved in an Elasticsearch index. The Cortex XSOAR MT Shared Feed contains indicators shared by a tenant account in a multi-tenant environment. Generic Feed contains a feed in a format specified by the user | False |
+| Fetch indicators |  | False |
+| First Fetch Time | Determine how far to look back for fetched indicators \(&lt;number&gt; &lt;time unit&gt;, e.g., 12 hours, 7 days\). | False |
+| Fetch Limit | The maximal number of indicators that could be fetched in a fetch cycle. | False |
+| Indicator Reputation | Indicators from this integration instance will be marked with this reputation | False |
+| Source Reliability | Reliability of the source providing the intelligence data | True |
+| Traffic Light Protocol Color | The Traffic Light Protocol \(TLP\) designation to apply to indicators fetched from the feed | False |
+| Feed Fetch Interval |  | False |
+| Tags | Supports CSV values. | False |
+| Bypass exclusion list | When selected, the exclusion list is ignored for indicators from this feed. This means that if an indicator from this feed is on the exclusion list, the indicator might still be added to the system. | False |
+| Indicator Value Field | Source field that contains the indicator value in the index. Relevant for generic feed type only. | False |
+| Indicator Type Field | Source field that contains the indicator type in the index. Relevant for generic feed type only. | False |
+| Indicator Type | Default indicator type used in case no "Indicator Type Field" was provided. Relevant for generic feed type only. | False |
+| Index from Which To Fetch Indicators | A comma-separated list of indexes. If empty, searches all indexes. | False |
+| Time Field Type |  | False |
+| Index Time Field | Used for sorting and limiting data. If empty, results are not sorted. Relevant for generic feed type only. | False |
+| Query | Elasticsearch query to execute when fetching indicators from Elasticsearch | False |
 
 ## Commands
----
-You can execute these commands from the Cortex XSOAR CLI, as part of an automation, or in a playbook.
-After you successfully execute a command, a DBot message appears in the War Room with the command details.
-1. get-shared-indicators
-### 1. get-shared-indicators
----
-Gets indicators shared with this tenant (MT only).
-##### Base Command
 
-`get-shared-indicators`
-##### Input
+You can execute these commands from the CLI, as part of an automation, or in a playbook.
+After you successfully execute a command, a DBot message appears in the War Room with the command details.
+
+### es-get-indicators
+
+***
+Gets indicators available in the configured Elasticsearch database.
+
+#### Base Command
+
+`es-get-indicators`
+
+#### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| limit | The maximum number of indicators to fetch. | Required | 
+| limit | The maximum number of indicators to fetch. Default is 50. | Required |
 
+#### Context Output
 
-##### Context Output
+There is no context output for this command.
 
-| **Path** | **Type** | **Description** |
-| --- | --- | --- |
-| ElasticsearchFeed.SharedIndicators.Indicators | Unknown | Indicators shared from other tenants without enrichments. | 
-| ElasticsearchFeed.SharedIndicators.Enrichments | Unknown | Enrichment indicators shared from other tenants. | 
+## Known Limitations
 
+**Indicator Type Case Sensitivity**: The indicator type field in Elasticsearch must exactly match the indicator type in Cortex XSOAR, including case sensitivity. For example, if the indicator type in XSOAR is `File` (with uppercase 'F'), then the indicator type in Elasticsearch must also be `File`, not `file` (lowercase). If there is a case mismatch, indicators will not be created in XSOAR.
+  
+To resolve this issue:
 
-##### Command Example
-```!get-shared-indicators```
-
-##### Context Example
-```
-{
-    "ElasticsearchFeed.SharedIndicators": {
-        "Indicators": [
-            {
-                "comment": "", 
-                "version": 2, 
-                "sequenceNumber": 26, 
-                "sortValues": null, 
-                "modified": "2020-02-18T11:43:44.200258Z", 
-                "lastSeen": "2020-02-18T10:39:05.230163+02:00", 
-                "id": "e086aa137fa19f67d27b39d0eca18610", 
-                "deletedFeedFetchTime": "0001-01-01T00:00:00Z", 
-                "rawJSON": {
-                    "comment": "", 
-                    "version": 2, 
-                    "sequenceNumber": 26, 
-                    "sortValues": null, 
-                    "modified": "2020-02-18T11:43:44.200258Z", 
-                    "lastSeen": "2020-02-18T10:39:05.230163+02:00", 
-                    "id": "e086aa137fa19f67d27b39d0eca18610", 
-                    "deletedFeedFetchTime": "0001-01-01T00:00:00Z", 
-                    "investigationsCount": 0, 
-                    "primaryTerm": 2, 
-                    "score": 0, 
-                    "investigationIDs": [], 
-                    "type": "IP", 
-                    "isShared": true, 
-                    "rawName": "1.1.1.1", 
-                    "modifiedTime": "0001-01-01T00:00:00Z", 
-                    "lastSeenEntryID": "API", 
-                    "CustomFields": {
-                        "internal": false
-                    }, 
-                    "firstSeen": "2020-02-18T10:39:05.230163+02:00", 
-                    "name": "1.1.1.1", 
-                    "account": "TestAccount-456", 
-                    "lastReputationRun": "0001-01-01T00:00:00Z", 
-                    "manualSetTime": "0001-01-01T00:00:00Z", 
-                    "firstSeenEntryID": "API", 
-                    "expirationStatus": "active", 
-                    "value": "1.1.1.1", 
-                    "expirationSource": {
-                        "expirationInterval": 10080, 
-                        "source": "indicatorType", 
-                        "brand": "", 
-                        "instance": "", 
-                        "setTime": "2020-02-18T10:39:05.230168+02:00", 
-                        "user": "", 
-                        "expirationPolicy": "indicatorType", 
-                        "moduleId": ""
-                    }, 
-                    "isIoc": true, 
-                    "expiration": "0001-01-01T00:00:00Z", 
-                    "context": null, 
-                    "createdTime": "2020-02-18T10:39:05.230184+02:00", 
-                    "manuallyEditedFields": [
-                        "indicator_type"
-                    ], 
-                    "calculatedTime": "2020-02-18T10:39:05.230163+02:00", 
-                    "manualExpirationTime": "0001-01-01T00:00:00Z"
-                }, 
-                "investigationsCount": 0, 
-                "primaryTerm": 2, 
-                "score": 0, 
-                "investigationIDs": [], 
-                "type": "IP", 
-                "isShared": true, 
-                "rawName": "1.1.1.1", 
-                "modifiedTime": "0001-01-01T00:00:00Z", 
-                "lastSeenEntryID": "API", 
-                "CustomFields": {
-                    "internal": false
-                }, 
-                "firstSeen": "2020-02-18T10:39:05.230163+02:00", 
-                "name": "1.1.1.1", 
-                "account": "TestAccount-456", 
-                "lastReputationRun": "0001-01-01T00:00:00Z", 
-                "manualSetTime": "0001-01-01T00:00:00Z", 
-                "firstSeenEntryID": "API", 
-                "expirationStatus": "active", 
-                "value": "1.1.1.1", 
-                "expirationSource": {
-                    "expirationInterval": 10080, 
-                    "source": "indicatorType", 
-                    "brand": "", 
-                    "instance": "", 
-                    "setTime": "2020-02-18T10:39:05.230168+02:00", 
-                    "user": "", 
-                    "expirationPolicy": "indicatorType", 
-                    "moduleId": ""
-                }, 
-                "isIoc": true, 
-                "expiration": "0001-01-01T00:00:00Z", 
-                "context": null, 
-                "createdTime": "2020-02-18T10:39:05.230184+02:00", 
-                "manuallyEditedFields": [
-                    "indicator_type"
-                ], 
-                "calculatedTime": "2020-02-18T10:39:05.230163+02:00", 
-                "manualExpirationTime": "0001-01-01T00:00:00Z"
-            }, 
-            {
-                "comment": "", 
-                "version": 2, 
-                "sequenceNumber": 25, 
-                "sortValues": null, 
-                "modified": "2020-02-18T11:43:44.200288Z", 
-                "lastSeen": "2020-02-18T10:41:22.268124+02:00", 
-                "id": "5b8656aafcb40bb58caf1d17ef8506a9", 
-                "deletedFeedFetchTime": "0001-01-01T00:00:00Z", 
-                "rawJSON": {
-                    "comment": "", 
-                    "version": 2, 
-                    "sequenceNumber": 25, 
-                    "sortValues": null, 
-                    "modified": "2020-02-18T11:43:44.200288Z", 
-                    "lastSeen": "2020-02-18T10:41:22.268124+02:00", 
-                    "id": "5b8656aafcb40bb58caf1d17ef8506a9", 
-                    "deletedFeedFetchTime": "0001-01-01T00:00:00Z", 
-                    "investigationsCount": 0, 
-                    "primaryTerm": 2, 
-                    "score": 0, 
-                    "investigationIDs": [], 
-                    "type": "IP", 
-                    "isShared": true, 
-                    "rawName": "2.2.2.2", 
-                    "modifiedTime": "0001-01-01T00:00:00Z", 
-                    "lastSeenEntryID": "API", 
-                    "CustomFields": {
-                        "internal": false
-                    }, 
-                    "firstSeen": "2020-02-18T10:41:22.268124+02:00", 
-                    "name": "2.2.2.2", 
-                    "account": "TestAccount-456", 
-                    "lastReputationRun": "0001-01-01T00:00:00Z", 
-                    "manualSetTime": "0001-01-01T00:00:00Z", 
-                    "firstSeenEntryID": "API", 
-                    "expirationStatus": "active", 
-                    "value": "2.2.2.2", 
-                    "expirationSource": {
-                        "expirationInterval": 10080, 
-                        "source": "indicatorType", 
-                        "brand": "", 
-                        "instance": "", 
-                        "setTime": "2020-02-18T10:41:22.268125+02:00", 
-                        "user": "", 
-                        "expirationPolicy": "indicatorType", 
-                        "moduleId": ""
-                    }, 
-                    "isIoc": true, 
-                    "expiration": "0001-01-01T00:00:00Z", 
-                    "context": null, 
-                    "createdTime": "2020-02-18T10:41:22.268133+02:00", 
-                    "manuallyEditedFields": [
-                        "indicator_type"
-                    ], 
-                    "calculatedTime": "2020-02-18T10:41:22.268124+02:00", 
-                    "manualExpirationTime": "0001-01-01T00:00:00Z"
-                }, 
-                "investigationsCount": 0, 
-                "primaryTerm": 2, 
-                "score": 0, 
-                "investigationIDs": [], 
-                "type": "IP", 
-                "isShared": true, 
-                "rawName": "2.2.2.2", 
-                "modifiedTime": "0001-01-01T00:00:00Z", 
-                "lastSeenEntryID": "API", 
-                "CustomFields": {
-                    "internal": false
-                }, 
-                "firstSeen": "2020-02-18T10:41:22.268124+02:00", 
-                "name": "2.2.2.2", 
-                "account": "TestAccount-456", 
-                "lastReputationRun": "0001-01-01T00:00:00Z", 
-                "manualSetTime": "0001-01-01T00:00:00Z", 
-                "firstSeenEntryID": "API", 
-                "expirationStatus": "active", 
-                "value": "2.2.2.2", 
-                "expirationSource": {
-                    "expirationInterval": 10080, 
-                    "source": "indicatorType", 
-                    "brand": "", 
-                    "instance": "", 
-                    "setTime": "2020-02-18T10:41:22.268125+02:00", 
-                    "user": "", 
-                    "expirationPolicy": "indicatorType", 
-                    "moduleId": ""
-                }, 
-                "isIoc": true, 
-                "expiration": "0001-01-01T00:00:00Z", 
-                "context": null, 
-                "createdTime": "2020-02-18T10:41:22.268133+02:00", 
-                "manuallyEditedFields": [
-                    "indicator_type"
-                ], 
-                "calculatedTime": "2020-02-18T10:41:22.268124+02:00", 
-                "manualExpirationTime": "0001-01-01T00:00:00Z"
-            }
-        ], 
-        "Enrichments": []
-    }
-}
-```
-
-##### Human Readable Output
-### Indicators
-|name|
-|---|
-| 1.1.1.1 |
-| 2.2.2.2 |
+  1. Check the existing indicator types in XSOAR by navigating to: `<XSOAR Domain>/configuration/indicator/types`
+  2. Update your Elasticsearch documents so that the indicator type field matches the exact case of the type in XSOAR
+  3. For the Generic Feed type, ensure the field specified in the "Indicator Type Field" parameter returns values that match XSOAR's indicator types exactly

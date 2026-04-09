@@ -4,11 +4,12 @@ commonfields:
 name: Talos Feed
 display: Talos Feed
 category: Data Enrichment & Threat Intelligence
+provider: Cisco Systems
 description: Use the Talos Feed integration to get indicators from the feed.
 configuration:
 - display: Fetch indicators
   name: feed
-  defaultvalue: "true"
+  defaultvalue: 'true'
   type: 8
   required: false
 - display: Talos Endpoint URL
@@ -20,14 +21,13 @@ configuration:
   name: feedReputation
   defaultvalue: Bad
   type: 18
-  required: false
   options:
   - None
   - Good
   - Suspicious
   - Bad
-  additionalinfo: Indicators from this integration instance will be marked with this
-    reputation
+  additionalinfo: Indicators from this integration instance will be marked with this reputation
+  required: false
 - display: Source Reliability
   name: feedReliability
   defaultvalue: B - Usually reliable
@@ -49,41 +49,39 @@ configuration:
   - AMBER
   - GREEN
   - WHITE
-  required: false
   type: 15
-- display: ""
+  required: false
+- display: ''
   name: feedExpirationPolicy
   defaultvalue: suddenDeath
   type: 17
-  required: false
   options:
   - never
   - interval
   - indicatorType
   - suddenDeath
-- display: ""
+  required: false
+- display: ''
   name: feedExpirationInterval
-  defaultvalue: "20160"
+  defaultvalue: '20160'
   type: 1
   required: false
 - display: Feed Fetch Interval
   name: feedFetchInterval
-  defaultvalue: "30"
+  defaultvalue: '30'
   type: 19
   required: false
 - display: Tags
   name: feedTags
   type: 0
-  required: false
   additionalinfo: Supports CSV values.
+  required: false
 - display: Bypass exclusion list
   name: feedBypassExclusionList
-  defaultvalue: "true"
+  defaultvalue: 'true'
   type: 8
+  additionalinfo: When selected, the exclusion list is ignored for indicators from this feed. This means that if an indicator from this feed is on the exclusion list, the indicator might still be added to the system.
   required: false
-  additionalinfo: When selected, the exclusion list is ignored for indicators from
-    this feed. This means that if an indicator from this feed is on the exclusion
-    list, the indicator might still be added to the system.
 - display: Trust any certificate (not secure)
   name: insecure
   type: 8
@@ -100,11 +98,10 @@ script:
     arguments:
     - name: limit
       description: The maximum number of results to return. The default value is 10.
-      defaultValue: "10"
+      defaultValue: '10'
     description: Gets indicators from the feed.
-  dockerimage: demisto/python3:3.9.8.24399
+  dockerimage: demisto/python3:3.12.8.3296088
   feed: true
-  runonce: false
   subtype: python3
 fromversion: 5.5.0
 tests:

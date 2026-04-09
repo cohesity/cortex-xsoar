@@ -8,10 +8,11 @@ outputs:
 - contextPath: GeneratedUUID
   description: The generated UUID.
   type: string
-runonce: false
 script: ''
 subtype: python3
 tags: []
 type: python
-dockerimage: demisto/python3:3.9.8.24399
+dockerimage: demisto/python3:3.12.12.6204436
 fromversion: 5.0.0
+tests:
+- No tests (auto formatted)

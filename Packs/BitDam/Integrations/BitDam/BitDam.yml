@@ -3,7 +3,8 @@ commonfields:
   version: -1
 name: BitDam
 display: BitDam
-category: Email Gateway
+category: IT Services
+provider: Kaseya
 description: BitDam secure email gateway protects from advanced content-borne threats with the most accurate prevention of known and unknown threats, at their source.
 configuration:
 - display: BitDam API URL
@@ -13,17 +14,15 @@ configuration:
   required: true
 - display: API Token
   name: apitoken
-  defaultvalue: ""
+  defaultvalue: ''
   type: 4
   required: true
 - display: Trust any certificate (not secure)
   name: insecure
-  defaultvalue: ""
   type: 8
   required: false
 - display: Use system proxy settings
   name: proxy
-  defaultvalue: ""
   type: 8
   required: false
 script:
@@ -45,7 +44,7 @@ script:
     arguments:
     - name: idValue
       required: true
-      description: The value of the file's unique identifier (for example - file's SHA1)
+      description: The value of the file's unique identifier (for example - file's SHA1).
     outputs:
     - contextPath: BitDam.Analysis.Status
       description: The status of the analysis. Can be "DONE" or "IN_PROGRESS".
@@ -71,7 +70,7 @@ script:
     - contextPath: File.Malicious.Name
       description: The name of the file.
       type: string
-    - contextPath: File.Malicious.Vendor
+    - contextPath: File.Malicious.VendoridValue
       description: For malicious files, the vendor that made the decision.
       type: string
     - contextPath: File.Malicious.Description
@@ -79,7 +78,7 @@ script:
       type: string
     description: Returns the verdict for a scanned file.
   runonce: false
-  dockerimage: demisto/python3:3.9.8.24399
+  dockerimage: demisto/python3:3.12.8.3296088
 tests:
 - Detonate File - BitDam Test
 fromversion: 5.0.0

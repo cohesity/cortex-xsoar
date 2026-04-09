@@ -2,7 +2,7 @@
     "name": "VirusTotal",
     "description": "Analyze suspicious hashes, URLs, domains and IP addresses",
     "support": "partner",
-    "currentVersion": "2.1.10",
+    "currentVersion": "2.7.14",
     "author": "VirusTotal",
     "url": "https://www.virustotal.com",
     "email": "contact@virustotal.com",
@@ -11,13 +11,21 @@
         "Data Enrichment & Threat Intelligence"
     ],
     "tags": [
-        "Relationship"
+        "Free Enricher"
     ],
     "useCases": [],
     "keywords": [],
     "dependencies": {},
     "marketplaces": [
         "xsoar",
-        "marketplacev2"
+        "marketplacev2",
+        "platform"
+    ],
+    "supportedModules": [
+        "agentix",
+        "xsiam",
+        "edr",
+        "cloud",
+        "cloud_runtime_security"
     ]
 }
