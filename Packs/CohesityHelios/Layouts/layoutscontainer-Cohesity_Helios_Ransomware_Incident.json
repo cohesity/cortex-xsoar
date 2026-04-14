@@ -218,6 +218,9 @@
                         "items": [
                             {
                                 "args": {
+                                    "alert_id": {
+                                        "simple": "${incident.cohesityheliosalertid}"
+                                    },
                                     "object_name": {
                                         "simple": "${incident.cohesityheliosanomalousobjectname}"
                                     }
@@ -235,8 +238,17 @@
                             },
                             {
                                 "args": {
+                                    "alert_id": {
+                                        "simple": "${incident.cohesityheliosalertid}"
+                                    },
                                     "object_name": {
                                         "simple": "${incident.cohesityheliosanomalousobjectname}"
+                                    },
+                                    "object_id": {
+                                        "simple": "${incident.cohesityheliosobjectid}"
+                                    },
+                                    "cluster_id": {
+                                        "simple": "${incident.cohesityheliosclusterid}"
                                     }
                                 },
                                 "buttonClass": "success",

@@ -29,6 +29,37 @@ BACKOFF_FACTOR = 1.0
 class Client(BaseClient):
     """Client class to interact with Cohesity Helios."""
 
+    def _api_request(self, method: str, url_suffix: str, **kwargs):
+        """Wraps _http_request with response logging and error handling."""
+        request_info = {
+            "method": method,
+            "url": url_suffix,
+            "params": kwargs.get("params"),
+            "json_data": kwargs.get("json_data"),
+            "headers": kwargs.get("headers"),
+        }
+        try:
+            resp = self._http_request(
+                method=method,
+                url_suffix=url_suffix,
+                retries=NUM_OF_RETRIES,
+                backoff_factor=BACKOFF_FACTOR,
+                **kwargs,
+            )
+            log_msg = f"API Request: {request_info}\nAPI Response: {resp}"
+            if demisto.command() == "fetch-incidents":
+                demisto.debug(log_msg)
+            else:
+                demisto.results(log_msg)
+            return resp
+        except DemistoException as e:
+            error_msg = f"API Request: {request_info}\nAPI Error: {e}"
+            if demisto.command() == "fetch-incidents":
+                demisto.debug(error_msg)
+            else:
+                demisto.results(error_msg)
+            raise
+
     def get_ransomware_alerts(
         self,
         start_time_usecs=None,
@@ -40,83 +71,102 @@ class Client(BaseClient):
         region_ids=[],
         cluster_ids=[],
     ):
-        """Gets the Cohesity Helios ransomware alerts."""
-        # Prepare default request params.
-        request_params = {
+        """Gets the Cohesity Helios ransomware alerts via v2 /mcm/alerts API."""
+        request_params: dict[str, Any] = {
             "maxAlerts": max_fetch,
             "alertCategoryList": "kSecurity",
             "alertStateList": "kOpen",
-            "_includeTenantInfo": True,
+            "alertName": "DataIngestAnomalyAlert",
         }
 
-        # Populate request params filters.
         if start_time_usecs is not None:
             request_params["startDateUsecs"] = int(start_time_usecs)
         if end_time_usecs is not None:
             request_params["endDateUsecs"] = int(end_time_usecs)
-        if alert_ids != []:
+        if alert_ids:
             request_params["alertIdList"] = alert_ids
-        if alert_state_list != []:
+        if alert_state_list:
             request_params["alertStateList"] = alert_state_list
-        if alert_severity_list != []:
+        if alert_severity_list:
             request_params["alertSeverityList"] = alert_severity_list
-        if region_ids != []:
-            request_params["region_ids"] = region_ids
-        if cluster_ids != []:
+        if region_ids:
+            request_params["regionIds"] = region_ids
+        if cluster_ids:
             request_params["clusterIdentifiers"] = cluster_ids
 
-        resp = self._http_request(
-            method="GET", url_suffix="/mcm/alerts", params=request_params, retries=NUM_OF_RETRIES, backoff_factor=BACKOFF_FACTOR
+        resp = self._api_request(
+            method="GET",
+            url_suffix="/v2/mcm/alerts",
+            params=request_params,
         )
 
-        # Filter ransomware alerts.
-        ransomware_alerts = []
-        for alert in resp:
-            if alert["alertCode"] == "CE01516011":
-                ransomware_alerts.append(alert)
-
-        return ransomware_alerts
+        return resp.get("alertsList", [])
 
     def suppress_ransomware_alert_by_id(self, alert_id: str):
         """Patch API call to suppress ransomware alert by id."""
-        return self._http_request(
+        demisto.results(f"Suppressing alert: {alert_id}")
+        return self._api_request(
             method="PATCH",
             url_suffix="/mcm/alerts/" + alert_id,
             json_data={"status": "kSuppressed"},
             return_empty_response=True,
             empty_valid_codes=[200],
-            retries=NUM_OF_RETRIES,
-            backoff_factor=BACKOFF_FACTOR,
         )
 
     def resolve_ransomware_alert_by_id(self, alert_id: str):
         """Patch API call to resolve ransomware alert by id."""
-        return self._http_request(
+        demisto.results(f"Resolving alert: {alert_id}")
+        return self._api_request(
             method="PATCH",
             url_suffix="/mcm/alerts/" + alert_id,
             json_data={"status": "kResolved"},
             return_empty_response=True,
             empty_valid_codes=[200],
-            retries=NUM_OF_RETRIES,
-            backoff_factor=BACKOFF_FACTOR,
         )
 
-    def restore_vm_object(self, cluster_id, payload):
-        """Posts recover vm object details to Helios."""
+    def get_object_snapshots(self, object_id: int, from_time_usecs: int, to_time_usecs: int, cluster_id: str = ""):
+        """Gets snapshots for a given object via v2 /data-protect/objects/{id}/snapshots."""
+        request_params = {
+            "fromTimeUsecs": from_time_usecs,
+            "toTimeUsecs": to_time_usecs,
+            "runTypes": "kRegular",
+        }
         if self._headers is not None:
             client_headers = self._headers.copy()
         else:
             client_headers = {}
 
-        client_headers["clusterid"] = cluster_id
+        if cluster_id:
+            client_headers["accessClusterId"] = str(cluster_id)
 
-        return self._http_request(
+        demisto.results(
+            f"Getting snapshots for object_id={object_id}, cluster_id={cluster_id}, from={from_time_usecs}, to={to_time_usecs}"
+        )
+        resp = self._api_request(
+            method="GET",
+            url_suffix=f"/v2/data-protect/objects/{object_id}/snapshots",
+            params=request_params,
+            headers=client_headers,
+        )
+        snapshots = resp.get("snapshots", [])
+        demisto.results(f"Found {len(snapshots)} snapshots for object_id={object_id}")
+        return snapshots
+
+    def create_recovery(self, cluster_id, payload):
+        """Creates a recovery via v2 /data-protect/recoveries API."""
+        if self._headers is not None:
+            client_headers = self._headers.copy()
+        else:
+            client_headers = {}
+
+        client_headers["accessClusterId"] = str(cluster_id)
+
+        demisto.results(f"Creating recovery on cluster_id={cluster_id}, payload={payload}")
+        return self._api_request(
             method="POST",
-            url_suffix="/irisservices/api/v1/public/restore/recover",
+            url_suffix="/v2/data-protect/recoveries",
             json_data=payload,
             headers=client_headers,
-            retries=NUM_OF_RETRIES,
-            backoff_factor=BACKOFF_FACTOR,
         )
 
 
@@ -130,12 +180,6 @@ def get_date_time_from_usecs(time_in_usecs):
 
 def get_usecs_from_date_time(dt):
     """Get epoch milllis from date time"""
-    return int(dt.timestamp() * 1000000)
-
-
-def get_current_usecs():
-    """Get current epoch usecs"""
-    dt = datetime.now()
     return int(dt.timestamp() * 1000000)
 
 
@@ -180,19 +224,32 @@ def create_ransomware_incident(alert) -> dict[str, Any]:
     incidence_usecs = alert.get("latestTimestampUsecs", 0)
     occurance_time = get_date_time_from_usecs(incidence_usecs).strftime(DATE_FORMAT)
 
+    demisto.debug(f"Alert top-level keys: {list(alert.keys())}")
+    demisto.debug(f"Alert propertyList parsed keys: {property_dict}")
+
+    enriched_alert = alert.copy()
+    enriched_alert["parsedProperties"] = property_dict
+    enriched_alert["alertId"] = alert.get("id", "")
+    enriched_alert["objectId"] = property_dict.get("entityId", "")
+    enriched_alert["objectName"] = property_dict.get("object", "")
+
     return {
         "name": alert["alertDocument"]["alertName"],
         "type": "Cohesity-Helios-Ransomware-Incident",
         "event_id": alert.get("id"),
         "occurred": occurance_time,
         "CustomFields": {
-            "alert_description": alert["alertDocument"]["alertDescription"],
-            "alert_cause": alert["alertDocument"]["alertCause"],
-            "anomalous_object": property_dict.get("object"),
-            "environment": property_dict.get("environment"),
-            "anomaly_strength": property_dict.get("anomalyStrength"),
+            "cohesityheliosalertid": alert.get("id", ""),
+            "cohesityheliosalertdescription": alert["alertDocument"]["alertDescription"],
+            "cohesityheliosalertcause": alert["alertDocument"]["alertCause"],
+            "cohesityheliosanomalousobjectname": property_dict.get("object", ""),
+            "cohesityheliosobjectenvironment": property_dict.get("environment", ""),
+            "cohesityheliosanomalystrength": property_dict.get("anomalyStrength", ""),
+            "cohesityheliosobjectid": property_dict.get("entityId", ""),
+            "cohesityheliosclusterid": property_dict.get("cid", ""),
+            "cohesityheliosclustername": alert.get("clusterName", ""),
         },
-        "rawJSON": json.dumps(alert),
+        "rawJSON": json.dumps(enriched_alert),
         "severity": convert_to_demisto_severity_int(alert.get("severity")),
     }
 
@@ -239,7 +296,6 @@ def get_ransomware_alerts_command(client: Client, args: dict[str, Any]) -> Comma
     alert_state_list = argToList(args.get("alert_state_list", []))
     limit = args.get("limit", MAX_FETCH_DEFAULT)
 
-    # Fetch ransomware alerts via client.
     resp = client.get_ransomware_alerts(
         start_time_usecs=start_time_usecs,
         end_time_usecs=end_time_usecs,
@@ -284,24 +340,16 @@ def ignore_ransomware_anomaly_command(client: Client, args: dict[str, Any]) -> s
     :return: success message of the ignore anomaly operation.
     :rtype: ``str``
     """
-    # Filter ransomware alert for given object name.
-    alert_id = ""
-    object_name = args.get("object_name")
-    demisto.debug(f"Performing ignore anomaly operation for object {object_name}.")
-    resp = client.get_ransomware_alerts()
-    for alert in resp:
-        property_dict = _get_property_dict(alert["propertyList"])
-        if property_dict.get("object", "") == object_name:
-            alert_id = alert.get("id")
-            break
+    alert_id = args.get("alert_id", "")
+    object_name = args.get("object_name", "")
+    demisto.results(f"Performing ignore anomaly operation for alert {alert_id}, object {object_name}.")
 
-    if alert_id == "":
-        raise ValueError(f"CohesityHelios error: no anomalous object found by the given name: {object_name}. ")
+    if not alert_id:
+        raise ValueError("CohesityHelios error: alert_id is required to ignore an anomalous object.")
 
-    # Suppress ransomware alert.
     client.suppress_ransomware_alert_by_id(alert_id)
 
-    return f"Ignored object {object_name}."
+    return f"Ignored alert {alert_id} for object {object_name}."
 
 
 def restore_latest_clean_snapshot(client: Client, args: dict[str, Any]) -> str:
@@ -315,47 +363,61 @@ def restore_latest_clean_snapshot(client: Client, args: dict[str, Any]) -> str:
     :return: success message of the restore operation.
     :rtype: ``str``
     """
-    # Filter ransomware alert for given object name.
-    alert_id = ""
-    restore_properties = {}
-    object_name = args.get("object_name")
-    demisto.debug(f"Performing restore operation for object {object_name}.")
+    alert_id = args.get("alert_id", "")
+    object_name = args.get("object_name", "")
+    object_id = args.get("object_id", "")
+    cluster_id = args.get("cluster_id", "")
+    demisto.results(
+        f"Performing restore operation: alert_id={alert_id}, object_name={object_name}, "
+        f"object_id={object_id}, cluster_id={cluster_id}"
+    )
 
-    resp = client.get_ransomware_alerts()
-    for alert in resp:
-        if alert["severity"] == "kCritical" and alert["alertState"] == "kOpen":
-            restore_properties = _get_property_dict(alert["propertyList"])
-            if restore_properties.get("object", "") == object_name:
-                alert_id = alert["id"]
-                break
+    if not all([alert_id, object_id, cluster_id]):
+        raise ValueError("CohesityHelios error: alert_id, object_id, and cluster_id are all required for restore.")
 
-    if alert_id == "":
-        raise ValueError(f"CohesityHelios error: no anomalous object found by the given name {object_name}.")
+    now_usecs = int(datetime.now().timestamp() * 1000000)
+    thirty_days_ago_usecs = int((datetime.now() - timedelta(days=30)).timestamp() * 1000000)
 
-    # Prepare restore vm properties.
+    snapshots = client.get_object_snapshots(
+        object_id=int(object_id),
+        from_time_usecs=thirty_days_ago_usecs,
+        to_time_usecs=now_usecs,
+        cluster_id=cluster_id,
+    )
+
+    if not snapshots:
+        raise ValueError(f"CohesityHelios error: no snapshots found for object {object_name} (id={object_id}).")
+
+    snapshot_id = snapshots[0]["id"]
+
+    recovery_name = datetime.now().strftime("Recover_VM_%b_%d_%Y_%-I_%M_%p")
     request_payload = {
-        "name": "Cortex_XSOAR_triggered_restore_task_" + restore_properties["object"],
-        "type": "kRecoverVMs",
-        "vmwareParameters": {"poweredOn": True, "prefix": "Recover-", "suffix": "-VM-" + str(get_current_usecs())},
-        "objects": [
-            {
-                "jobId": int(restore_properties["jobId"]),
-                "jobRunId": int(restore_properties["jobInstanceId"]),
-                "startedTimeUsecs": int(restore_properties["jobStartTimeUsecs"]),
-                "sourceName": restore_properties["object"],
-                "protectionSourceId": int(restore_properties["entityId"]),
-            }
-        ],
+        "name": recovery_name,
+        "snapshotEnvironment": "kVMware",
+        "vmwareParams": {
+            "objects": [{"snapshotId": snapshot_id, "archivalTargetInfo": None}],
+            "recoveryAction": "RecoverVMs",
+            "recoverVmParams": {
+                "targetEnvironment": "kVMware",
+                "vmwareTargetParams": {
+                    "powerOnVms": True,
+                    "attemptDifferentialRestore": False,
+                    "continueOnError": False,
+                    "overwriteExistingVm": True,
+                    "recoveryTargetConfig": {
+                        "recoverToNewSource": False,
+                    },
+                    "recoveryProcessType": "InstantRecovery",
+                },
+            },
+        },
     }
-    cluster_id = restore_properties["cid"]
 
-    # Post restore request to helios
-    client.restore_vm_object(cluster_id, request_payload)
+    client.create_recovery(cluster_id, request_payload)
 
-    # Resolve ransomware alert.
     client.resolve_ransomware_alert_by_id(alert_id)
 
-    return f"Restored object {object_name}."
+    return f"Restored object {object_name} (id={object_id})."
 
 
 def fetch_incidents_command(client: Client):

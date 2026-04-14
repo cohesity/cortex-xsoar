@@ -117,14 +117,26 @@ script:
       description: Strength of the detected ransomware alert.
       type: Number
   - arguments:
-    - description: Anomalous object name to be ignored. Can be retrieved by running the command cohesity-helios-get-ransomware-alerts.
-      name: object_name
+    - description: Alert ID of the anomaly to ignore.
+      name: alert_id
       required: true
-    description: Ignore detected anomalous object.
+    - description: Anomalous object name for reference.
+      name: object_name
+      required: false
+    description: Ignore detected anomalous object by suppressing the alert.
     name: cohesity-helios-ignore-anomalous-object
   - arguments:
-    - description: Anomalous object name to be restored. Can be retrieved by running the command cohesity-helios-get-ransomware-alerts.
+    - description: Alert ID associated with the anomalous object.
+      name: alert_id
+      required: true
+    - description: Anomalous object name for reference.
       name: object_name
+      required: false
+    - description: Object ID (entityId) of the object to restore.
+      name: object_id
+      required: true
+    - description: Cluster ID where the object resides.
+      name: cluster_id
       required: true
     description: Restore the latest clean snapshot for the given object.
     name: cohesity-helios-restore-latest-clean-snapshot

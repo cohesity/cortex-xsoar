@@ -14,6 +14,14 @@
                     "complex": null,
                     "simple": "alertDocument.alertName"
                 },
+                "Cohesity Helios Alert Id": {
+                    "complex": null,
+                    "simple": "alertId"
+                },
+                "Cohesity Helios Object Id": {
+                    "complex": null,
+                    "simple": "objectId"
+                },
                 "Cohesity Helios Alert Description": {
                     "complex": null,
                     "simple": "alertDocument.alertDescription"
@@ -24,15 +32,15 @@
                 },
                 "Cohesity Helios Anomalous Object Name": {
                     "complex": null,
-                    "simple": "propertyList.[1].value"
+                    "simple": "objectName"
                 },
                 "Cohesity Helios Anomaly Strength": {
                     "complex": null,
-                    "simple": "propertyList.[12].value"
+                    "simple": "parsedProperties.anomalyStrength"
                 },
                 "Cohesity Helios Cluster Id": {
                     "complex": null,
-                    "simple": "clusterId"
+                    "simple": "parsedProperties.cid"
                 },
                 "Cohesity Helios Cluster Name": {
                     "complex": null,
@@ -40,7 +48,7 @@
                 },
                 "Cohesity Helios Object Environment": {
                     "complex": null,
-                    "simple": "propertyList.[9].value"
+                    "simple": "parsedProperties.environment"
                 },
                 "State": {
                     "complex": {
