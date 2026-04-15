@@ -46,18 +46,12 @@ class Client(BaseClient):
                 backoff_factor=BACKOFF_FACTOR,
                 **kwargs,
             )
-            log_msg = f"API Request: {request_info}\nAPI Response: {resp}"
-            if demisto.command() == "fetch-incidents":
-                demisto.debug(log_msg)
-            else:
-                demisto.results(log_msg)
+            if demisto.is_debug:
+                demisto.results(f"API Request: {request_info}\nAPI Response: {resp}")
             return resp
         except DemistoException as e:
-            error_msg = f"API Request: {request_info}\nAPI Error: {e}"
-            if demisto.command() == "fetch-incidents":
-                demisto.debug(error_msg)
-            else:
-                demisto.results(error_msg)
+            if demisto.is_debug:
+                demisto.results(f"API Request: {request_info}\nAPI Error: {e}")
             raise
 
     def get_ransomware_alerts(
@@ -104,7 +98,8 @@ class Client(BaseClient):
 
     def suppress_ransomware_alert_by_id(self, alert_id: str):
         """Patch API call to suppress ransomware alert by id."""
-        demisto.results(f"Suppressing alert: {alert_id}")
+        if demisto.is_debug:
+            demisto.results(f"Suppressing alert: {alert_id}")
         return self._api_request(
             method="PATCH",
             url_suffix="/mcm/alerts/" + alert_id,
@@ -115,7 +110,8 @@ class Client(BaseClient):
 
     def resolve_ransomware_alert_by_id(self, alert_id: str):
         """Patch API call to resolve ransomware alert by id."""
-        demisto.results(f"Resolving alert: {alert_id}")
+        if demisto.is_debug:
+            demisto.results(f"Resolving alert: {alert_id}")
         return self._api_request(
             method="PATCH",
             url_suffix="/mcm/alerts/" + alert_id,
@@ -124,33 +120,24 @@ class Client(BaseClient):
             empty_valid_codes=[200],
         )
 
-    def get_object_snapshots(self, object_id: int, from_time_usecs: int, to_time_usecs: int, cluster_id: str = ""):
-        """Gets snapshots for a given object via v2 /data-protect/objects/{id}/snapshots."""
-        request_params = {
-            "fromTimeUsecs": from_time_usecs,
-            "toTimeUsecs": to_time_usecs,
-            "runTypes": "kRegular",
-        }
-        if self._headers is not None:
-            client_headers = self._headers.copy()
-        else:
-            client_headers = {}
+    def get_incidence_details(self, alert_id: str) -> dict[str, Any]:
+        """Gets incidence details via /mcm/argus/api/v1/public/incidences API.
 
-        if cluster_id:
-            client_headers["accessClusterId"] = str(cluster_id)
-
-        demisto.results(
-            f"Getting snapshots for object_id={object_id}, cluster_id={cluster_id}, from={from_time_usecs}, to={to_time_usecs}"
-        )
+        Returns the antiRansomwareDetails dict which contains entityId, entityName,
+        clusterId, latestCleanSnapshotId, environment, anomalyStrength, etc.
+        """
         resp = self._api_request(
             method="GET",
-            url_suffix=f"/v2/data-protect/objects/{object_id}/snapshots",
-            params=request_params,
-            headers=client_headers,
+            url_suffix="/mcm/argus/api/v1/public/incidences",
+            params={
+                "incidenceIds": alert_id,
+                "shieldTypes": "ANTI_RANSOMWARE",
+            },
         )
-        snapshots = resp.get("snapshots", [])
-        demisto.results(f"Found {len(snapshots)} snapshots for object_id={object_id}")
-        return snapshots
+        incidences = resp.get("incidences") or []
+        if not incidences:
+            raise ValueError(f"CohesityHelios error: no incidence found for alert_id={alert_id}.")
+        return incidences[0]
 
     def create_recovery(self, cluster_id, payload):
         """Creates a recovery via v2 /data-protect/recoveries API."""
@@ -161,7 +148,8 @@ class Client(BaseClient):
 
         client_headers["accessClusterId"] = str(cluster_id)
 
-        demisto.results(f"Creating recovery on cluster_id={cluster_id}, payload={payload}")
+        if demisto.is_debug:
+            demisto.results(f"Creating recovery on cluster_id={cluster_id}, payload={payload}")
         return self._api_request(
             method="POST",
             url_suffix="/v2/data-protect/recoveries",
@@ -219,19 +207,22 @@ def convert_to_demisto_severity_int(severity: str):
 
 
 def create_ransomware_incident(alert) -> dict[str, Any]:
-    """Helper method to create ransomware incident from alert."""
-    property_dict = _get_property_dict(alert["propertyList"])
+    """Helper method to create ransomware incident from alert.
+
+    Actual alert response fields:
+        Top-level: id, alertCategory, alertCode, alertDocument, alertState, alertType,
+                   clusterId, clusterName, severity, latestTimestampUsecs, firstTimestampUsecs
+        propertyList keys: entity_id, job_id
+        alertDocument keys: alertName, alertDescription, alertCause, alertHelpText
+    """
+    property_dict = _get_property_dict(alert.get("propertyList", []))
     incidence_usecs = alert.get("latestTimestampUsecs", 0)
     occurance_time = get_date_time_from_usecs(incidence_usecs).strftime(DATE_FORMAT)
 
-    demisto.debug(f"Alert top-level keys: {list(alert.keys())}")
-    demisto.debug(f"Alert propertyList parsed keys: {property_dict}")
-
     enriched_alert = alert.copy()
-    enriched_alert["parsedProperties"] = property_dict
-    enriched_alert["alertId"] = alert.get("id", "")
-    enriched_alert["objectId"] = property_dict.get("entityId", "")
-    enriched_alert["objectName"] = property_dict.get("object", "")
+    enriched_alert["alertId"] = str(alert.get("id", ""))
+    enriched_alert["objectId"] = property_dict.get("entity_id", "")
+    enriched_alert["jobId"] = property_dict.get("job_id", "")
 
     return {
         "name": alert["alertDocument"]["alertName"],
@@ -242,11 +233,8 @@ def create_ransomware_incident(alert) -> dict[str, Any]:
             "cohesityheliosalertid": alert.get("id", ""),
             "cohesityheliosalertdescription": alert["alertDocument"]["alertDescription"],
             "cohesityheliosalertcause": alert["alertDocument"]["alertCause"],
-            "cohesityheliosanomalousobjectname": property_dict.get("object", ""),
-            "cohesityheliosobjectenvironment": property_dict.get("environment", ""),
-            "cohesityheliosanomalystrength": property_dict.get("anomalyStrength", ""),
-            "cohesityheliosobjectid": property_dict.get("entityId", ""),
-            "cohesityheliosclusterid": property_dict.get("cid", ""),
+            "cohesityheliosobjectid": property_dict.get("entity_id", ""),
+            "cohesityheliosclusterid": alert.get("clusterId", ""),
             "cohesityheliosclustername": alert.get("clusterName", ""),
         },
         "rawJSON": json.dumps(enriched_alert),
@@ -255,9 +243,8 @@ def create_ransomware_incident(alert) -> dict[str, Any]:
 
 
 def get_ransomware_alert_details(alert) -> dict[str, Any]:
-    """Helper method to parse ransomware alert for details."""
-    # Get alert properties.
-    property_dict = _get_property_dict(alert["propertyList"])
+    """Helper method to parse ransomware alert for readable output."""
+    property_dict = _get_property_dict(alert.get("propertyList", []))
     occurance_time = get_date_time_from_usecs(alert.get("latestTimestampUsecs", 0)).strftime(DATE_FORMAT)
 
     return {
@@ -266,9 +253,10 @@ def get_ransomware_alert_details(alert) -> dict[str, Any]:
         "severity": alert.get("severity"),
         "alert_description": alert["alertDocument"]["alertDescription"],
         "alert_cause": alert["alertDocument"]["alertCause"],
-        "anomalous_object_name": property_dict.get("object"),
-        "anomalous_object_env": property_dict.get("environment"),
-        "anomaly_strength": property_dict.get("anomalyStrength"),
+        "cluster_id": alert.get("clusterId"),
+        "cluster_name": alert.get("clusterName"),
+        "entity_id": property_dict.get("entity_id"),
+        "job_id": property_dict.get("job_id"),
     }
 
 
@@ -317,7 +305,7 @@ def get_ransomware_alerts_command(client: Client, args: dict[str, Any]) -> Comma
     readable_output = tableToMarkdown(
         "Cohesity Helios Ransomware Alerts",
         ransomware_alerts,
-        ["alert_id", "alert_description", "alert_cause", "anomalous_object_env", "anomalous_object_name", "anomaly_strength"],
+        ["alert_id", "severity", "cluster_name", "entity_id", "alert_description", "alert_cause"],
         headerTransform=string_to_table_header,
     )
     return CommandResults(
@@ -329,76 +317,65 @@ def get_ransomware_alerts_command(client: Client, args: dict[str, Any]) -> Comma
 
 
 def ignore_ransomware_anomaly_command(client: Client, args: dict[str, Any]) -> str:
-    """Ignore detected anomalous object on Helios.
-
-    :type client: ``Client``
-    :param Client:  cohesity helios client to use.
-
-    :type args: ``Dict[str, Any]``
-    :param args: Dictionary with ignore anomaly parameters.
-
-    :return: success message of the ignore anomaly operation.
-    :rtype: ``str``
-    """
+    """Ignore detected anomalous object on Helios."""
     alert_id = args.get("alert_id", "")
-    object_name = args.get("object_name", "")
-    demisto.results(f"Performing ignore anomaly operation for alert {alert_id}, object {object_name}.")
-
     if not alert_id:
         raise ValueError("CohesityHelios error: alert_id is required to ignore an anomalous object.")
 
-    client.suppress_ransomware_alert_by_id(alert_id)
+    try:
+        client.suppress_ransomware_alert_by_id(alert_id)
+    except DemistoException as e:
+        return_error(f"Failed to suppress alert {alert_id}", error=str(e))
 
-    return f"Ignored alert {alert_id} for object {object_name}."
+    return f"Ignored alert {alert_id}."
 
 
 def restore_latest_clean_snapshot(client: Client, args: dict[str, Any]) -> str:
     """Restore latest clean snapshot of given object.
 
-    :type client: ``Client``
-    :param Client:  cohesity helios client to use.
-
-    :type args: ``Dict[str, Any]``
-
-    :return: success message of the restore operation.
-    :rtype: ``str``
+    Uses the /mcm/argus/api/v1/public/incidences API to get full incidence details
+    including latestCleanSnapshotId, clusterId, entityName, etc.
+    Only alert_id is required — everything else comes from the incidence API.
     """
     alert_id = args.get("alert_id", "")
-    object_name = args.get("object_name", "")
-    object_id = args.get("object_id", "")
-    cluster_id = args.get("cluster_id", "")
-    demisto.results(
-        f"Performing restore operation: alert_id={alert_id}, object_name={object_name}, "
-        f"object_id={object_id}, cluster_id={cluster_id}"
-    )
+    if not alert_id:
+        raise ValueError("CohesityHelios error: alert_id is required for restore.")
 
-    if not all([alert_id, object_id, cluster_id]):
-        raise ValueError("CohesityHelios error: alert_id, object_id, and cluster_id are all required for restore.")
+    try:
+        incidence = client.get_incidence_details(alert_id)
+    except DemistoException as e:
+        return_error(f"Failed to get incidence details for alert {alert_id}", error=str(e))
+    details = incidence.get("antiRansomwareDetails") or {}
 
-    now_usecs = int(datetime.now().timestamp() * 1000000)
-    thirty_days_ago_usecs = int((datetime.now() - timedelta(days=30)).timestamp() * 1000000)
+    snapshot_id = details.get("latestCleanSnapshotId", "")
+    cluster_id = str(details.get("clusterId", ""))
+    entity_name = details.get("entityName", "")
+    entity_id = details.get("entityId", "")
+    environment = details.get("protectionEnvType", "kVMware")
 
-    snapshots = client.get_object_snapshots(
-        object_id=int(object_id),
-        from_time_usecs=thirty_days_ago_usecs,
-        to_time_usecs=now_usecs,
-        cluster_id=cluster_id,
-    )
+    if demisto.is_debug:
+        demisto.results(
+            f"Incidence details: entity_name={entity_name}, entity_id={entity_id}, "
+            f"cluster_id={cluster_id}, snapshot_id={snapshot_id}, environment={environment}"
+        )
 
-    if not snapshots:
-        raise ValueError(f"CohesityHelios error: no snapshots found for object {object_name} (id={object_id}).")
+    if not snapshot_id:
+        raise ValueError(
+            f"CohesityHelios error: no clean snapshot available for " f"entity {entity_name} (id={entity_id}). Cannot restore."
+        )
 
-    snapshot_id = snapshots[0]["id"]
+    if not cluster_id:
+        raise ValueError(f"CohesityHelios error: cluster_id not found in incidence details for alert_id={alert_id}.")
 
     recovery_name = datetime.now().strftime("Recover_VM_%b_%d_%Y_%-I_%M_%p")
     request_payload = {
         "name": recovery_name,
-        "snapshotEnvironment": "kVMware",
+        "snapshotEnvironment": environment,
         "vmwareParams": {
             "objects": [{"snapshotId": snapshot_id, "archivalTargetInfo": None}],
             "recoveryAction": "RecoverVMs",
             "recoverVmParams": {
-                "targetEnvironment": "kVMware",
+                "targetEnvironment": environment,
                 "vmwareTargetParams": {
                     "powerOnVms": True,
                     "attemptDifferentialRestore": False,
@@ -413,11 +390,17 @@ def restore_latest_clean_snapshot(client: Client, args: dict[str, Any]) -> str:
         },
     }
 
-    client.create_recovery(cluster_id, request_payload)
+    try:
+        client.create_recovery(cluster_id, request_payload)
+    except DemistoException as e:
+        return_error(f"Recovery failed for {entity_name} (id={entity_id})", error=str(e))
 
-    client.resolve_ransomware_alert_by_id(alert_id)
+    try:
+        client.resolve_ransomware_alert_by_id(alert_id)
+    except DemistoException as e:
+        return_error(f"Recovery succeeded but failed to resolve alert {alert_id}", error=str(e))
 
-    return f"Restored object {object_name} (id={object_id})."
+    return f"Restored {entity_name} (id={entity_id}) from latest clean snapshot."
 
 
 def fetch_incidents_command(client: Client):

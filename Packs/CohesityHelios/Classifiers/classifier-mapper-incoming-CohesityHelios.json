@@ -30,25 +30,13 @@
                     "complex": null,
                     "simple": "alertDocument.alertCause"
                 },
-                "Cohesity Helios Anomalous Object Name": {
-                    "complex": null,
-                    "simple": "objectName"
-                },
-                "Cohesity Helios Anomaly Strength": {
-                    "complex": null,
-                    "simple": "parsedProperties.anomalyStrength"
-                },
                 "Cohesity Helios Cluster Id": {
                     "complex": null,
-                    "simple": "parsedProperties.cid"
+                    "simple": "clusterId"
                 },
                 "Cohesity Helios Cluster Name": {
                     "complex": null,
                     "simple": "clusterName"
-                },
-                "Cohesity Helios Object Environment": {
-                    "complex": null,
-                    "simple": "parsedProperties.environment"
                 },
                 "State": {
                     "complex": {
