@@ -96,7 +96,7 @@ script:
       description: Identifier for the ransomware alert.
       type: String
     - contextPath: CohesityHelios.RansomwareAlert.occurrence_time
-      description: Name of the detected anomalous object.
+      description: Timestamp when the alert occurred.
       type: Date
     - contextPath: CohesityHelios.RansomwareAlert.severity
       description: Severity of the ransomware alert.
@@ -107,32 +107,39 @@ script:
     - contextPath: CohesityHelios.RansomwareAlert.alert_cause
       description: Cause for the ransomware alert.
       type: String
-    - contextPath: CohesityHelios.RansomwareAlert.anomalous_object_name
-      description: Name of the detected anomalous object.
-      type: String
-    - contextPath: CohesityHelios.RansomwareAlert.anomalous_object_env
-      description: Env of the detected anomalous object.
-      type: String
-    - contextPath: CohesityHelios.RansomwareAlert.anomaly_strength
-      description: Strength of the detected ransomware alert.
+    - contextPath: CohesityHelios.RansomwareAlert.cluster_id
+      description: Cluster ID where the alert originated.
       type: Number
+    - contextPath: CohesityHelios.RansomwareAlert.cluster_name
+      description: Cluster name where the alert originated.
+      type: String
+    - contextPath: CohesityHelios.RansomwareAlert.entity_id
+      description: Entity ID (object ID) from the alert propertyList.
+      type: String
+    - contextPath: CohesityHelios.RansomwareAlert.job_id
+      description: Job ID from the alert propertyList.
+      type: String
   - arguments:
-    - description: Anomalous object name to be ignored. Can be retrieved by running the command cohesity-helios-get-ransomware-alerts.
-      name: object_name
+    - description: The alert ID to suppress.
+      name: alert_id
       required: true
-    description: Ignore detected anomalous object.
+    description: Ignore detected anomalous object by suppressing the alert.
     name: cohesity-helios-ignore-anomalous-object
   - arguments:
-    - description: Anomalous object name to be restored. Can be retrieved by running the command cohesity-helios-get-ransomware-alerts.
-      name: object_name
+    - description: The alert ID to restore the latest clean snapshot for.
+      name: alert_id
       required: true
-    description: Restore the latest clean snapshot for the given object.
+    description: Restore the latest clean snapshot for the given object using incidence details.
     name: cohesity-helios-restore-latest-clean-snapshot
   isfetch: true
   script: '-'
   type: python
   subtype: python3
   dockerimage: demisto/python3:3.12.8.3296088
+marketplaces:
+- xsoar
+- marketplacev2
+- platform
 fromversion: 6.0.0
 tests:
 - No tests (auto formatted)
